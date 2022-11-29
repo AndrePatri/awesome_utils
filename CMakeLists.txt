@@ -3,9 +3,10 @@ cmake_minimum_required(VERSION 3.5)
 project(awesome_utils VERSION 1.0.0 LANGUAGES CXX)
 
 find_package(xbot_msgs REQUIRED)
-find_package(catkin REQUIRED sensor_msgs std_msgs message_generation)
+find_package(catkin REQUIRED sensor_msgs geometry_msgs std_msgs message_generation)
 find_package(Eigen3 REQUIRED)
 find_package(pinocchio REQUIRED)
+#find_package(matlogger2 REQUIRED)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -29,7 +30,7 @@ include_directories(
     ${xbot_msgs_INCLUDE_DIRS}/
 )
 
-target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE Eigen3::Eigen)
+target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE Eigen3::Eigen ${catkin_LIBRARIES})
 
 target_compile_options(${LIBRARY_TARGET_NAME} PRIVATE -std=c++14)
 
@@ -73,14 +74,16 @@ install_basic_package_files(${LIBRARY_TARGET_NAME}
                             NO_CHECK_REQUIRED_COMPONENTS_MACRO)
 
 # Compile python bindings
-add_subdirectory(bindings/python/)
+option(WITH_PYTHON "Compile and install python bindings" FALSE)
+if(${WITH_PYTHON})
+    add_subdirectory(bindings/python/)
+endif()
 
 # Add the uninstall target
 include(AddUninstallTarget)
 
 # Add Testing target
 option(BUILD_TESTS "Compile ${PROJECT_NAME} tests" FALSE)
-
 if(BUILD_TESTS)
   enable_testing()
   add_custom_target(test_verbose ${CMAKE_CTEST_COMMAND} -V)
