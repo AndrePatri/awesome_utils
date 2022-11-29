@@ -6,17 +6,21 @@ find_package(xbot_msgs REQUIRED)
 find_package(catkin REQUIRED sensor_msgs geometry_msgs std_msgs message_generation)
 find_package(Eigen3 REQUIRED)
 find_package(pinocchio REQUIRED)
-#find_package(matlogger2 REQUIRED)
+find_package(matlogger2 REQUIRED)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 set(LIBRARY_TARGET_NAME awesome_utils) # set library name
 set(CALIB_UTILS_TRGT src/calib_utils.cpp)
 set(SIGN_PROC_UTILS_TRGT src/sign_proc_utils.cpp)
+set(TRAJ_UTILS_TRGT src/traj_utils.cpp)
+set(CONTACT_EST_UTILS_TRGT src/contact_est_utils.cpp)
 
 set(${LIBRARY_TARGET_NAME}_SRC
         ${CALIB_UTILS_TRGT}
         ${SIGN_PROC_UTILS_TRGT}
+        ${TRAJ_UTILS_TRGT}
+        ${CONTACT_EST_UTILS_TRGT}
     )
 
 add_library(${LIBRARY_TARGET_NAME} SHARED ${${LIBRARY_TARGET_NAME}_SRC})
@@ -30,7 +34,7 @@ include_directories(
     ${xbot_msgs_INCLUDE_DIRS}/
 )
 
-target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE Eigen3::Eigen ${catkin_LIBRARIES})
+target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE Eigen3::Eigen ${catkin_LIBRARIES} matlogger2::matlogger2)
 
 target_compile_options(${LIBRARY_TARGET_NAME} PRIVATE -std=c++14)
 
@@ -49,6 +53,7 @@ target_include_directories(${LIBRARY_TARGET_NAME} INTERFACE "$<BUILD_INTERFACE:$
                                                             "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>"
                                                             ${EIGEN3_INCLUDE_DIR}
                                                             ${xbot_msgs_INCLUDE_DIRS}
+                                                            ${matlogger2_INCLUDE_DIRS}
 )
 
 # Specify installation targets, typology and destination folders.
