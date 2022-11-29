@@ -20,9 +20,8 @@ namespace ContactEstUtils
 
       private:
 
-          double prova = 0.0;
+          std::string _urdf_path;
 
   };
 
 }
-

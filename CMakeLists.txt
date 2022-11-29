@@ -15,12 +15,14 @@ set(CALIB_UTILS_TRGT src/calib_utils.cpp)
 set(SIGN_PROC_UTILS_TRGT src/sign_proc_utils.cpp)
 set(TRAJ_UTILS_TRGT src/traj_utils.cpp)
 set(CONTACT_EST_UTILS_TRGT src/contact_est_utils.cpp)
+set(MODEL_INTERFACE_TRGT src/model_interface.cpp)
 
 set(${LIBRARY_TARGET_NAME}_SRC
         ${CALIB_UTILS_TRGT}
         ${SIGN_PROC_UTILS_TRGT}
         ${TRAJ_UTILS_TRGT}
         ${CONTACT_EST_UTILS_TRGT}
+        ${MODEL_INTERFACE_TRGT}
     )
 
 add_library(${LIBRARY_TARGET_NAME} SHARED ${${LIBRARY_TARGET_NAME}_SRC})
@@ -34,7 +36,10 @@ include_directories(
     ${xbot_msgs_INCLUDE_DIRS}/
 )
 
-target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE Eigen3::Eigen ${catkin_LIBRARIES} matlogger2::matlogger2)
+target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE ${catkin_LIBRARIES}
+                                                     matlogger2::matlogger2
+                                                     Eigen3::Eigen
+                                                     pinocchio::pinocchio)
 
 target_compile_options(${LIBRARY_TARGET_NAME} PRIVATE -std=c++14)
 
@@ -54,6 +59,7 @@ target_include_directories(${LIBRARY_TARGET_NAME} INTERFACE "$<BUILD_INTERFACE:$
                                                             ${EIGEN3_INCLUDE_DIR}
                                                             ${xbot_msgs_INCLUDE_DIRS}
                                                             ${matlogger2_INCLUDE_DIRS}
+                                                            ${pinocchio_INCLUDE_DIRS}
 )
 
 # Specify installation targets, typology and destination folders.
