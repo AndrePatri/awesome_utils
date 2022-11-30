@@ -41,7 +41,7 @@ namespace ModelInterface
 
             Model();
 
-            Model(std::string _urdf_path);
+            Model(std::string _urdf_path, bool add_floating_jnt = false);
 
             bool was_model_init_ok();
 

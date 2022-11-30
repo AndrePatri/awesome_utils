@@ -7,15 +7,29 @@ Model::Model()
 
 }
 
-Model::Model(std::string urdf_path)
+Model::Model(std::string urdf_path, bool add_floating_jnt)
 {
     try{
-        pinocchio::urdf::buildModel(urdf_path, _pin_model);
+
+        if (add_floating_jnt)
+        { // add floating joint --> useful if working with a floating base robot URDF
+          // lacking a floating base root joint
+            pinocchio::JointModelFreeFlyer floating_joint;
+            pinocchio::urdf::buildModel(urdf_path, floating_joint, _pin_model);
+        }
+        else{
+
+             pinocchio::urdf::buildModel(urdf_path, _pin_model);
+
+        }
+
     }
     catch (int err_code){
 
         _pin_model_init_ok = false;
     }
+
+
 
     _pin_model_init_ok = true;
 
