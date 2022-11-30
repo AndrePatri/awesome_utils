@@ -2,13 +2,25 @@ cmake_minimum_required(VERSION 3.5)
 
 project(awesome_utils VERSION 1.0.0 LANGUAGES CXX)
 
-find_package(xbot_msgs REQUIRED)
+option(WITH_XBOT2 "Compile and install xbot2-dependent comonents" TRUE)
+option(WITH_PYTHON "Compile and install python bindings" FALSE)
+option(BUILD_TESTS "Compile ${PROJECT_NAME} tests" FALSE)
+
+#set(CMAKE_DEF_CONFIG_FNAME cmake_config) # set config file name
+#set(CMAKE_DEF_CONFIG_GENDIR ${CMAKE_BINARY_DIR}/generated) # set config file name
+#configure_file(include/${CMAKE_DEF_CONFIG_FNAME}.h.in ${CMAKE_DEF_CONFIG_GENDIR}/${CMAKE_DEF_CONFIG_FNAME}.h)
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
 find_package(catkin REQUIRED sensor_msgs geometry_msgs std_msgs message_generation)
 find_package(Eigen3 REQUIRED)
 find_package(pinocchio REQUIRED)
-find_package(matlogger2 REQUIRED)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+if(${WITH_XBOT2})
+    message(STATUS "The xbot2-dependent components will be built")
+    set(XBOT2_UTILS_TRGT src/xbot2_utils.cpp)
+    find_package(xbot_msgs REQUIRED)
+endif()
 
 set(LIBRARY_TARGET_NAME awesome_utils) # set library name
 set(CALIB_UTILS_TRGT src/calib_utils.cpp)
@@ -23,6 +35,7 @@ set(${LIBRARY_TARGET_NAME}_SRC
         ${TRAJ_UTILS_TRGT}
         ${CONTACT_EST_UTILS_TRGT}
         ${MODEL_INTERFACE_TRGT}
+        ${XBOT2_UTILS_TRGT}
     )
 
 add_library(${LIBRARY_TARGET_NAME} SHARED ${${LIBRARY_TARGET_NAME}_SRC})
@@ -34,14 +47,14 @@ include_directories(
     ${EIGEN3_INCLUDE_DIR}/
     ${catkin_INCLUDE_DIRS}/
     ${xbot_msgs_INCLUDE_DIRS}/
+    ${CMAKE_BINARY_DIR}/generated/
 )
 
 target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE ${catkin_LIBRARIES}
-                                                     matlogger2::matlogger2
                                                      Eigen3::Eigen
                                                      pinocchio::pinocchio)
 
-target_compile_options(${LIBRARY_TARGET_NAME} PRIVATE -std=c++14)
+target_compile_options(${LIBRARY_TARGET_NAME} PRIVATE -std=c++17)
 
 set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES
         VERSION ${${PROJECT_NAME}_VERSION})
@@ -58,7 +71,6 @@ target_include_directories(${LIBRARY_TARGET_NAME} INTERFACE "$<BUILD_INTERFACE:$
                                                             "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>"
                                                             ${EIGEN3_INCLUDE_DIR}
                                                             ${xbot_msgs_INCLUDE_DIRS}
-                                                            ${matlogger2_INCLUDE_DIRS}
                                                             ${pinocchio_INCLUDE_DIRS}
 )
 
@@ -75,7 +87,9 @@ install(DIRECTORY include/${PROJECT_NAME}/
     FILES_MATCHING PATTERN "*.h*"
     PATTERN ".svn" EXCLUDE
 )
-
+#install(FILES ${CMAKE_DEF_CONFIG_GENDIR}/${CMAKE_DEF_CONFIG_FNAME}.h
+#    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+#)
 include(InstallBasicPackageFiles)
 install_basic_package_files(${LIBRARY_TARGET_NAME}
                             VERSION ${${PROJECT_NAME}_VERSION}
@@ -85,7 +99,6 @@ install_basic_package_files(${LIBRARY_TARGET_NAME}
                             NO_CHECK_REQUIRED_COMPONENTS_MACRO)
 
 # Compile python bindings
-option(WITH_PYTHON "Compile and install python bindings" FALSE)
 if(${WITH_PYTHON})
     add_subdirectory(bindings/python/)
 endif()
@@ -94,7 +107,6 @@ endif()
 include(AddUninstallTarget)
 
 # Add Testing target
-option(BUILD_TESTS "Compile ${PROJECT_NAME} tests" FALSE)
 if(BUILD_TESTS)
   enable_testing()
   add_custom_target(test_verbose ${CMAKE_CTEST_COMMAND} -V)

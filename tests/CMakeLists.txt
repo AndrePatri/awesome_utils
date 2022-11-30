@@ -3,11 +3,13 @@ include(ExternalProject)
 
 project(awesome_utils_tests LANGUAGES C CXX VERSION 1.0.0)
 
-add_compile_options("-std=c++20")
+add_compile_options("-std=c++17")
 
 # compite GTest
 find_package(GTest)
 find_package(Threads)
+message(STATUS "${GTEST_FOUND} *****")
+
 if(NOT GTEST_FOUND)
     set(gTestSource "/usr/src/gtest")
     ExternalProject_Add(GTest-ext SOURCE_DIR ${gTestSource}
@@ -23,8 +25,7 @@ set(TestLibs awesome_utils ${GTEST_BOTH_LIBRARIES} -lm -lpthread)
 include_directories(${GTEST_INCLUDE_DIRS})
 link_directories(${GTEST_LIB_DIRS})
 
-add_executable(SmallTest small_test.cpp)
-target_link_libraries(SmallTest ${TestLibs}))
-add_dependencies(TestApi GTest-ext)
-add_test(NAME SmallTest COMMAND SmallTest)
+add_executable(TestModelInterface test_model_interface.cpp)
+target_link_libraries(TestModelInterface ${TestLibs})
+add_test(NAME TestModelInterface COMMAND TestModelInterface)
 

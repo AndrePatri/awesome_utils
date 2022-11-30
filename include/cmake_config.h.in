@@ -1,0 +1,6 @@
+#ifndef CMAKE_CONFIG_H_IN
+#define CMAKE_CONFIG_H_IN
+
+#define WITH_IQ_ROS_GETTER @WITH_IQ_ROS_GETTER@
+
+#endif // CMAKE_CONFIG_H_IN
