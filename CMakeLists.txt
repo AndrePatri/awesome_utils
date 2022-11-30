@@ -83,9 +83,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
     FILES_MATCHING PATTERN "*.h*"
     PATTERN ".svn" EXCLUDE
 )
-#install(FILES ${CMAKE_DEF_CONFIG_GENDIR}/${CMAKE_DEF_CONFIG_FNAME}.h
-#    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
-#)
+
 include(InstallBasicPackageFiles)
 install_basic_package_files(${LIBRARY_TARGET_NAME}
                             VERSION ${${PROJECT_NAME}_VERSION}
