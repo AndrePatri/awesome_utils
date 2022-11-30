@@ -7,8 +7,6 @@
 #include <Eigen/Core>
 #include <Eigen/Eigen>
 
-#include "cmake_config.h"
-
 #include <xbot2/ros/ros_support.h>
 #include <xbot_msgs/CustomState.h>
 #include <xbot_msgs/JointState.h>

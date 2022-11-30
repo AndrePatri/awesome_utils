@@ -1,0 +1,6 @@
+#ifndef CMAKE_CONFIG_H_IN
+#define CMAKE_CONFIG_H_IN
+
+#define URDF_PATH "@URDF_PATH@"
+
+#endif // CMAKE_CONFIG_H_INcmak

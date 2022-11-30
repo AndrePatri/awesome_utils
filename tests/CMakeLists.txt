@@ -8,7 +8,12 @@ add_compile_options("-std=c++17")
 # compite GTest
 find_package(GTest)
 find_package(Threads)
-message(STATUS "${GTEST_FOUND} *****")
+
+set(URDF_PATH ${CMAKE_CURRENT_BINARY_DIR}/urdf/)
+
+set(CMAKE_DEF_CONFIG_FNAME cmake_config) # set config file name
+set(CMAKE_DEF_CONFIG_GENDIR ${CMAKE_CURRENT_BINARY_DIR}/generated) # set config file name
+configure_file(cmake/${CMAKE_DEF_CONFIG_FNAME}.h.in ${CMAKE_DEF_CONFIG_GENDIR}/${CMAKE_DEF_CONFIG_FNAME}.h)
 
 if(NOT GTEST_FOUND)
     set(gTestSource "/usr/src/gtest")
@@ -29,3 +34,12 @@ add_executable(TestModelInterface test_model_interface.cpp)
 target_link_libraries(TestModelInterface ${TestLibs})
 add_test(NAME TestModelInterface COMMAND TestModelInterface)
 
+install(FILES ${CMAKE_DEF_CONFIG_GENDIR}/${CMAKE_DEF_CONFIG_FNAME}.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+)
+
+#install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/urdf/
+#    DESTINATION share/${PROJECT_NAME}
+#    FILES_MATCHING PATTERN "*.urdf"
+#    PATTERN ".xacro" EXCLUDE
+#)

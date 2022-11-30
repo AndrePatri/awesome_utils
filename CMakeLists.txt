@@ -6,10 +6,6 @@ option(WITH_XBOT2 "Compile and install xbot2-dependent comonents" TRUE)
 option(WITH_PYTHON "Compile and install python bindings" FALSE)
 option(BUILD_TESTS "Compile ${PROJECT_NAME} tests" FALSE)
 
-#set(CMAKE_DEF_CONFIG_FNAME cmake_config) # set config file name
-#set(CMAKE_DEF_CONFIG_GENDIR ${CMAKE_BINARY_DIR}/generated) # set config file name
-#configure_file(include/${CMAKE_DEF_CONFIG_FNAME}.h.in ${CMAKE_DEF_CONFIG_GENDIR}/${CMAKE_DEF_CONFIG_FNAME}.h)
-
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 find_package(catkin REQUIRED sensor_msgs geometry_msgs std_msgs message_generation)

@@ -1,6 +1,10 @@
 #include <gtest/gtest.h>
 #include <chrono>
 
+#include "tests/generated/cmake_config.h"
+
+#include <iostream>
+
 namespace
 {
     template <typename Func>
@@ -45,6 +49,11 @@ TEST_F(TestModelInterface, load_model)
 }
 
 int main(int argc, char **argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+    ::testing::InitGoogleTest(&argc, argv);
+
+    std::string urdf_name = "test";
+    // You should change here to set up your own URDF file or just pass it as an argument of this example.
+    const std::string urdf_fullpath = (argc<=1) ? URDF_PATH + urdf_name + std::string(".urdf"): URDF_PATH + std::string(argv[1]) + std::string(".urdf");
+
+    return RUN_ALL_TESTS();
 }

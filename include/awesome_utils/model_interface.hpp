@@ -5,6 +5,7 @@
 #include <Eigen/Geometry>
 
 #include <string>
+#include <vector>
 
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
@@ -15,16 +16,40 @@
 
 namespace ModelInterface
 {
+    using namespace Eigen;
+
     class Model
     {
         public:
 
             Model();
 
+            Model(std::string _urdf_path);
+
         private:
 
             std::string _urdf_path;
 
+            int _nq, _nv;
+
+            VectorXd _q_min, _q_max;
+
+            std::vector<std::string> _jnt_names;
+
+            double _mass;
+
+            pinocchio::Model _pin_model;
+
+            void rnea();
+            void centroidal_dyn();
+            void crba();
+            void ccrba();
+            void fk();
+            void CoM();
+            void jac();
+            void kin_energy();
+            void pot_energy();
+            void aba();
 
     };
 }
