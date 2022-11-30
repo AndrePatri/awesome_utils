@@ -11,6 +11,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(catkin REQUIRED sensor_msgs geometry_msgs std_msgs message_generation)
 find_package(Eigen3 REQUIRED)
 find_package(pinocchio REQUIRED)
+find_package(matlogger2 REQUIRED)
 
 if(${WITH_XBOT2})
     message(STATUS "The xbot2-dependent components will be built")
@@ -44,11 +45,13 @@ include_directories(
     ${catkin_INCLUDE_DIRS}/
     ${xbot_msgs_INCLUDE_DIRS}/
     ${CMAKE_BINARY_DIR}/generated/
+    ${matlogger2_INCLUDE_DIRS}
 )
 
 target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE ${catkin_LIBRARIES}
                                                      Eigen3::Eigen
-                                                     pinocchio::pinocchio)
+                                                     pinocchio::pinocchio
+                                                     matlogger2::matlogger2)
 
 target_compile_options(${LIBRARY_TARGET_NAME} PRIVATE -std=c++17)
 
@@ -68,6 +71,7 @@ target_include_directories(${LIBRARY_TARGET_NAME} INTERFACE "$<BUILD_INTERFACE:$
                                                             ${EIGEN3_INCLUDE_DIR}
                                                             ${xbot_msgs_INCLUDE_DIRS}
                                                             ${pinocchio_INCLUDE_DIRS}
+                                                            ${matlogger2_INCLUDE_DIRS}
 )
 
 # Specify installation targets, typology and destination folders.

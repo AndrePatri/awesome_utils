@@ -9,8 +9,6 @@
 
 #include "awesome_utils/traj_utils.hpp"
 
-#include <matlogger2/matlogger2.h>
-
 using namespace TrajUtils;
 
 //***************************** PeisekahTrans *****************************//
