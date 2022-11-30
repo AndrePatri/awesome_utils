@@ -51,7 +51,7 @@ namespace ModelInterface
 
             std::string _urdf_path;
 
-            int _nq, _nv, _n_jnts;
+            int _nq = 0, _nv = 0, _n_jnts = 0;
 
             VectorXd _q_min, _q_max;
 
@@ -59,7 +59,7 @@ namespace ModelInterface
 
             std::vector<std::string> _jnt_names;
 
-            double _mass;
+            double _mass = -1.0;
 
             pinocchio::Model _pin_model;
             pinocchio::Data _pin_data;

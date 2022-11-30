@@ -9,7 +9,7 @@ add_compile_options("-std=c++17")
 find_package(GTest)
 find_package(Threads)
 
-set(URDF_PATH ${CMAKE_CURRENT_BINARY_DIR}/urdf/)
+set(URDF_PATH ${CMAKE_CURRENT_SOURCE_DIR}/urdf/)
 
 set(CMAKE_DEF_CONFIG_FNAME cmake_config) # set config file name
 set(CMAKE_DEF_CONFIG_GENDIR ${CMAKE_CURRENT_BINARY_DIR}/generated) # set config file name
