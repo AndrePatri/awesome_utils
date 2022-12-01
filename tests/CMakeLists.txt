@@ -34,6 +34,10 @@ add_executable(TestModelInterface test_model_interface.cpp)
 target_link_libraries(TestModelInterface ${TestLibs})
 add_test(NAME TestModelInterface COMMAND TestModelInterface)
 
+add_executable(TestContactEst test_contact_est.cpp)
+target_link_libraries(TestContactEst ${TestLibs})
+add_test(NAME TestContactEst COMMAND TestContactEst)
+
 install(FILES ${CMAKE_DEF_CONFIG_GENDIR}/${CMAKE_DEF_CONFIG_FNAME}.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
 )
