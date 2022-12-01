@@ -7,9 +7,13 @@
 
 #include <iostream>
 
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
 using namespace ModelInterface;
 
 std::string urdf_path;
+IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
 
 namespace
 {
@@ -57,13 +61,13 @@ TEST_F(TestModelInterface, load_model)
 
     auto jnt_names = model.get_jnt_names();
 
-    std::cout << "Loaded URDF at: "<< model.get_urdf_path() << "\n " << std::endl;
-    std::cout << "** Joint names: **" << "\n " << std::endl;
+    std::cout << "\nLoaded URDF at: "<< model.get_urdf_path() << "\n " << std::endl;
+    std::cout << "** Joint names: **"  << std::endl;
     for (std::string i: jnt_names)
-        std::cout << "--> " << i << "\n";
-    std::cout << "** Joint number: **" << model.get_jnt_number() << "\n " << std::endl;
-    std::cout << "** nq: **" << model.get_nq() << std::endl;
-    std::cout << "** nv: **" << model.get_nv() << std::endl;
+        std::cout << "--> " << i << std::endl;
+    std::cout << "** joint number: " << model.get_jnt_number() << "\n " << std::endl;
+    std::cout << "** nq: " << model.get_nq() << std::endl;
+    std::cout << "** nv: " << model.get_nv() << std::endl;
 
 }
 
@@ -71,7 +75,32 @@ TEST_F(TestModelInterface, compute_quantities)
 {
     Model model = Model(urdf_path);
 
-    ASSERT_TRUE(model.was_model_init_ok());
+    std::string tip_framename = "tip1";
+
+    Eigen::VectorXd q, v, a, tau,
+                    g, p, b;
+    Eigen::MatrixXd B, C, J;
+
+    model.get_state(q, v, a, tau);
+
+    model.update(q, v, tau, a); // computes all terms
+
+    model.get_B(B);
+    model.get_C(C);
+    model.get_g(g);
+    model.get_b(b);
+    model.get_p(p);
+    model.get_jac(tip_framename, Model::ReferenceFrame::LOCAL_WORLD_ALIGNED,
+                  J);
+
+    std::cout << "\nLoaded URDF at: "<< model.get_urdf_path() << "\n " << std::endl;
+    std::cout << "** B: \n" << B.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** C: \n" << C.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** g: \n" << g.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** b: \n" << b.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** p: \n" << p.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** J (q_dot -> " << tip_framename << " - LOCAL_WORLD_ALIGNED) :\n " << J.format(CleanFmt) << "\n " << std::endl;
+
 }
 
 int main(int argc, char **argv) {

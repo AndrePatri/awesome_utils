@@ -4,8 +4,7 @@
 <!-- |    EDITING THIS FILE BY HAND IS NOT RECOMMENDED                                 | -->
 <!-- =================================================================================== -->
 <robot name="awesome_leg">
-  <!-- <xacro:property name="payload_mass" value="7.38" /> -->
-  <!-- color -->
+
   <material name="darkblue">
     <color rgba="0.0 0.3 0.9 1"/>
   </material>
@@ -24,57 +23,7 @@
   <material name="brown">
     <color rgba="0.59 0.29 0.0 1"/>
   </material>
-  <!-- xbot2 joint device driver-->
-  <gazebo>
-    <plugin filename="libxbot2_gz_joint_server.so" name="xbot2_gz_joint_server">
-      <pid>
-        <gain d="0" name="null_mode" p="0"/>
-        <gain d="5" name="small_mot" p="250"/>
-        <gain d="10" name="medium_mot" p="1000"/>
-        <gain d="10" name="big_mot" p="3000"/>
-        <gain name="test_rig2HIP" profile="null_mode"/>
-        <gain name="hip_actuation" profile="medium_mot"/>
-        <gain name="knee_actuation" profile="medium_mot"/>
-      </pid>
-    </plugin>
-  </gazebo>
-  <gazebo>
-    <plugin filename="libxbot2_gz_ft_server.so" name="xbot2_ft_driver"/>
-  </gazebo>
-  <gazebo>
-    <plugin filename="libxbot2_gz_link_state_sensor.so" name="xbot2_link_state_sensor">
-      <links>
-        <link name="base_link"/>
-      </links>
-    </plugin>
-  </gazebo>
-  <!--Gazebo-specific tags-->
-  <gazebo reference="test_rig">
-    <material>Gazebo/DarkGrey   </material>
-  </gazebo>
-  <gazebo reference="base_link">
-    <material>Gazebo/Grey  </material>
-  </gazebo>
-  <!-- <xacro:if value="$(arg dump_video_frames)">
 
-        <joint name="test_rig_2camera_link" type="fixed">
-        <parent link="test_rig" />
-        <child link="camera_link" />
-        <origin xyz="0 ${camera_depth} ${camera_height}" rpy="0 0 0" />
-        </joint>
-
-        <link name="camera_link">
-            <visual name="visual">
-            <geometry>
-            <box>
-            <size>0.1 0.1 0.1</size>
-            </box>
-            </geometry>
-            </visual>
-            
-        </link>
-
-    </xacro:if> -->
   <link name="world"/>
   <joint name="world_test_rig" type="fixed">
     <parent link="world"/>

@@ -39,6 +39,13 @@ namespace ModelInterface
     {
         public:
 
+            enum ReferenceFrame
+            {
+                WORLD = 0, //This is spatial in world frame
+                LOCAL = 1, //This is spatial in local frame
+                LOCAL_WORLD_ALIGNED = 2 //This is classical in world frame
+            };
+
             Model();
 
             Model(std::string _urdf_path, bool add_floating_jnt = false);
@@ -49,11 +56,14 @@ namespace ModelInterface
             void update(VectorXd q, VectorXd q_dot, VectorXd tau, VectorXd a);
 
             void get_B(MatrixXd& B); // joint-space inertia matrix
-            void get_C(MatrixXd& C); // Coriolis
+            void get_C(MatrixXd& C); // Coriolis-matrix
             void get_g(VectorXd& g);
             void get_tau(VectorXd& tau);
             void get_p(VectorXd& p);
             void get_b(VectorXd& b);
+            void get_jac(std::string frame_name, ReferenceFrame ref,
+                          MatrixXd& J);
+            void get_robot_mass(double& mass);
 
             int get_nq();
             int get_nv();
@@ -74,6 +84,8 @@ namespace ModelInterface
             std::string _urdf_path;
 
             int _nq = 0, _nv = 0, _n_jnts = 0;
+
+            double mass = -1.0;
 
             VectorXd _q_min, _q_max;
             VectorXd _effort_limits, _vel_limits;
@@ -99,6 +111,9 @@ namespace ModelInterface
             void tau();
             void p(); // joint space momentum of the system
             void b(); // bias forces (C * v)
+
+            void jacobian(std::string frame_name, Model::ReferenceFrame ref,
+                          MatrixXd& J);
 
             void rnea(); // The Recursive Newton-Euler algorithm.
             // It computes the inverse dynamics, aka the joint torques \\

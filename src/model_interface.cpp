@@ -63,6 +63,15 @@ Model::Model(std::string urdf_path, bool add_floating_jnt)
     _effort_limits = _pin_model.effortLimit;
     _vel_limits = _pin_model.velocityLimit;
 
+    pinocchio::computeTotalMass(_pin_model, _pin_data);
+    _mass = _pin_data.mass[0];
+
+    pinocchio::computeJointJacobians(_pin_model, _pin_data, _q);
+}
+
+void Model::get_robot_mass(double& mass)
+{
+    mass = _mass;
 }
 
 bool Model::was_model_init_ok()
@@ -207,6 +216,36 @@ void Model::get_jnt_lim(VectorXd& q_min, VectorXd& q_max)
 {
     q_min = _q_min;
     q_max = _q_max;
+}
+
+
+void Model::jacobian(std::string frame_name, Model::ReferenceFrame ref,
+                    MatrixXd& J)
+{
+
+    bool does_frame_exist = _pin_model.existFrame(frame_name);
+
+    if (!does_frame_exist)
+    {
+        std::string exception = std::string("ModelInterface::Model::jacobian(): the provided frame \"") +
+                                std::string(frame_name) + std::string("\" does not exist!");
+
+        throw std::invalid_argument(exception);
+    }
+
+    pinocchio::framesForwardKinematics(_pin_model, _pin_data, _q);
+
+    pinocchio::FrameIndex frame_idx = _pin_model.getFrameId(frame_name);
+
+    J = MatrixXd(6, _nv);
+    pinocchio::getFrameJacobian(_pin_model, _pin_data, frame_idx, pinocchio::ReferenceFrame(ref), J);
+
+}
+
+void Model::get_jac(std::string frame_name, Model::ReferenceFrame ref,
+                    MatrixXd& J)
+{
+    jacobian(frame_name, ref, J);
 }
 
 void Model::rnea()
