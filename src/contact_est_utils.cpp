@@ -29,15 +29,17 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt, doubl
 
     _K = _k * MatrixXd::Identity(_nv, _nv); // diagonal matrix of
     // constant values
+
+    // state transition matrices for the integration of the observer
+    // dynamic (constant, so initialzied here)
     _Skp1 = MatrixXd::Identity(_nv, _nv) + _dt/2.0 * _K;
     _Skp1_inv = _Skp1.inverse();
     _Sk = MatrixXd::Identity(_nv, _nv) - _dt/2.0 * _K;
 
-    // numerical intergrators
-
-    _integrator = NumInt(_nv, _dt, _dt); // integrates only in a dt
+    _integrator = NumInt(_nv, _dt, _dt); // numerical integrator
 
     _tau_c_k = VectorXd::Zero(_nv);
+
     _p_km1 = VectorXd::Zero(_nv);
 
     _A = MatrixXd::Zero(2 * _nv, 6);
@@ -49,7 +51,9 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt, doubl
     // A regularization block can be assigned once and for all
     _A.block(_nv, 0, _I_lambda.rows(), _I_lambda.cols()) = std::sqrt(_lambda) * _I_lambda; // adding regularization
 
+    _f_c = VectorXd::Zero(6);
     _f_c_reg = VectorXd::Zero(6);
+
 }
 
 void MomentumBasedFObs::update(std::string contact_framename)

@@ -106,10 +106,10 @@ namespace ContactEstUtils
 
         VectorXd _tau_c_k; // observed joint contact efforts
 
-        VectorXd _p_km1; // last joint-space momentum
+        VectorXd _p_km1; // last joint-space momentum at k - 1 instant (i.e. previous)
 
         MatrixXd _A,
-                _I_lambda;
+                 _I_lambda;
         VectorXd _b, _b_lambda;
 
         VectorXd _f_c; // estimated contact forces + wrenches (6 x 1)
