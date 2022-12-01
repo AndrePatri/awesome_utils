@@ -29,7 +29,6 @@ Model::Model(std::string urdf_path, bool add_floating_jnt)
         _pin_model_init_ok = false;
     }
 
-    _pin_model_init_ok = true;
     _urdf_path = urdf_path;
 
     _pin_data = pinocchio::Data(_pin_model);
@@ -67,6 +66,9 @@ Model::Model(std::string urdf_path, bool add_floating_jnt)
     _mass = _pin_data.mass[0];
 
     pinocchio::computeJointJacobians(_pin_model, _pin_data, _q);
+
+    _pin_model_init_ok = true;
+
 }
 
 void Model::get_robot_mass(double& mass)

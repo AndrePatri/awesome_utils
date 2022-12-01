@@ -46,6 +46,10 @@ namespace ModelInterface
                 LOCAL_WORLD_ALIGNED = 2 //This is classical in world frame
             };
 
+            typedef std::weak_ptr<Model> WeakPtr;
+            typedef std::shared_ptr<Model> Ptr;
+            typedef std::unique_ptr<Model> UniquePtr;
+
             Model();
 
             Model(std::string _urdf_path, bool add_floating_jnt = false);

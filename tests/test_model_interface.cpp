@@ -55,25 +55,25 @@ class TestModelInterface: public ::testing::Test {
 
 TEST_F(TestModelInterface, load_model)
 {
-    Model model = Model(urdf_path);
+    Model::Ptr model_ptr(new Model(urdf_path));
 
-    ASSERT_TRUE(model.was_model_init_ok());
+    ASSERT_TRUE(model_ptr->was_model_init_ok());
 
-    auto jnt_names = model.get_jnt_names();
+    auto jnt_names = model_ptr->get_jnt_names();
 
-    std::cout << "\nLoaded URDF at: "<< model.get_urdf_path() << "\n " << std::endl;
+    std::cout << "\nLoaded URDF at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
     std::cout << "** Joint names: **"  << std::endl;
     for (std::string i: jnt_names)
         std::cout << "--> " << i << std::endl;
-    std::cout << "** joint number: " << model.get_jnt_number() << "\n " << std::endl;
-    std::cout << "** nq: " << model.get_nq() << std::endl;
-    std::cout << "** nv: " << model.get_nv() << std::endl;
+    std::cout << "** joint number: " <<model_ptr->get_jnt_number() << "\n " << std::endl;
+    std::cout << "** nq: " << model_ptr->get_nq() << std::endl;
+    std::cout << "** nv: " << model_ptr->get_nv() << std::endl;
 
 }
 
 TEST_F(TestModelInterface, compute_quantities)
 {
-    Model model = Model(urdf_path);
+    Model::Ptr model_ptr(new Model(urdf_path));
 
     std::string tip_framename = "tip1";
 
@@ -81,19 +81,19 @@ TEST_F(TestModelInterface, compute_quantities)
                     g, p, b;
     Eigen::MatrixXd B, C, J;
 
-    model.get_state(q, v, a, tau);
+    model_ptr->get_state(q, v, a, tau);
 
-    model.update(q, v, tau, a); // computes all terms
+    model_ptr->update(q, v, tau, a); // computes all terms
 
-    model.get_B(B);
-    model.get_C(C);
-    model.get_g(g);
-    model.get_b(b);
-    model.get_p(p);
-    model.get_jac(tip_framename, Model::ReferenceFrame::LOCAL_WORLD_ALIGNED,
+    model_ptr->get_B(B);
+    model_ptr->get_C(C);
+    model_ptr->get_g(g);
+    model_ptr->get_b(b);
+    model_ptr->get_p(p);
+    model_ptr->get_jac(tip_framename, Model::ReferenceFrame::LOCAL_WORLD_ALIGNED,
                   J);
 
-    std::cout << "\nLoaded URDF at: "<< model.get_urdf_path() << "\n " << std::endl;
+    std::cout << "\nLoaded URDF at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
     std::cout << "** B: \n" << B.format(CleanFmt) << "\n " << std::endl;
     std::cout << "** C: \n" << C.format(CleanFmt) << "\n " << std::endl;
     std::cout << "** g: \n" << g.format(CleanFmt) << "\n " << std::endl;
