@@ -45,6 +45,28 @@ namespace ModelInterface
 
             bool was_model_init_ok();
 
+            void update(VectorXd q, VectorXd q_dot, VectorXd tau);
+            void update(VectorXd q, VectorXd q_dot, VectorXd tau, VectorXd a);
+
+            void get_B(MatrixXd& B); // joint-space inertia matrix
+            void get_C(MatrixXd& C); // Coriolis
+            void get_g(VectorXd& g);
+            void get_tau(VectorXd& tau);
+            void get_p(VectorXd& p);
+            void get_b(VectorXd& b);
+
+            int get_nq();
+            int get_nv();
+            int get_jnt_number();
+            std::string get_urdf_path();
+
+            void get_jnt_lim(VectorXd& q_min, VectorXd& q_max);
+
+            void get_state(VectorXd& q, VectorXd& v, VectorXd& a,
+                           VectorXd& tau);
+
+            std::vector<std::string> get_jnt_names();
+
         private:
 
             bool _pin_model_init_ok = false;
@@ -54,15 +76,29 @@ namespace ModelInterface
             int _nq = 0, _nv = 0, _n_jnts = 0;
 
             VectorXd _q_min, _q_max;
+            VectorXd _effort_limits, _vel_limits;
 
-            VectorXd _q, _q_dot, _q_ddot;
+            VectorXd _q, _v, _a;
+
+            MatrixXd _B, _C;
+            VectorXd _g, _tau, _p, _b;
 
             std::vector<std::string> _jnt_names;
+
+            std::vector<int> _nqs, _nvs;
 
             double _mass = -1.0;
 
             pinocchio::Model _pin_model;
             pinocchio::Data _pin_data;
+
+            void update_all();
+            void B(); // joint-space inertia matrix
+            void C(); // Coriolis
+            void g();
+            void tau();
+            void p(); // joint space momentum of the system
+            void b(); // bias forces (C * v)
 
             void rnea(); // The Recursive Newton-Euler algorithm.
             // It computes the inverse dynamics, aka the joint torques \\
@@ -77,12 +113,10 @@ namespace ModelInterface
 
             void centroidal_dyn();
 
-            void ccrba();
-            void fk();
-            void CoM();
-            void CoM_dot();
             void jac();
+
             void kin_energy();
+
             void pot_energy();
 
     };
