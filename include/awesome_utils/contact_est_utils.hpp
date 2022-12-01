@@ -17,48 +17,104 @@ namespace Eigen
 
 namespace ContactEstUtils
 {
-  typedef Eigen::MatrixXd MatrixXd;
-  typedef Eigen::VectorXd VectorXd;
+    typedef Eigen::MatrixXd MatrixXd;
+    typedef Eigen::VectorXd VectorXd;
 
-  class MomentumBasedFObs
-  {
-      public:
+    /// \brief Class to perform a momentum-based force estimation.
+    ///
+    /// Consider the following expression of the rigid-body dynamics:
+    ///
+    /// (1) B(q)*q_ddot + C(q, q_dot)*q_dot + g = tau + tau_c
+    ///
+    /// where
+    /// - B is the joint-space inertia matrix
+    /// - C is the matrix of Coriolis and centrifugal terms (recall that (2) B_dot = C + C^T)
+    /// - g is the joint-space gravitational vector
+    /// - tau is a vector of joint-space effort measurements
+    /// - tau_c is a "disturbance" vector, which can be used
+    ///   to estimate the contact forces, reflected to the joints.
+    ///
+    /// The dynamics of the observer is given by
+    ///
+    /// (3) y_dot = K * (p_dot - tau + g - C^T * q_dot - y)
+    ///
+    /// which is an asymptotically stable dynamics when is
+    /// K positive definite square matrix (usually is chosen as a diagonal matrix).
+    ///
+    /// - p is the joint-space momentum, given by B(q) * q_dot
+    ///
+    /// Equation (3) can be obtained easily by considering that
+    ///
+    /// (4) p_dot = B_dot * q_dot + B * q_ddot
+    ///
+    /// substituting (1) and (2) into (3) and extracting tau_c as the desired variable
+    /// to be observed, one obtains the observer dynamics (3).
+    ///
+    /// How to use (3)? It can be easily integrated (numerically) to obtain an estimate of tau_c
+    /// with some noise rejection properties: the higher the gains, the lower the rejection
+    /// of noise, the faster the convergence.
+    /// In particular, supposing a matrix of diagonals values, the bandwidth of this observer
+    /// can be approximated as (5) BW = - k/log(1 - 0.707)
+    ///
+    /// Clearly, the quality of the estimate depends on the quality of the measurements (accuracy, noise, etc..)
+    /// but also on the accuracy up to which the inertial properties of the system are known
 
-          MomentumBasedFObs();
+    class MomentumBasedFObs
+    {
+    public:
 
-          MomentumBasedFObs(Model::Ptr model_ptr, double data_dt);
-          MomentumBasedFObs(Model::Ptr model_ptr, double data_dt, double bandwidth);
+        MomentumBasedFObs();
 
-          void update(std::string contact_framename);
+        MomentumBasedFObs(Model::Ptr model_ptr, double data_dt);
+        MomentumBasedFObs(Model::Ptr model_ptr, double data_dt, double bandwidth,
+                          double lambda = 1.0, bool regularize_f = false);
 
-          void get_tau_obs();
-          void get_f_est(); // get force estimate
-          void get_w_est();
+        void update(std::string contact_framename);
 
-      private:
+        void get_tau_obs();
+        void get_f_est(); // get force estimate
+        void get_w_est();
 
-          Model::Ptr _model_ptr;
+    private:
 
-          int _nv = -1.0;
+        Model::Ptr _model_ptr;
 
-          double _dt = -1.0;
+        int _nv = -1.0;
 
-          double _BW_red_factor = 0.707; // attenuation of the signal
-          // of 3dB (definition of bandwidth)
+        bool _regularize_f = false;// will use previous solution of f_c to regularize the new solution
+        // instead of using always a constant value
 
-          double _bandwidth = 0.0;
-          double _k = 0.0;
+        double _dt = -1.0;
 
-          std::string _current_cont_frame;
+        double _lambda = 1.0; // regularization term
+        // for the solution of the QP problem to retrieve
+        // the contact forces and efforts
 
-          MatrixXd _K;
+        double _BW_red_factor = 0.707; // attenuation of the signal
+        // of 3dB (definition of bandwidth)
 
-          NumInt _integrator_tau;
-          NumInt _integrator_g;
-          NumInt _integrator_C_T_q_dot;
+        double _bandwidth = 0.0;
+        double _k = 0.0;
 
-          VectorXd _tau_c_obs; // observed joint contact efforts
+        std::string _current_cont_frame;
 
-  };
+        MatrixXd _K;
+        MatrixXd _Skp1, _Skp1_inv, _Sk; // state transition matrices for the discrete integration
+        // of the observer dynamics
+
+        NumInt _integrator;
+
+        VectorXd _tau_c_k ; // observed joint contact efforts
+
+        VectorXd _p_km1; // last joint-space momentum
+
+        MatrixXd _A,
+                _I_lambda;
+        VectorXd _b, _b_lambda;
+
+        VectorXd _f_c; // estimated contact forces + wrenches (6 x 1)
+        VectorXd _f_c_reg; // regularization vector for the contact f_c estimation
+
+    };
 
 }

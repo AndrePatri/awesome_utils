@@ -62,7 +62,13 @@ namespace ModelInterface
             void get_B(MatrixXd& B); // joint-space inertia matrix
             void get_C(MatrixXd& C); // Coriolis-matrix
             void get_g(VectorXd& g);
+
+            void get_q(VectorXd& q);
+            void get_v(VectorXd& v);
+            void get_a(VectorXd& a);
+
             void get_tau(VectorXd& tau);
+
             void get_p(VectorXd& p);
             void get_b(VectorXd& b);
             void get_jac(std::string frame_name, ReferenceFrame ref,

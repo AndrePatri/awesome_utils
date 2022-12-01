@@ -165,6 +165,16 @@ void Model::get_tau(VectorXd& tau)
     tau = _tau;
 }
 
+void Model::get_q(VectorXd& q)
+{
+    q = _q;
+}
+
+void Model::get_v(VectorXd& v)
+{
+    v = _v;
+}
+
 void Model::p()
 {
     _p = _B * _v; // joint space momentum of the system
