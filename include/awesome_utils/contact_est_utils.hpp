@@ -66,14 +66,14 @@ namespace ContactEstUtils
         MomentumBasedFObs();
 
         MomentumBasedFObs(Model::Ptr model_ptr, double data_dt);
-        MomentumBasedFObs(Model::Ptr model_ptr, double data_dt, double bandwidth,
+        MomentumBasedFObs(Model::Ptr model_ptr, double data_dt, double bandwidth = 10.0,
                           double lambda = 1.0, bool regularize_f = false);
 
         void update(std::string contact_framename);
 
-        void get_tau_obs();
-        void get_f_est(); // get force estimate
-        void get_w_est();
+        void get_tau_obs(VectorXd& tau_c); // get contact joint efforts estimate
+        void get_f_est(Vector3d& f_c); // get force estimate
+        void get_w_est(Vector3d& w_c); // get wrench estimate
 
     private:
 
@@ -93,8 +93,8 @@ namespace ContactEstUtils
         double _BW_red_factor = 0.707; // attenuation of the signal
         // of 3dB (definition of bandwidth)
 
-        double _bandwidth = 0.0;
-        double _k = 0.0;
+        double _bandwidth = 10.0; // [Hz]
+        double _k = 12.3; // [1/s] (or [Hz])
 
         std::string _current_cont_frame;
 
@@ -104,7 +104,7 @@ namespace ContactEstUtils
 
         NumInt _integrator;
 
-        VectorXd _tau_c_k ; // observed joint contact efforts
+        VectorXd _tau_c_k; // observed joint contact efforts
 
         VectorXd _p_km1; // last joint-space momentum
 
