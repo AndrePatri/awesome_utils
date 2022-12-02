@@ -63,6 +63,10 @@ namespace ContactEstUtils
     {
     public:
 
+        typedef std::weak_ptr<MomentumBasedFObs> WeakPtr;
+        typedef std::shared_ptr<MomentumBasedFObs> Ptr;
+        typedef std::unique_ptr<MomentumBasedFObs> UniquePtr;
+
         MomentumBasedFObs();
 
         MomentumBasedFObs(Model::Ptr model_ptr, double data_dt);

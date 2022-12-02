@@ -42,10 +42,10 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt, doubl
 
     _p_km1 = VectorXd::Zero(_nv);
 
-    _A = MatrixXd::Zero(2 * _nv, 6);
-    _b = VectorXd::Zero(2 * _nv);
+    _A = MatrixXd::Zero(_nv + 6, 6);
+    _b = VectorXd::Zero(_nv + 6);
 
-    _I_lambda = MatrixXd::Zero(6, 6);
+    _I_lambda = MatrixXd::Identity(6, 6);
     _b_lambda = VectorXd::Zero(_I_lambda.rows());
 
     // A regularization block can be assigned once and for all

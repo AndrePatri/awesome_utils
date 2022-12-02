@@ -55,7 +55,8 @@ class TestContactEst: public ::testing::Test {
 
 TEST_F(TestContactEst, compute_quantities)
 {
-    Eigen::VectorXd q, v, a, tau, p;
+    Eigen::VectorXd q, v, a, tau, p,
+                    tau_c, f_c, w_c;
 
     Eigen::MatrixXd B, C, J;
 
@@ -69,10 +70,19 @@ TEST_F(TestContactEst, compute_quantities)
     double BW = 10.0;
     double lambda = 1.0;
 
-    MomentumBasedFObs f_obs = MomentumBasedFObs(model_ptr, dt, BW, lambda, true);
+    MomentumBasedFObs::Ptr f_obs_ptr(new MomentumBasedFObs(model_ptr, dt, BW, lambda, true));
 
-    std::cout << "\nLoaded URDF at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
-    std::cout << "** B: \n" << B.format(CleanFmt) << "\n " << std::endl;
+    f_obs_ptr->get_tau_obs(tau_c);
+    f_obs_ptr->get_tau_obs(f_c);
+    f_obs_ptr->get_tau_obs(w_c);
+
+    std::string contact_linkname = "tip1";
+
+    f_obs_ptr->update(contact_linkname); // compute estimates using the current state in model_ptr
+    std::cout << "\nURDF loaded at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
+    std::cout << "** tau_c: \n" << tau_c << "\n " << std::endl;
+    std::cout << "** f_c: \n" << f_c << "\n " << std::endl;
+    std::cout << "** w_c: \n" << w_c << "\n " << std::endl;
 
 }
 
