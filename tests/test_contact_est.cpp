@@ -56,7 +56,7 @@ class TestContactEst: public ::testing::Test {
 TEST_F(TestContactEst, compute_quantities)
 {
     Eigen::VectorXd q, v, a, tau, p,
-                    tau_c, f_c, w_c;
+                    tau_c, f_c, t_c;
 
     Eigen::MatrixXd B, C, J;
 
@@ -77,12 +77,12 @@ TEST_F(TestContactEst, compute_quantities)
 
     f_obs_ptr->get_tau_obs(tau_c);
     f_obs_ptr->get_f_est(f_c);
-    f_obs_ptr->get_w_est(w_c);
+    f_obs_ptr->get_t_est(t_c);
 
     std::cout << "\nURDF loaded at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
     std::cout << "** tau_c: \n" << tau_c << "\n " << std::endl;
     std::cout << "** f_c: \n" << f_c << "\n " << std::endl;
-    std::cout << "** w_c: \n" << w_c << "\n " << std::endl;
+    std::cout << "** w_c: \n" << t_c << "\n " << std::endl;
 
 }
 

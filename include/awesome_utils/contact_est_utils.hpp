@@ -77,7 +77,7 @@ namespace ContactEstUtils
 
         void get_tau_obs(VectorXd& tau_c); // get contact joint efforts estimate
         void get_f_est(VectorXd& f_c); // get force estimate
-        void get_w_est(VectorXd& w_c); // get wrench estimate
+        void get_t_est(VectorXd& t_c); // get wrench estimate
 
     private:
 
@@ -116,8 +116,8 @@ namespace ContactEstUtils
                  _I_lambda;
         VectorXd _b, _b_lambda;
 
-        VectorXd _f_c; // estimated contact forces + wrenches (6 x 1)
-        VectorXd _f_c_reg; // regularization vector for the contact f_c estimation
+        VectorXd _w_c; // estimated contact wrenches (6 x 1 -> linear + angular)
+        VectorXd _w_c_reg; // regularization vector for the contact f_c estimation
 
     };
 

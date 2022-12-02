@@ -51,8 +51,8 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt, doubl
     // A regularization block can be assigned once and for all
     _A.block(_nv, 0, _I_lambda.rows(), _I_lambda.cols()) = std::sqrt(_lambda) * _I_lambda; // adding regularization
 
-    _f_c = VectorXd::Zero(6);
-    _f_c_reg = VectorXd::Zero(6);
+    _w_c = VectorXd::Zero(6);
+    _w_c_reg = VectorXd::Zero(6);
 
 }
 
@@ -88,16 +88,16 @@ void MomentumBasedFObs::update(std::string contact_framename)
     // basically solving J.T * f_c = tau_c (but with some regularization)
     _A.block(0, 0, _nv, _A.cols()) = J_c.transpose();
     _b.segment(0, _nv) = _tau_c_k;
-    _b_lambda = _f_c_reg; // the regularization is done around the regularization vector
+    _b_lambda = _w_c_reg; // the regularization is done around the regularization vector
     _b.segment(_nv, _I_lambda.rows()) = std::sqrt(_lambda) * _b_lambda;
 
     // exploiting Eigen builtin method for regression problems
-    _f_c = _A.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(_b);
+    _w_c = _A.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(_b);
 
     _p_km1 = p; // assigning joint-space momentum for the next update call
     if(_regularize_f)
     {
-        _f_c_reg = _f_c; // will use previous solution to regularize the new solution
+        _w_c_reg = _w_c; // will use previous solution to regularize the new solution
         // instead of using always a constant value
     }
 }
@@ -109,10 +109,10 @@ void MomentumBasedFObs::get_tau_obs(VectorXd& tau_c)
 
 void MomentumBasedFObs::get_f_est(VectorXd& f_c)
 {
-    f_c = _f_c.segment(0, 3);
+    f_c = _w_c.segment(0, 3);
 }
 
-void MomentumBasedFObs::get_w_est(VectorXd& w_c)
+void MomentumBasedFObs::get_t_est(VectorXd& t_c)
 {
-    w_c = _f_c.segment(3, 3);
+    t_c = _w_c.segment(3, 3);
 }
