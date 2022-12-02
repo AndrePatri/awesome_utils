@@ -72,13 +72,13 @@ TEST_F(TestContactEst, compute_quantities)
 
     MomentumBasedFObs::Ptr f_obs_ptr(new MomentumBasedFObs(model_ptr, dt, BW, lambda, true));
 
-    f_obs_ptr->get_tau_obs(tau_c);
-    f_obs_ptr->get_tau_obs(f_c);
-    f_obs_ptr->get_tau_obs(w_c);
-
     std::string contact_linkname = "tip1";
-
     f_obs_ptr->update(contact_linkname); // compute estimates using the current state in model_ptr
+
+    f_obs_ptr->get_tau_obs(tau_c);
+    f_obs_ptr->get_f_est(f_c);
+    f_obs_ptr->get_w_est(w_c);
+
     std::cout << "\nURDF loaded at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
     std::cout << "** tau_c: \n" << tau_c << "\n " << std::endl;
     std::cout << "** f_c: \n" << f_c << "\n " << std::endl;
