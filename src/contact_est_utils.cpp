@@ -69,13 +69,12 @@ void MomentumBasedFObs::update(std::string contact_framename)
     _model_ptr->get_p(p);
     _model_ptr->get_tau(tau);
 
-    to_be_integrated = tau - g + C.transpose() * v;
+    to_be_integrated = g - C.transpose() * v - tau;
     _integrator.add_sample(to_be_integrated);
     _integrator.get(integral);
 
     tau_c_kp1 = _Skp1_inv * ( _Sk * _tau_c_k +
-                              (p - _p_km1) -
-                              integral);
+                              _K * ( (p - _p_km1) + integral );
 
     _tau_c_k = tau_c_kp1; // update current estimate
 
