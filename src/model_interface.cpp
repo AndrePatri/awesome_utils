@@ -2,10 +2,6 @@
 
 using namespace ModelInterface;
 
-Model::Model()
-{
-
-}
 
 Model::Model(std::string urdf_path, bool add_floating_jnt)
 {

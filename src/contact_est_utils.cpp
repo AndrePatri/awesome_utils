@@ -107,6 +107,11 @@ void MomentumBasedFObs::get_tau_obs(VectorXd& tau_c)
     tau_c = _tau_c_k;
 }
 
+void MomentumBasedFObs::get_w_est(VectorXd& w_c)
+{
+    w_c = _w_c;
+}
+
 void MomentumBasedFObs::get_f_est(VectorXd& f_c)
 {
     f_c = _w_c.segment(0, 3);

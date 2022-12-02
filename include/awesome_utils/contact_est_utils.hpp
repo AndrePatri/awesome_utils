@@ -76,6 +76,7 @@ namespace ContactEstUtils
         void update(std::string contact_framename);
 
         void get_tau_obs(VectorXd& tau_c); // get contact joint efforts estimate
+        void get_w_est(VectorXd& w_c); // get the wrench estimate
         void get_f_est(VectorXd& f_c); // get force estimate
         void get_t_est(VectorXd& t_c); // get wrench estimate
 
