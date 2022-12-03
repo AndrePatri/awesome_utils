@@ -42,6 +42,7 @@ Model::Model(std::string urdf_path, bool add_floating_jnt)
     _g = VectorXd::Zero(_nv);
     _p = VectorXd::Zero(_nv);
     _tau = VectorXd::Zero(_nv);
+    _rnea_tau = VectorXd::Zero(_nv);
     _q = VectorXd::Zero(_nq);
     _v = VectorXd::Zero(_nv);
     _a = VectorXd::Zero(_nv);
@@ -153,12 +154,19 @@ void Model::get_g(VectorXd& g)
 
 void Model::tau()
 {
-    _tau = _pin_data.tau;
+    rnea(); // compute inverse dynamics using rnea
+
+    _rnea_tau = _pin_data.tau;
 }
 
 void Model::get_tau(VectorXd& tau)
 {
     tau = _tau;
+}
+
+void Model::get_rnea_tau(VectorXd& tau)
+{
+    tau = _rnea_tau;
 }
 
 void Model::get_q(VectorXd& q)
@@ -258,6 +266,12 @@ void Model::get_jac(std::string frame_name, Model::ReferenceFrame ref,
 
 void Model::rnea()
 {
+
+    pinocchio::rnea(_pin_model,
+         _pin_data,
+         _q,
+         _v,
+         _a);
 
 }
 

@@ -31,9 +31,13 @@
 
 #include <pinocchio/parsers/urdf.hpp>
 
+#include "sign_proc_utils.hpp"
+
+using namespace Eigen;
+using namespace SignProcUtils;
+
 namespace ModelInterface
 {
-    using namespace Eigen;
 
     class Model
     {
@@ -68,6 +72,7 @@ namespace ModelInterface
             void get_a(VectorXd& a);
 
             void get_tau(VectorXd& tau);
+            void get_rnea_tau(VectorXd& tau);
 
             void get_p(VectorXd& p);
             void get_b(VectorXd& b);
@@ -103,7 +108,8 @@ namespace ModelInterface
             VectorXd _q, _v, _a;
 
             MatrixXd _B, _C;
-            VectorXd _g, _tau, _p, _b;
+            VectorXd _g, _tau, _rnea_tau,
+                    _p, _b;
 
             std::vector<std::string> _jnt_names;
 
