@@ -60,8 +60,21 @@ namespace ModelInterface
 
             bool was_model_init_ok();
 
-            void update(VectorXd q, VectorXd q_dot, VectorXd tau);
-            void update(VectorXd q, VectorXd q_dot, VectorXd tau, VectorXd a);
+            void update();
+            void update_forward_kin();
+            void update_B();
+            void update_C();
+            void update_b();
+            void update_g();
+            void update_tau_rnea();
+            void update_p();
+
+            void set_q(VectorXd q);
+            void set_v(VectorXd v);
+            void set_a(VectorXd a);
+            void set_tau(VectorXd tau);
+            void get_state(VectorXd& q, VectorXd& v, VectorXd& a,
+                           VectorXd& tau);
 
             void get_B(MatrixXd& B); // joint-space inertia matrix
             void get_C(MatrixXd& C); // Coriolis-matrix
@@ -87,9 +100,6 @@ namespace ModelInterface
 
             void get_jnt_lim(VectorXd& q_min, VectorXd& q_max);
 
-            void get_state(VectorXd& q, VectorXd& v, VectorXd& a,
-                           VectorXd& tau);
-
             std::vector<std::string> get_jnt_names();
 
         private:
@@ -108,7 +118,7 @@ namespace ModelInterface
             VectorXd _q, _v, _a;
 
             MatrixXd _B, _C;
-            VectorXd _g, _tau, _rnea_tau,
+            VectorXd _g, _tau,
                     _p, _b;
 
             std::vector<std::string> _jnt_names;
@@ -124,7 +134,6 @@ namespace ModelInterface
             void B(); // joint-space inertia matrix
             void C(); // Coriolis
             void g();
-            void tau();
             void p(); // joint space momentum of the system
             void b(); // bias forces (C * v)
 
@@ -143,8 +152,6 @@ namespace ModelInterface
             // using the Composite Rigid Body Algorithm
 
             void centroidal_dyn();
-
-            void jac();
 
             void kin_energy();
 

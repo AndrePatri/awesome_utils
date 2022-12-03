@@ -64,7 +64,12 @@ TEST_F(TestContactEst, compute_quantities)
 
     model_ptr->get_state(q, v, a, tau);
 
-    model_ptr->update(q, v, tau, a); // computes all terms
+    model_ptr->set_q(q);
+    model_ptr->set_v(v);
+    model_ptr->set_a(a);
+    model_ptr->set_tau(tau);
+
+    model_ptr->update(); // computes all terms
 
     double dt = 0.005;
     double BW = 10.0;

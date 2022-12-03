@@ -94,7 +94,7 @@ namespace ContactEstUtils
                           double lambda = 1.0, bool regularize_f = false,
                           std::vector<int> selector = std::vector<int>{0, 1, 2, 3, 4, 5});
 
-        void update(std::string contact_framename, bool use_rnea_torque = false);
+        void update(std::string contact_framename);
 
         void get_tau_obs(VectorXd& tau_c); // get contact joint efforts estimate
         void get_w_est(VectorXd& w_c); // get the wrench estimate
@@ -109,10 +109,6 @@ namespace ContactEstUtils
 
         bool _regularize_f = false;// will use previous solution of f_c to regularize the new solution
         // instead of using always a constant value
-
-        bool _use_rnea_torque = false; // if true, the torque used by the estimator is the one
-        // computed internally by the model_interface (i.e. using the last provided acceleration
-        // vector a).
 
         double _dt = -1.0;
 

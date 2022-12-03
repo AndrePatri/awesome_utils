@@ -42,7 +42,6 @@ Model::Model(std::string urdf_path, bool add_floating_jnt)
     _g = VectorXd::Zero(_nv);
     _p = VectorXd::Zero(_nv);
     _tau = VectorXd::Zero(_nv);
-    _rnea_tau = VectorXd::Zero(_nv);
     _q = VectorXd::Zero(_nq);
     _v = VectorXd::Zero(_nv);
     _a = VectorXd::Zero(_nv);
@@ -83,36 +82,55 @@ std::vector<std::string> Model::get_jnt_names()
     return _jnt_names;
 }
 
-void Model::update(VectorXd q, VectorXd v, VectorXd tau)
+void Model::update()
 {
-    _q = q;
-    _v = v;
-    _tau = tau;
 
     update_all();
 
 }
 
-void Model::update(VectorXd q, VectorXd v, VectorXd tau, VectorXd a)
+void Model::set_q(VectorXd q)
 {
     _q = q;
+}
+
+void Model::set_v(VectorXd v)
+{
     _v = v;
-    _tau = tau;
+}
+
+void Model::set_a(VectorXd a)
+{
     _a = a;
+}
 
-    update_all();
-
+void Model::set_tau(VectorXd tau)
+{
+    _tau = tau;
 }
 
 void Model::update_all()
 {
-    // update quantities
+    pinocchio::framesForwardKinematics(_pin_model, _pin_data, _q); // forward kinematics update
+
+    // update dynamics quantities
+    update_B(); // joint-space inertia matrix
+    update_C(); // coriolis, centrifugal effects
+    update_g(); // gravitational effects
+    update_p(); // joint-space momentum (aka generalized momentum)
+    update_b(); // bias vector (aka C * v)
+}
+
+void Model::update_forward_kin()
+{
+
+    pinocchio::framesForwardKinematics(_pin_model, _pin_data, _q); // forward kinematics update
+
+}
+
+void Model::update_B()
+{
     B();
-    C();
-    g();
-    tau();
-    p();
-    b();
 }
 
 void Model::B()
@@ -129,6 +147,11 @@ void Model::get_B(MatrixXd& B)
     B = _B;
 }
 
+void Model::update_C()
+{
+    C();
+}
+
 void Model::C()
 {
     pinocchio::computeCoriolisMatrix(_pin_model, _pin_data, _q, _v);
@@ -139,6 +162,11 @@ void Model::C()
 void Model::get_C(MatrixXd& C)
 {
     C = _C;
+}
+
+void Model::update_g()
+{
+    g();
 }
 
 void Model::g()
@@ -152,21 +180,14 @@ void Model::get_g(VectorXd& g)
     g = _g;
 }
 
-void Model::tau()
+void Model::update_tau_rnea()
 {
-    rnea(); // compute inverse dynamics using rnea
-
-    _rnea_tau = _pin_data.tau;
+    rnea();
 }
 
 void Model::get_tau(VectorXd& tau)
 {
     tau = _tau;
-}
-
-void Model::get_rnea_tau(VectorXd& tau)
-{
-    tau = _rnea_tau;
 }
 
 void Model::get_q(VectorXd& q)
@@ -179,6 +200,11 @@ void Model::get_v(VectorXd& v)
     v = _v;
 }
 
+void Model::update_p()
+{
+    p();
+}
+
 void Model::p()
 {
     _p = _B * _v; // joint space momentum of the system
@@ -187,6 +213,11 @@ void Model::p()
 void Model::get_p(VectorXd& p)
 {
     p = _p;
+}
+
+void Model::update_b()
+{
+    b();
 }
 
 void Model::b()
@@ -249,7 +280,7 @@ void Model::jacobian(std::string frame_name, Model::ReferenceFrame ref,
         throw std::invalid_argument(exception);
     }
 
-    pinocchio::framesForwardKinematics(_pin_model, _pin_data, _q);
+
 
     pinocchio::FrameIndex frame_idx = _pin_model.getFrameId(frame_name);
 
@@ -261,6 +292,8 @@ void Model::jacobian(std::string frame_name, Model::ReferenceFrame ref,
 void Model::get_jac(std::string frame_name, Model::ReferenceFrame ref,
                     MatrixXd& J)
 {
+    update_forward_kin(); // updates frames
+
     jacobian(frame_name, ref, J);
 }
 
@@ -272,6 +305,8 @@ void Model::rnea()
          _q,
          _v,
          _a);
+
+    _tau = _pin_data.tau;
 
 }
 
@@ -286,11 +321,6 @@ void Model::crba()
 }
 
 void Model::centroidal_dyn()
-{
-
-}
-
-void Model::jac()
 {
 
 }

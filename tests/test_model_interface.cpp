@@ -82,8 +82,12 @@ TEST_F(TestModelInterface, compute_quantities)
     Eigen::MatrixXd B, C, J;
 
     model_ptr->get_state(q, v, a, tau);
+    model_ptr->set_q(q);
+    model_ptr->set_v(v);
+    model_ptr->set_a(a);
+    model_ptr->set_tau(tau);
 
-    model_ptr->update(q, v, tau, a); // computes all terms
+    model_ptr->update(); // computes all terms of the dynamics
 
     model_ptr->get_B(B);
     model_ptr->get_C(C);

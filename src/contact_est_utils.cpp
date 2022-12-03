@@ -85,9 +85,8 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt, doubl
 
 }
 
-void MomentumBasedFObs::update(std::string contact_framename, bool use_rnea_torque)
+void MomentumBasedFObs::update(std::string contact_framename)
 {
-    _use_rnea_torque = use_rnea_torque;
 
     MatrixXd J_c, J_c_transp;
 
@@ -191,15 +190,8 @@ void MomentumBasedFObs::compute_tau_c()
     _model_ptr->get_v(v);
     _model_ptr->get_g(g);
     _model_ptr->get_p(p);
-    if(_use_rnea_torque)
-    {
-        _model_ptr->get_rnea_tau(tau); // gets torque from the inverse dynamics (computed
-        // internally via the rnea algorithm
-    }
-    else{
-        _model_ptr->get_tau(tau); // gets the latest model tau the user has set (e.g. from
+    _model_ptr->get_tau(tau); // gets the latest model tau the user has set (e.g. from
         // a measurement)
-    }
 
     // computing equation (6)  --> see header for more info on this
     to_be_integrated = g - C.transpose() * v - tau;
