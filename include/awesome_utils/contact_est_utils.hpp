@@ -58,6 +58,26 @@ namespace ContactEstUtils
     ///
     /// Clearly, the quality of the estimate depends on the quality of the measurements (accuracy, noise, etc..)
     /// but also on the accuracy up to which the inertial properties of the system are known
+    ///
+    /// a numerical implementation to obtain y at the current time (y_k) can be implemented integrating both sides of (3)
+    /// over a sample interval:
+    ///
+    /// int_0^{h} [ y_dot * d_t] = K * int_0^{h} [ (p_dot - tau + g - C^T * q_dot - y) * dt] --->
+    ///
+    /// y_k - y_km1 = K * (p_k - p_km1 + int_0^{h} [ g - tau - C^T * q_dot - y ] * dt)
+    ///
+    /// let us approximate  int_0^{h} [ y * dt] as (y_k + y_km1)/2.0 * h (trapezoidal integration).
+    ///
+    /// Rearranging,  we obtain
+    ///
+    /// (6) (I + h/2.0 * K) * y_k = (I - h/2.0 * K) * y_km1 + K * (p_k - p_km1 + int_0^{h} [ g - tau - C^T * q_dot - y ] * dt)
+    ///
+    /// The term " int_0^{h} [ g - tau - C^T * q_dot - y ] * dt " can be simply approximated using again trapezoidal integration.
+    ///
+    /// Inverting (6) w.r.t. y_k gives the update equation for y, i.e. the observer of the residual joint torques
+    ///
+    /// Note that (6) does not require the differentiation of q_dot and is hence less prone to noise than other possible model-based
+    /// observer implementations.
 
     class MomentumBasedFObs
     {
@@ -119,6 +139,8 @@ namespace ContactEstUtils
 
         VectorXd _w_c; // estimated contact wrenches (6 x 1 -> linear + angular)
         VectorXd _w_c_reg; // regularization vector for the contact f_c estimation
+
+        void compute_tau_c(); // computes the observed value of tau_c, i.e. the residual joint efforts
 
     };
 

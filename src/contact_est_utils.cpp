@@ -58,27 +58,10 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt, doubl
 
 void MomentumBasedFObs::update(std::string contact_framename)
 {
-    VectorXd v, tau, g, p;
-    MatrixXd C, J_c;
-    VectorXd to_be_integrated, integral,
-             tau_c_kp1;
+    MatrixXd J_c;
+    compute_tau_c(); // computing observed residual joint efforts
 
-    _model_ptr->get_C(C);
-    _model_ptr->get_v(v);
-    _model_ptr->get_g(g);
-    _model_ptr->get_p(p);
-    _model_ptr->get_tau(tau);
-
-    to_be_integrated = g - C.transpose() * v - tau;
-    _integrator.add_sample(to_be_integrated);
-    _integrator.get(integral);
-
-    tau_c_kp1 = _Skp1_inv * ( _Sk * _tau_c_k +
-                              _K * ((p - _p_km1) + integral) );
-
-    _tau_c_k = tau_c_kp1; // update current estimate
-
-    // retrieve the contact jacobian at the prescribed link (from v to v link wrt world frame)
+    // retrieve the contact jacobian at the prescribed link (from v to vel. of link wrt world frame)
     _model_ptr->get_jac(contact_framename,
                         Model::ReferenceFrame::LOCAL_WORLD_ALIGNED,
                         J_c);
@@ -93,7 +76,6 @@ void MomentumBasedFObs::update(std::string contact_framename)
     // exploiting Eigen builtin method for regression problems
     _w_c = _A.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(_b);
 
-    _p_km1 = p; // assigning joint-space momentum for the next update call
     if(_regularize_f)
     {
         _w_c_reg = _w_c; // will use previous solution to regularize the new solution
@@ -119,4 +101,34 @@ void MomentumBasedFObs::get_f_est(VectorXd& f_c)
 void MomentumBasedFObs::get_t_est(VectorXd& t_c)
 {
     t_c = _w_c.segment(3, 3);
+}
+
+void MomentumBasedFObs::compute_tau_c()
+{
+
+    // getting quantities from the model
+    VectorXd v, tau, g, p;
+    MatrixXd C;
+    VectorXd to_be_integrated, integral,
+             tau_c_kp1;
+
+    _model_ptr->get_C(C);
+    _model_ptr->get_v(v);
+    _model_ptr->get_g(g);
+    _model_ptr->get_p(p);
+    _model_ptr->get_tau(tau);
+
+    // computing equation (6)  --> see header for more info on this
+    to_be_integrated = g - C.transpose() * v - tau;
+    _integrator.add_sample(to_be_integrated);
+    _integrator.get(integral);
+
+    tau_c_kp1 = _Skp1_inv * ( _Sk * _tau_c_k +
+                              _K * ((p - _p_km1) + integral) );
+
+    _tau_c_k = tau_c_kp1; // update current estimate
+
+    _p_km1 = p; // assigning joint-space momentum for the next update call
+
+
 }
