@@ -91,7 +91,8 @@ namespace ContactEstUtils
 
         MomentumBasedFObs(Model::Ptr model_ptr, double data_dt);
         MomentumBasedFObs(Model::Ptr model_ptr, double data_dt, double bandwidth = 10.0,
-                          double lambda = 1.0, bool regularize_f = false);
+                          double lambda = 1.0, bool regularize_f = false,
+                          std::vector<int> selector = std::vector<int>{0, 1, 2, 3, 4, 5});
 
         void update(std::string contact_framename);
 
@@ -123,6 +124,9 @@ namespace ContactEstUtils
 
         std::string _current_cont_frame;
 
+        std::vector<int> _selector{0, 1, 2, 3, 4, 5};
+        std::vector<int> _Jt_selector{0, 1, 2, 3, 4, 5};
+
         MatrixXd _K;
         MatrixXd _Skp1, _Skp1_inv, _Sk; // state transition matrices for the discrete integration
         // of the observer dynamics
@@ -141,6 +145,9 @@ namespace ContactEstUtils
         VectorXd _w_c_reg; // regularization vector for the contact f_c estimation
 
         void compute_tau_c(); // computes the observed value of tau_c, i.e. the residual joint efforts
+
+        void apply_selector(VectorXd& vector);
+        void apply_selector(MatrixXd& matrix);
 
     };
 

@@ -11,9 +11,9 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt)
 }
 
 MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt, double bandwidth,
-                                     double lambda, bool regularize_f)
+                                     double lambda, bool regularize_f, std::vector<int> selector)
     : _model_ptr{model_ptr}, _dt{data_dt}, _bandwidth{bandwidth}, _lambda{lambda},
-      _regularize_f{regularize_f}
+      _regularize_f{regularize_f}, _selector{selector}
 {
     if(!_model_ptr->was_model_init_ok())
     {
@@ -21,6 +21,35 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt, doubl
                                 std::string("The provided model object is not initialized properly!!\n");
 
         throw std::invalid_argument(exception);
+    }
+
+    // let's make sure selector is valid
+    _selector.erase(std::remove_if(
+        _selector.begin(), _selector.end(),
+        [](const int& x) {
+            return x > 5;
+        }), _selector.end()); // removing elements above 5 (a wrench can have a max. of 6 components)
+    _selector.erase( unique( _selector.begin(), _selector.end() ), _selector.end() ); // erasing duplicates
+    std::sort(_selector.begin(), _selector.end()); // sorting selector in growing order
+
+    // _Jt_selector is used to make 0 the columns of J^T corresponding to
+    // components of the contact wrench which are not to be stimated.
+    // For the same reason, also the corresponding elements of w_c_reg
+    // are set to 0 (we want the components of the wrench which are not to be
+    // estimated to be 0).
+    for (auto i = _selector.begin(); i != _selector.end(); ++i)
+    { // we go through each element of the provided selector and
+      // remove the indeces for the Jt_selector
+
+        int index = i - _selector.begin();
+
+        auto it = std::find(_Jt_selector.begin(), _Jt_selector.end(), _selector[index]);
+
+        if ( it != _Jt_selector.end()) { // element found
+
+            _Jt_selector.erase(it); // removing it
+
+        }
     }
 
     _nv = _model_ptr->get_nv();
@@ -58,7 +87,7 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt, doubl
 
 void MomentumBasedFObs::update(std::string contact_framename)
 {
-    MatrixXd J_c;
+    MatrixXd J_c, J_c_transp;
     compute_tau_c(); // computing observed residual joint efforts
 
     // retrieve the contact jacobian at the prescribed link (from v to vel. of link wrt world frame)
@@ -66,9 +95,14 @@ void MomentumBasedFObs::update(std::string contact_framename)
                         Model::ReferenceFrame::LOCAL_WORLD_ALIGNED,
                         J_c);
 
+    J_c_transp = J_c.transpose();
+    apply_selector(J_c_transp); // will set to 0 columns of the axis we don't want to
+    // estimate.
+    // Those components value will not influence the QP
+
     // solving QP for retrieving the force + wrench estimate
     // basically solving J.T * f_c = tau_c (but with some regularization)
-    _A.block(0, 0, _nv, _A.cols()) = J_c.transpose();
+    _A.block(0, 0, _nv, _A.cols()) = J_c_transp;
     _b.segment(0, _nv) = _tau_c_k;
     _b_lambda = _w_c_reg; // the regularization is done around the regularization vector
     _b.segment(_nv, _I_lambda.rows()) = std::sqrt(_lambda) * _b_lambda;
@@ -80,7 +114,45 @@ void MomentumBasedFObs::update(std::string contact_framename)
     {
         _w_c_reg = _w_c; // will use previous solution to regularize the new solution
         // instead of using always a constant value
+        apply_selector(_w_c_reg); // will set to 0 the elements corresponding to the axes we don't need
+        // to estimate --> this, in conjunction to apply_selector(J_c_transp), will ensure that
+        // unestimated components will always converge to 0
+        // (this is not needed if !_regularize_f, since the default value for _w_c_reg is a vect. of 0s)
     }
+}
+
+void MomentumBasedFObs::apply_selector(VectorXd& vector)
+{
+    if (vector.size() != 6)
+    {
+        std::string exception = std::string("ContactEstUtils::MomentumBasedFObs::apply_selector(): \n") +
+                                std::string("The input vector must be of dimension 6!!\n");
+
+        throw std::invalid_argument(exception);
+    }
+
+    for (int i = 0; i < _Jt_selector.size(); i++)
+    {
+        vector(_Jt_selector[i]) = 0.0;
+    }
+}
+
+void MomentumBasedFObs::apply_selector(MatrixXd& matrix)
+{
+
+    if (matrix.cols() != 6)
+    {
+        std::string exception = std::string("ContactEstUtils::MomentumBasedFObs::apply_selector(): \n") +
+                                std::string("The input matrix must have exactly 6 columns!!\n");
+
+        throw std::invalid_argument(exception);
+    }
+
+    for (int i = 0; i < _Jt_selector.size(); i++)
+    {
+        matrix.block(0, _Jt_selector[i], matrix.rows(), 1) = VectorXd::Zero(matrix.rows());
+    }
+
 }
 
 void MomentumBasedFObs::get_tau_obs(VectorXd& tau_c)

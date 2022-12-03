@@ -70,7 +70,10 @@ TEST_F(TestContactEst, compute_quantities)
     double BW = 10.0;
     double lambda = 1.0;
 
-    MomentumBasedFObs::Ptr f_obs_ptr(new MomentumBasedFObs(model_ptr, dt, BW, lambda, true));
+    std::vector<int> selector{3, 4, 5};
+
+    MomentumBasedFObs::Ptr f_obs_ptr(new MomentumBasedFObs(model_ptr, dt, BW, lambda, true,
+                                                           selector));
 
     std::string contact_linkname = "tip1";
     f_obs_ptr->update(contact_linkname); // compute estimates using the current state in model_ptr
