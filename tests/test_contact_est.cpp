@@ -70,7 +70,7 @@ TEST_F(TestContactEst, compute_quantities)
     double BW = 10.0;
     double lambda = 1.0;
 
-    std::vector<int> selector{3, 4, 5};
+    std::vector<int> selector{0, 1, 2}; // only force
 
     MomentumBasedFObs::Ptr f_obs_ptr(new MomentumBasedFObs(model_ptr, dt, BW, lambda, true,
                                                            selector));
