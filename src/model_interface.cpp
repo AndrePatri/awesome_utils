@@ -309,7 +309,7 @@ void Model::get_jac(std::string frame_name,
 }
 
 void Model::get_frame_vel(std::string frame_name,
-                          GenVel& vel,
+                          Twist& vel,
                           ReferenceFrame ref)
 {
 
@@ -363,7 +363,7 @@ void Model::get_frame_vel(std::string frame_name,
 }
 
 void Model::get_frame_pose(std::string frame_name,
-                    Affine3d& pose)
+                    Model::Affine3D& pose)
 {
     bool does_frame_exist = _pin_model.existFrame(frame_name);
 
@@ -380,10 +380,10 @@ void Model::get_frame_pose(std::string frame_name,
     PosVec3D position = _pin_data.oMf.at(frame_idx).translation();
     RotMat3D rotation = _pin_data.oMf.at(frame_idx).rotation();
 
-    pose = Eigen::Affine3d::Identity(); // resetting input data
+    pose = Model::Affine3D::Identity(); // resetting input data
 
     pose.translation() = position;
-//    pose.rotation() = rotation;
+    pose.linear() = rotation;
 
 }
 

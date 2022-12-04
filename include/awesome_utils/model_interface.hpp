@@ -51,13 +51,15 @@ namespace ModelInterface
             };
 
             typedef Matrix<double, 3, 3> RotMat3D;
+            typedef Affine3d Affine3D;
             typedef Matrix<double, 3, 1> PosVec3D;
-            typedef Matrix<double, 6, 1> GenVel;
+            typedef Matrix<double, 6, 1> Twist;
+            typedef Matrix<double, 3, 1> LinVel;
+            typedef Matrix<double, 3, 1> AngVel;
             typedef Matrix<double, 6, 1> Wrench;
             typedef Matrix<double, 6, 1> Force3D;
             typedef Matrix<double, 6, 1> Torque3D;
-            typedef Matrix<double, 3, 1> LinVel;
-            typedef Matrix<double, 3, 1> AngVel;
+
 
             typedef Matrix<double, 6, -1> SpatialJac;
             typedef Matrix<double, -1, 6> SpatialJacT;
@@ -112,7 +114,7 @@ namespace ModelInterface
             void get_frame_pose(std::string frame_name,
                                 Affine3d& pose);
             void get_frame_vel(std::string frame_name,
-                               GenVel& vel,
+                               Twist& vel,
                                ReferenceFrame ref = ReferenceFrame::LOCAL_WORLD_ALIGNED);
             void get_frame_vel(std::string frame_name,
                                LinVel& lin_vel, AngVel& omega,

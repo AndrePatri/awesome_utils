@@ -83,7 +83,9 @@ TEST_F(TestModelInterface, compute_quantities)
     Model::SpatialJac J;
     Model::PosVec3D position;
     Model::RotMat3D rotation;
-    Model::GenVel vel;
+    Model::Twist vel;
+    Model::Affine3D pose;
+
     model_ptr->get_state(q, v, a, tau);
     model_ptr->set_q(q);
     model_ptr->set_v(v);
@@ -105,6 +107,9 @@ TEST_F(TestModelInterface, compute_quantities)
     model_ptr->get_frame_pose(tip_framename,
                               position, rotation);
 
+    model_ptr->get_frame_pose(tip_framename,
+                              pose);
+
     model_ptr->get_frame_vel(tip_framename,
                              vel);
 
@@ -117,6 +122,9 @@ TEST_F(TestModelInterface, compute_quantities)
     std::cout << "** J (q_dot -> " << tip_framename << " - LOCAL_WORLD_ALIGNED) :\n " << J.format(CleanFmt) << "\n " << std::endl;
     std::cout << "** frame position: \n" << position.format(CleanFmt) << "\n " << std::endl;
     std::cout << "** frame rotation matrix: \n" << rotation.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** frame position from Affine3D: \n" << pose.translation().format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** frame orientation from Affine3D: \n" << pose.rotation().format(CleanFmt) << "\n " << std::endl;
+
     std::cout << "** frame generalized velocity: \n" << vel.format(CleanFmt) << "\n " << std::endl;
 
 }
