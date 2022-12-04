@@ -57,8 +57,8 @@ namespace ModelInterface
             typedef Matrix<double, 3, 1> LinVel;
             typedef Matrix<double, 3, 1> AngVel;
             typedef Matrix<double, 6, 1> Wrench;
-            typedef Matrix<double, 6, 1> Force3D;
-            typedef Matrix<double, 6, 1> Torque3D;
+            typedef Matrix<double, 3, 1> Force3D;
+            typedef Matrix<double, 3, 1> Torque3D;
 
 
             typedef Matrix<double, 6, -1> SpatialJac;
