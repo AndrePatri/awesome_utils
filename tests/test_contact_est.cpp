@@ -56,9 +56,13 @@ class TestContactEst: public ::testing::Test {
 TEST_F(TestContactEst, compute_quantities)
 {
     Eigen::VectorXd q, v, a, tau, p,
-                    tau_c, f_c, t_c;
+                    tau_c;
 
-    Eigen::MatrixXd B, C, J;
+    Model::Force3D f_c;
+    Model::Torque3D t_c;
+    Model::SpatialJac J;
+
+    Eigen::MatrixXd B, C;
 
     Model::Ptr model_ptr(new Model(urdf_path));
 

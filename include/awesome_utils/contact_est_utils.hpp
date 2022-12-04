@@ -97,9 +97,9 @@ namespace ContactEstUtils
         void update(std::string contact_framename);
 
         void get_tau_obs(VectorXd& tau_c); // get contact joint efforts estimate
-        void get_w_est(VectorXd& w_c); // get the wrench estimate
-        void get_f_est(VectorXd& f_c); // get force estimate
-        void get_t_est(VectorXd& t_c); // get wrench estimate
+        void get_w_est(Model::Wrench& w_c); // get the wrench estimate
+        void get_f_est(Model::Force3D& f_c); // get force estimate
+        void get_t_est(Model::Torque3D& t_c); // get wrench estimate
 
     private:
 
@@ -141,13 +141,13 @@ namespace ContactEstUtils
                  _I_lambda;
         VectorXd _b, _b_lambda;
 
-        VectorXd _w_c; // estimated contact wrenches (6 x 1 -> linear + angular)
-        VectorXd _w_c_reg; // regularization vector for the contact f_c estimation
+        Model::Wrench _w_c; // estimated contact wrenches (6 x 1 -> linear + angular)
+        Model::Wrench _w_c_reg; // regularization vector for the contact f_c estimation
 
         void compute_tau_c(); // computes the observed value of tau_c, i.e. the residual joint efforts
 
-        void apply_selector(VectorXd& vector);
-        void apply_selector(MatrixXd& matrix);
+        void apply_selector(Model::Wrench& vector);
+        void apply_selector(Model::SpatialJacT& matrix);
 
     };
 

@@ -79,8 +79,11 @@ TEST_F(TestModelInterface, compute_quantities)
 
     Eigen::VectorXd q, v, a, tau,
                     g, p, b;
-    Eigen::MatrixXd B, C, J;
-
+    Eigen::MatrixXd B, C;
+    Model::SpatialJac J;
+    Model::PosVec3D position;
+    Model::RotMat3D rotation;
+    Model::GenVel vel;
     model_ptr->get_state(q, v, a, tau);
     model_ptr->set_q(q);
     model_ptr->set_v(v);
@@ -88,14 +91,22 @@ TEST_F(TestModelInterface, compute_quantities)
     model_ptr->set_tau(tau);
 
     model_ptr->update(); // computes all terms of the dynamics
+    // and updates the forward kinematis
 
     model_ptr->get_B(B);
     model_ptr->get_C(C);
     model_ptr->get_g(g);
     model_ptr->get_b(b);
     model_ptr->get_p(p);
-    model_ptr->get_jac(tip_framename, Model::ReferenceFrame::LOCAL_WORLD_ALIGNED,
-                  J);
+    model_ptr->get_jac(tip_framename,
+                  J,
+                  Model::ReferenceFrame::LOCAL_WORLD_ALIGNED);
+
+    model_ptr->get_frame_pose(tip_framename,
+                              position, rotation);
+
+    model_ptr->get_frame_vel(tip_framename,
+                             vel);
 
     std::cout << "\nLoaded URDF at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
     std::cout << "** B: \n" << B.format(CleanFmt) << "\n " << std::endl;
@@ -104,6 +115,9 @@ TEST_F(TestModelInterface, compute_quantities)
     std::cout << "** b: \n" << b.format(CleanFmt) << "\n " << std::endl;
     std::cout << "** p: \n" << p.format(CleanFmt) << "\n " << std::endl;
     std::cout << "** J (q_dot -> " << tip_framename << " - LOCAL_WORLD_ALIGNED) :\n " << J.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** frame position: \n" << position.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** frame rotation matrix: \n" << rotation.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** frame generalized velocity: \n" << vel.format(CleanFmt) << "\n " << std::endl;
 
 }
 

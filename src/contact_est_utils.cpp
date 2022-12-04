@@ -88,13 +88,13 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt, doubl
 void MomentumBasedFObs::update(std::string contact_framename)
 {
 
-    MatrixXd J_c, J_c_transp;
+    Model::SpatialJacT J_c_transp;
+    Model::SpatialJac J_c;
 
     compute_tau_c(); // computing observed residual joint efforts
 
     // retrieve the contact jacobian at the prescribed link (from v to vel. of link wrt world frame)
     _model_ptr->get_jac(contact_framename,
-                        Model::ReferenceFrame::LOCAL_WORLD_ALIGNED,
                         J_c);
 
     J_c_transp = J_c.transpose();
@@ -123,15 +123,8 @@ void MomentumBasedFObs::update(std::string contact_framename)
     }
 }
 
-void MomentumBasedFObs::apply_selector(VectorXd& vector)
+void MomentumBasedFObs::apply_selector(Model::Wrench& vector)
 {
-    if (vector.size() != 6)
-    {
-        std::string exception = std::string("ContactEstUtils::MomentumBasedFObs::apply_selector(): \n") +
-                                std::string("The input vector must be of dimension 6!!\n");
-
-        throw std::invalid_argument(exception);
-    }
 
     for (int i = 0; i < _Jt_selector.size(); i++)
     {
@@ -139,16 +132,8 @@ void MomentumBasedFObs::apply_selector(VectorXd& vector)
     }
 }
 
-void MomentumBasedFObs::apply_selector(MatrixXd& matrix)
+void MomentumBasedFObs::apply_selector(Model::SpatialJacT& matrix)
 {
-
-    if (matrix.cols() != 6)
-    {
-        std::string exception = std::string("ContactEstUtils::MomentumBasedFObs::apply_selector(): \n") +
-                                std::string("The input matrix must have exactly 6 columns!!\n");
-
-        throw std::invalid_argument(exception);
-    }
 
     for (int i = 0; i < _Jt_selector.size(); i++)
     {
@@ -162,17 +147,17 @@ void MomentumBasedFObs::get_tau_obs(VectorXd& tau_c)
     tau_c = _tau_c_k;
 }
 
-void MomentumBasedFObs::get_w_est(VectorXd& w_c)
+void MomentumBasedFObs::get_w_est(Model::Wrench& w_c)
 {
     w_c = _w_c;
 }
 
-void MomentumBasedFObs::get_f_est(VectorXd& f_c)
+void MomentumBasedFObs::get_f_est(Model::Force3D& f_c)
 {
     f_c = _w_c.segment(0, 3);
 }
 
-void MomentumBasedFObs::get_t_est(VectorXd& t_c)
+void MomentumBasedFObs::get_t_est(Model::Torque3D& t_c)
 {
     t_c = _w_c.segment(3, 3);
 }

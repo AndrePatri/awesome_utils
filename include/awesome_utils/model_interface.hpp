@@ -50,6 +50,18 @@ namespace ModelInterface
                 LOCAL_WORLD_ALIGNED = 2 //This is classical in world frame
             };
 
+            typedef Matrix<double, 3, 3> RotMat3D;
+            typedef Matrix<double, 3, 1> PosVec3D;
+            typedef Matrix<double, 6, 1> GenVel;
+            typedef Matrix<double, 6, 1> Wrench;
+            typedef Matrix<double, 6, 1> Force3D;
+            typedef Matrix<double, 6, 1> Torque3D;
+            typedef Matrix<double, 3, 1> LinVel;
+            typedef Matrix<double, 3, 1> AngVel;
+
+            typedef Matrix<double, 6, -1> SpatialJac;
+            typedef Matrix<double, -1, 6> SpatialJacT;
+
             typedef std::weak_ptr<Model> WeakPtr;
             typedef std::shared_ptr<Model> Ptr;
             typedef std::unique_ptr<Model> UniquePtr;
@@ -62,6 +74,8 @@ namespace ModelInterface
 
             void update();
             void update_forward_kin();
+            void update_frames_forward_kin(); // updates the joint placements and spatial
+            // velocities according to the current joint configuration and velocity
             void update_B();
             void update_C();
             void update_b();
@@ -89,8 +103,21 @@ namespace ModelInterface
 
             void get_p(VectorXd& p);
             void get_b(VectorXd& b);
-            void get_jac(std::string frame_name, ReferenceFrame ref,
-                          MatrixXd& J);
+            void get_jac(std::string frame_name,
+                         SpatialJac& J,
+                         ReferenceFrame ref = ReferenceFrame::LOCAL_WORLD_ALIGNED);
+
+            void get_frame_pose(std::string frame_name,
+                                PosVec3D& position, RotMat3D& rotation);
+            void get_frame_pose(std::string frame_name,
+                                Affine3d& pose);
+            void get_frame_vel(std::string frame_name,
+                               GenVel& vel,
+                               ReferenceFrame ref = ReferenceFrame::LOCAL_WORLD_ALIGNED);
+            void get_frame_vel(std::string frame_name,
+                               LinVel& lin_vel, AngVel& omega,
+                               ReferenceFrame ref = ReferenceFrame::LOCAL_WORLD_ALIGNED);
+
             void get_robot_mass(double& mass);
 
             int get_nq();
@@ -138,7 +165,7 @@ namespace ModelInterface
             void b(); // bias forces (C * v)
 
             void jacobian(std::string frame_name, Model::ReferenceFrame ref,
-                          MatrixXd& J);
+                          SpatialJac& J);
 
             void rnea(); // The Recursive Newton-Euler algorithm.
             // It computes the inverse dynamics, aka the joint torques \\

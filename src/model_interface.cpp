@@ -61,7 +61,7 @@ Model::Model(std::string urdf_path, bool add_floating_jnt)
     pinocchio::computeTotalMass(_pin_model, _pin_data);
     _mass = _pin_data.mass[0];
 
-    pinocchio::computeJointJacobians(_pin_model, _pin_data, _q);
+//    pinocchio::computeJointJacobians(_pin_model, _pin_data, _q);
 
     _pin_model_init_ok = true;
 
@@ -111,7 +111,10 @@ void Model::set_tau(VectorXd tau)
 
 void Model::update_all()
 {
-    pinocchio::framesForwardKinematics(_pin_model, _pin_data, _q); // forward kinematics update
+
+    update_frames_forward_kin();
+
+    update_forward_kin();
 
     // update dynamics quantities
     update_B(); // joint-space inertia matrix
@@ -121,11 +124,19 @@ void Model::update_all()
     update_b(); // bias vector (aka C * v)
 }
 
-void Model::update_forward_kin()
+void Model::update_frames_forward_kin()
 {
 
     pinocchio::framesForwardKinematics(_pin_model, _pin_data, _q); // forward kinematics update
 
+}
+
+void Model::update_forward_kin()
+{
+    pinocchio::forwardKinematics(_pin_model,
+                                 _pin_data,
+                                 _q,
+                                 _v);
 }
 
 void Model::update_B()
@@ -267,7 +278,7 @@ void Model::get_jnt_lim(VectorXd& q_min, VectorXd& q_max)
 
 
 void Model::jacobian(std::string frame_name, Model::ReferenceFrame ref,
-                    MatrixXd& J)
+                    SpatialJac& J)
 {
 
     bool does_frame_exist = _pin_model.existFrame(frame_name);
@@ -280,21 +291,119 @@ void Model::jacobian(std::string frame_name, Model::ReferenceFrame ref,
         throw std::invalid_argument(exception);
     }
 
-
-
     pinocchio::FrameIndex frame_idx = _pin_model.getFrameId(frame_name);
 
-    J = MatrixXd(6, _nv);
-    pinocchio::getFrameJacobian(_pin_model, _pin_data, frame_idx, pinocchio::ReferenceFrame(ref), J);
+    pinocchio::computeFrameJacobian(_pin_model, _pin_data, _q, frame_idx, pinocchio::ReferenceFrame(ref), J); // using latest set q
 
 }
 
-void Model::get_jac(std::string frame_name, Model::ReferenceFrame ref,
-                    MatrixXd& J)
+void Model::get_jac(std::string frame_name,
+                    SpatialJac& J,
+                    Model::ReferenceFrame ref)
 {
-    update_forward_kin(); // updates frames
 
     jacobian(frame_name, ref, J);
+
+}
+
+void Model::get_frame_vel(std::string frame_name,
+                          GenVel& vel,
+                          ReferenceFrame ref)
+{
+
+    bool does_frame_exist = _pin_model.existFrame(frame_name);
+
+    if (!does_frame_exist)
+    {
+        std::string exception = std::string("ModelInterface::Model::get_frame_vel(): the provided frame \"") +
+                                std::string(frame_name) + std::string("\" does not exist!");
+
+        throw std::invalid_argument(exception);
+    }
+
+    pinocchio::FrameIndex frame_idx = _pin_model.getFrameId(frame_name);
+
+    auto full_vel = pinocchio::getFrameVelocity(_pin_model,
+                     _pin_data,
+                     frame_idx,
+                     pinocchio::ReferenceFrame(ref));
+
+    vel.segment(0, 3) = full_vel.linear();
+    vel.segment(3, 3) = full_vel.angular();
+
+}
+
+void Model::get_frame_vel(std::string frame_name,
+                          LinVel& lin_vel, AngVel& omega,
+                          ReferenceFrame ref)
+{
+
+    bool does_frame_exist = _pin_model.existFrame(frame_name);
+
+    if (!does_frame_exist)
+    {
+        std::string exception = std::string("ModelInterface::Model::get_frame_vel(): the provided frame \"") +
+                                std::string(frame_name) + std::string("\" does not exist!");
+
+        throw std::invalid_argument(exception);
+    }
+
+    pinocchio::FrameIndex frame_idx = _pin_model.getFrameId(frame_name);
+
+    auto full_vel = pinocchio::getFrameVelocity(_pin_model,
+                     _pin_data,
+                     frame_idx,
+                     pinocchio::ReferenceFrame(ref));
+
+    lin_vel = full_vel.linear();
+    omega = full_vel.angular();
+
+}
+
+void Model::get_frame_pose(std::string frame_name,
+                    Affine3d& pose)
+{
+    bool does_frame_exist = _pin_model.existFrame(frame_name);
+
+    if (!does_frame_exist)
+    {
+        std::string exception = std::string("ModelInterface::Model::get_frame_pose(): the provided frame \"") +
+                                std::string(frame_name) + std::string("\" does not exist!");
+
+        throw std::invalid_argument(exception);
+    }
+
+    pinocchio::FrameIndex frame_idx = _pin_model.getFrameId(frame_name);
+
+    PosVec3D position = _pin_data.oMf.at(frame_idx).translation();
+    RotMat3D rotation = _pin_data.oMf.at(frame_idx).rotation();
+
+    pose = Eigen::Affine3d::Identity(); // resetting input data
+
+    pose.translation() = position;
+//    pose.rotation() = rotation;
+
+}
+
+void Model::get_frame_pose(std::string frame_name,
+                    PosVec3D& position, RotMat3D& rotation)
+{
+
+    bool does_frame_exist = _pin_model.existFrame(frame_name);
+
+    if (!does_frame_exist)
+    {
+        std::string exception = std::string("ModelInterface::Model::get_frame_pose(): the provided frame \"") +
+                                std::string(frame_name) + std::string("\" does not exist!");
+
+        throw std::invalid_argument(exception);
+    }
+
+    pinocchio::FrameIndex frame_idx = _pin_model.getFrameId(frame_name);
+
+    position = _pin_data.oMf.at(frame_idx).translation();
+    rotation = _pin_data.oMf.at(frame_idx).rotation();
+
 }
 
 void Model::rnea()
