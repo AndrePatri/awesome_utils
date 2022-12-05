@@ -9,11 +9,11 @@
 using namespace SignProcUtils;
 using namespace ModelInterface;
 
-namespace Eigen
-{
-    typedef Eigen::Matrix<double, 6, 1> Vector6d;
-    typedef Eigen::Matrix<double, 3, 1> Vector3d;
-}
+//namespace Eigen
+//{
+//    typedef Eigen::Matrix<double, 6, 1> Vector6d;
+//    typedef Eigen::Matrix<double, 3, 1> Vector3d;
+//}
 
 namespace ContactEstUtils
 {
@@ -24,7 +24,7 @@ namespace ContactEstUtils
     ///
     /// Consider the following expression of the rigid-body dynamics:
     ///
-    /// (1) B(q)*q_ddot + C(q, q_dot)*q_dot + g = tau + tau_c
+    /// (1.1) B(q) * a + C(q, v) * q_dot + g = tau + tau_c
     ///
     /// where
     /// - B is the joint-space inertia matrix
@@ -34,18 +34,22 @@ namespace ContactEstUtils
     /// - tau_c is a "disturbance" vector, which can be used
     ///   to estimate the contact forces, reflected to the joints.
     ///
-    /// The dynamics of the observer is given by
+    /// The dynamics of the generalized momentum is given by
     ///
-    /// (3) y_dot = K * (p_dot - tau + g - C^T * q_dot - y)
+    /// (1.2) p_dot = C^T*v - g + tau + tau_c
+    ///
+    /// The dynamics of the (linear) observer is given by
+    ///
+    /// (3) y_dot = K * (p_dot - tau + g - C^T * v - y)
     ///
     /// which is an asymptotically stable dynamics when is
     /// K positive definite square matrix (usually is chosen as a diagonal matrix).
     ///
-    /// - p is the joint-space momentum, given by B(q) * q_dot
+    /// - p is the joint-space momentum, given by B(q) * v
     ///
     /// Equation (3) can be obtained easily by considering that
     ///
-    /// (4) p_dot = B_dot * q_dot + B * q_ddot
+    /// (4) p_dot = B_dot * v + B * a
     ///
     /// substituting (1) and (2) into (3) and extracting tau_c as the desired variable
     /// to be observed, one obtains the observer dynamics (3).
@@ -62,17 +66,17 @@ namespace ContactEstUtils
     /// a numerical implementation to obtain y at the current time (y_k) can be implemented integrating both sides of (3)
     /// over a sample interval:
     ///
-    /// int_0^{h} [ y_dot * d_t] = K * int_0^{h} [ (p_dot - tau + g - C^T * q_dot - y) * dt] --->
+    /// int_0^{h} [ y_dot * d_t] = K * int_0^{h} [ (p_dot - tau + g - C^T * v - y) * dt] --->
     ///
-    /// y_k - y_km1 = K * (p_k - p_km1 + int_0^{h} [ g - tau - C^T * q_dot - y ] * dt)
+    /// y_k - y_km1 = K * (p_k - p_km1 + int_0^{h} [ g - tau - C^T * v - y ] * dt)
     ///
     /// let us approximate  int_0^{h} [ y * dt] as (y_k + y_km1)/2.0 * h (trapezoidal integration).
     ///
     /// Rearranging,  we obtain
     ///
-    /// (6) (I + h/2.0 * K) * y_k = (I - h/2.0 * K) * y_km1 + K * (p_k - p_km1 + int_0^{h} [ g - tau - C^T * q_dot - y ] * dt)
+    /// (6) (I + dt/2.0 * K) * y_k = (I - dt/2.0 * K) * y_km1 + K * (p_k - p_km1 + int_0^{dt} [ g - tau - C^T * v - y ] * dt)
     ///
-    /// The term " int_0^{h} [ g - tau - C^T * q_dot - y ] * dt " can be simply approximated using again trapezoidal integration.
+    /// The term " int_0^{dt} [ g - tau - C^T * v - y ] * dt " can be simply approximated using again trapezoidal integration.
     ///
     /// Inverting (6) w.r.t. y_k gives the update equation for y, i.e. the observer of the residual joint torques
     ///
