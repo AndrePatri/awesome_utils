@@ -67,6 +67,13 @@ Model::Model(std::string urdf_path, bool add_floating_jnt)
 
 }
 
+bool Model::frame_exists(std::string framename)
+{
+
+    return _pin_model.existFrame(framename);
+
+}
+
 void Model::get_robot_mass(double& mass)
 {
     mass = _mass;
@@ -281,7 +288,7 @@ void Model::jacobian(std::string frame_name, Model::ReferenceFrame ref,
                     SpatialJac& J)
 {
 
-    bool does_frame_exist = _pin_model.existFrame(frame_name);
+    bool does_frame_exist = frame_exists(frame_name);
 
     if (!does_frame_exist)
     {

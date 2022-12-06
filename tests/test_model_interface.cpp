@@ -76,6 +76,8 @@ TEST_F(TestModelInterface, compute_quantities)
     Model::Ptr model_ptr(new Model(urdf_path));
 
     std::string tip_framename = "tip1";
+    std::string base_link_frame_name = "base_link";
+    std::string test_rig_frame_name = "test_rig";
 
     Eigen::VectorXd q, v, a, tau,
                     g, p, b;
@@ -107,7 +109,7 @@ TEST_F(TestModelInterface, compute_quantities)
     model_ptr->get_frame_pose(tip_framename,
                               position, rotation);
 
-    model_ptr->get_frame_pose(tip_framename,
+    model_ptr->get_frame_pose(test_rig_frame_name,
                               pose);
 
     model_ptr->get_frame_vel(tip_framename,

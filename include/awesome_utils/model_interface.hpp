@@ -125,6 +125,9 @@ namespace ModelInterface
             int get_nq();
             int get_nv();
             int get_jnt_number();
+
+            bool frame_exists(std::string framename);
+
             std::string get_urdf_path();
 
             void get_jnt_lim(VectorXd& q_min, VectorXd& q_max);
