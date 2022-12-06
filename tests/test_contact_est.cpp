@@ -81,15 +81,19 @@ TEST_F(TestContactEst, compute_quantities)
 
     std::vector<int> selector{0, 1, 2}; // only force
 
-    MomentumBasedFObs::Ptr f_obs_ptr(new MomentumBasedFObs(model_ptr, dt, BW, lambda, true,
+    std::vector<std::string> contacts{"tip1"};
+
+    MomentumBasedFObs::Ptr f_obs_ptr(new MomentumBasedFObs(model_ptr, dt,
+                                                           contacts,
+                                                           BW,
+                                                           lambda, true,
                                                            selector));
 
-    std::string contact_linkname = "tip1";
-    f_obs_ptr->update(contact_linkname); // compute estimates using the current state in model_ptr
+    f_obs_ptr->update(); // compute estimates using the current state in model_ptr
 
     f_obs_ptr->get_tau_obs(tau_c);
-    f_obs_ptr->get_f_est(f_c);
-    f_obs_ptr->get_t_est(t_c);
+    f_obs_ptr->get_f_est_at(contacts[0], f_c);
+    f_obs_ptr->get_t_est_at(contacts[0], t_c);
 
     std::cout << "\nURDF loaded at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
     std::cout << "** tau_c: \n" << tau_c << "\n " << std::endl;
