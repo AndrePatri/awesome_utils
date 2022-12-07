@@ -122,7 +122,7 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt,
         for (int j = 0; j < _lambda.size(); j++)
         {
             _A_lambda(_lambda.size() * i + j,
-                      _lambda.size() * i + j) = std::sqrt(_lambda(i));
+                      _lambda.size() * i + j) = std::sqrt(_lambda(j));
         }
 
     }
