@@ -77,7 +77,9 @@ TEST_F(TestContactEst, compute_quantities)
 
     double dt = 0.001;
     double BW = 10.0;
-    double lambda = 0.85;
+
+    MomentumBasedFObs::Reg6D lambda = Eigen::VectorXd::Zero(6);
+    lambda << 1.0, 1.0, 3.0, 0.1, 1.0, 4.0;
 
     std::vector<int> selector{0, 1, 2}; // only force
 
