@@ -75,9 +75,9 @@ TEST_F(TestContactEst, compute_quantities)
 
     model_ptr->update(); // computes all terms
 
-    double dt = 0.005;
+    double dt = 0.001;
     double BW = 10.0;
-    double lambda = 1.0;
+    double lambda = 0.85;
 
     std::vector<int> selector{0, 1, 2}; // only force
 

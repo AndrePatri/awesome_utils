@@ -117,7 +117,6 @@ namespace ContactEstUtils
 
         MomentumBasedFObs();
 
-        MomentumBasedFObs(Model::Ptr model_ptr, double data_dt);
         MomentumBasedFObs(Model::Ptr model_ptr, double data_dt,
                           std::vector<std::string> contact_framenames,
                           double bandwidth = 10.0,
@@ -150,8 +149,7 @@ namespace ContactEstUtils
         Model::Ptr _model_ptr;
 
         int _nv = -1, // dimension of the dynamics of the system (equal to the size of the generalized velocity v)
-            _nc = 0,
-            _n_active_c = 0;
+            _nc = 0;
 
         bool _regularize_f = false;// will use previous solution of f_c to regularize the new solution
         // instead of using always a constant value

@@ -4,12 +4,6 @@
 
 using namespace ContactEstUtils;
 
-MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt)
-    : _model_ptr{model_ptr}, _dt{data_dt}
-{
-
-}
-
 MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt,
                                      std::vector<std::string> contact_framenames,
                                      double bandwidth,
@@ -265,7 +259,7 @@ void MomentumBasedFObs::get_contact_jacobians()
         }
 
         // assign to the total jacobian of the contact
-        _J_c_tot.block(i * _lambda.size(), 0, _lambda.size(), _nv);
+        _J_c_tot.block(i * _lambda.size(), 0, _lambda.size(), _nv) = _J_buffer;
     }
 }
 
@@ -279,9 +273,6 @@ void MomentumBasedFObs::assign_regression_matrices()
 
 void MomentumBasedFObs::update()
 {
-
-    Model::SpatialJacT J_c_transp;
-    Model::SpatialJac J_c;
 
     compute_tau_c(); // computing observed residual joint efforts
 
@@ -327,7 +318,7 @@ void MomentumBasedFObs::apply_component_selector(Model::SpatialJac& J)
 
     for (int i = 0; i < _deselector.size(); i++)
     {
-        J.block(_deselector[i], 0,  1, J.cols()) = VectorXd::Zero(J.cols()); // set row to zero
+        J.block(_deselector[i], 0,  1, J.cols()) = MatrixXd::Zero(1, J.cols()); // set row to zero
     }
 
 }
