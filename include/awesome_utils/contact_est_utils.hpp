@@ -104,6 +104,15 @@ namespace ContactEstUtils
     /// (recall that the least square regression problem is TBsolved is
     /// min_{W_c}{ 1/2 * ||A * W_c - b||^2 }
     /// )
+    ///
+    /// Side note on the solution to y_dot = K (tau_c - y) in scalar case
+    /// with tau_c = A * sin(2 * PI * t):
+    /// y(t) = (y0 + A * k * w^2/ (k^2 + w^2)) * e^{-k*t} +
+    ///        + A * k / sqrt(k^2 + w^2) * sin(omega * t + phi), with phi = atan(omega/k)
+    ///
+    /// which means the bandwidth of the observer can be computed as
+    /// 2 * pi * f_bw = k (recall that the bandwidth is defined as a reduction of the amplitude of
+    /// the frequency response of -3dB = 20 * log(1/sqrt(2)))
 
     class MomentumBasedFObs
     {
@@ -159,8 +168,8 @@ namespace ContactEstUtils
         Reg6D _lambda; // regularization vector
         // for the contact wrench of each contact
 
-        double _BW_red_factor = 0.707; // attenuation of the signal
-        // of 3dB (definition of bandwidth)
+        double _BW_red_factor = 0.70711; // attenuation of -3dB ( = 20 * log10 (1/sqrt(2)) )
+        double _PI =  2 * std::acos(0);
         double _bandwidth = 10.0; // [Hz]
         double _k = 12.3; // [1/s] (or [Hz])
 

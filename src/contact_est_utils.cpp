@@ -33,7 +33,7 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt,
 
     _nv = _model_ptr->get_nv();
 
-    _k = - abs(_bandwidth) * log(1 - _BW_red_factor);
+    compute_bandwidth();
 
     _K = _k * MatrixXd::Identity(_nv, _nv); // diagonal matrix of
     // constant values
@@ -101,7 +101,7 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt,
 
     _nv = _model_ptr->get_nv();
 
-    _k = - abs(_bandwidth) * log(1 - _BW_red_factor);
+    compute_bandwidth();
 
     _K = _k * MatrixXd::Identity(_nv, _nv); // diagonal matrix of
     // constant values
@@ -141,6 +141,12 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt,
     _W_reg = VectorXd::Zero(_lambda.size() * _nc);
 
     _J_c_tot = MatrixXd::Zero(_lambda.size() * _nc, _nv);
+
+}
+
+void MomentumBasedFObs::compute_bandwidth()
+{
+    _k = 2 * _PI * abs(_bandwidth);
 
 }
 
