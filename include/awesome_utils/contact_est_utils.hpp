@@ -187,6 +187,10 @@ namespace ContactEstUtils
 
         VectorXd _p_km1; // last joint-space momentum at k - 1 instant (i.e. previous)
 
+        VectorXd _v, _tau, _g, _p,
+                 _to_be_integrated, _integral;
+        MatrixXd _C;
+
         MatrixXd _A,
                  _A_lambda;
         VectorXd _b, _b_lambda;

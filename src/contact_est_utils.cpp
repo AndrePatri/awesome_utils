@@ -47,8 +47,15 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt,
     _integrator = NumInt(_nv, _dt, _dt); // numerical integrator
 
     _tau_c_k = VectorXd::Zero(_nv);
-
     _p_km1 = VectorXd::Zero(_nv);
+
+    _v = VectorXd::Zero(_nv);
+    _tau = VectorXd::Zero(_nv);
+    _g = VectorXd::Zero(_nv);
+    _p = VectorXd::Zero(_nv);
+    _to_be_integrated = VectorXd::Zero(_nv);
+    _integral = VectorXd::Zero(_nv);
+    _C = MatrixXd::Zero(_nv, _nv);
 
     _A = MatrixXd::Zero(_nv + _lambda.size() * _nc, _lambda.size() * _nc);
     _b = VectorXd::Zero(_nv + _lambda.size());
@@ -222,14 +229,6 @@ void MomentumBasedFObs::set_active_contacts(std::vector<int> contact_indeces)
     filtered_indeces.erase( unique( filtered_indeces.begin(), filtered_indeces.end() ), filtered_indeces.end() ); // erasing duplicates
     std::sort(filtered_indeces.begin(), filtered_indeces.end()); // sorting selector in growing order
 
-//    filtered_indeces.erase(std::remove_if(
-//        filtered_indeces.begin(), filtered_indeces.end(),
-//        [](const int& x) {
-//            return x > _contact_indeces[_contact_indeces.size() - 1];
-//        }), filtered_indeces.end()); // removing elements outside contact indeces bounds
-//    filtered_indeces.erase( unique( filtered_indeces.begin(), filtered_indeces.end() ), filtered_indeces.end() ); // erasing duplicates
-//    std::sort(filtered_indeces.begin(), filtered_indeces.end()); // sorting selector in growing order (not necessary)
-
     for (int i = 0; i < filtered_indeces.size(); i++)
     {
         _active_contacts[filtered_indeces[i]] = true; // activating contact
@@ -366,30 +365,21 @@ void MomentumBasedFObs::get_t_est_at(int contact_index, Model::Torque3D& t_c)
 void MomentumBasedFObs::compute_tau_c()
 {
 
-    // getting quantities from the model
-    VectorXd v, tau, g, p;
-    MatrixXd C;
-    VectorXd to_be_integrated, integral,
-             tau_c_kp1;
-
-    _model_ptr->get_C(C);
-    _model_ptr->get_v(v);
-    _model_ptr->get_g(g);
-    _model_ptr->get_p(p);
-    _model_ptr->get_tau(tau); // gets the latest model tau the user has set (e.g. from
+    _model_ptr->get_C(_C);
+    _model_ptr->get_v(_v);
+    _model_ptr->get_g(_g);
+    _model_ptr->get_p(_p);
+    _model_ptr->get_tau(_tau); // gets the latest model tau the user has set (e.g. from
         // a measurement)
 
     // computing equation (6)  --> see header for more info on this
-    to_be_integrated = g - C.transpose() * v - tau;
-    _integrator.add_sample(to_be_integrated);
-    _integrator.get(integral);
+    _to_be_integrated = _g - _C.transpose() * _v - _tau;
+    _integrator.add_sample(_to_be_integrated);
+    _integrator.get(_integral);
 
-    tau_c_kp1 = _Skp1_inv * ( _Sk * _tau_c_k +
-                              _K * ((p - _p_km1) + integral) );
+    _tau_c_k = _Skp1_inv * ( _Sk * _tau_c_k +
+                             _K * ((_p - _p_km1) + _integral) ); // update current estimate
 
-    _tau_c_k = tau_c_kp1; // update current estimate
-
-    _p_km1 = p; // assigning joint-space momentum for the next update call
-
+    _p_km1 = _p; // assigning joint-space momentum for the next update call
 
 }
