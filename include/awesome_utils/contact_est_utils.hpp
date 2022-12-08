@@ -217,6 +217,8 @@ namespace ContactEstUtils
         void process_contactnames();// we process input contact names and eliminate non valid ones (
         // i.e. frames that do not exist in the model)
         void process_selector(); // processes the selector given to the constructor in a suitable way
+        void compute_bandwidth();
+
         void compute_tau_c(); // computes the observed value of tau_c, i.e. the residual joint efforts
 
         void apply_component_selector(Model::Wrench& vector);
