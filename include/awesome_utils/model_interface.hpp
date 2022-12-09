@@ -39,6 +39,9 @@ using namespace SignProcUtils;
 namespace ModelInterface
 {
 
+    /// \brief Simple model interface wrapper class
+    /// around the awesome Pinocchio's model implementation.
+
     class Model
     {
         public:

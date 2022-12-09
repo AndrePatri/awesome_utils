@@ -19,6 +19,17 @@ using namespace SignProcUtils;
 
 namespace CalibUtils{
 
+    /// \brief Class to a friction-compensated estimate for the quadrature
+    /// current of a classical three-phase BLDC actuator, without the need to
+    /// employ the current measurement.
+    ///
+    /// The computation of the model requires a series of actuator parameters:
+    /// - K_t --> motor torque constant
+    /// - K_d0, K_d1 --> estimates for the static and dynamic friction coefficients (Coulomb friction model)
+    /// - rot_MoI --> rotor axial moment of inertia
+    /// - red_ratio --> actuator reduction ratio
+    /// - tanh_coeff, q_dot_3sigma --> paramters needed by the awesome SignWithMem class
+
     class IqEstimator
     {
 
@@ -66,6 +77,11 @@ namespace CalibUtils{
         SignProcUtils::SignWithMem _sign_with_memory;
 
     };
+
+    /// \brief Class to calibrate the approximate model of quadrature current
+    /// using measurements from a real experiment (suitable for real-time implementation).
+    /// Currently, we only optimize for the static and dynamic Coulomb friction coefficients
+    /// K_d0 and K_d1
 
     class IqCalib
     {
