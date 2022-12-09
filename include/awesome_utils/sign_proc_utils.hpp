@@ -117,6 +117,17 @@ namespace SignProcUtils{
     /// (1.1) f_bw \approx sqrt( (_magic_number / (_samples_dt * _cutoff_freq))^2 + 1)
     ///
     /// (1.2) window_size \approx (k/PI) /dt * 1.0 / sqrt(_window_size^2 - 1)
+    ///
+    /// As a side note, the exact equations to be solved for obtaining the bandwidth would be
+    ///
+    /// { window_size ° 1/sqrt(2) = sum_{j = 0}^{N-1} cos(omega * dt * j)
+    /// {
+    /// {
+    /// {sum_{j = 0}^{N-1} sin(omega * dt * j) = 0
+    ///
+    /// which is solved by the trascendental equation
+    ///
+    /// N * 1/sqrt(2) * sin(omega * h / 2.0)= sin(omega * dt * window_size /2)
 
     class MovAvrgFilt
     {
