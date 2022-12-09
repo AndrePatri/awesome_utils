@@ -146,6 +146,7 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt,
 
 void MomentumBasedFObs::compute_bandwidth()
 {
+
     _k = 2 * _PI * abs(_bandwidth);
 
 }

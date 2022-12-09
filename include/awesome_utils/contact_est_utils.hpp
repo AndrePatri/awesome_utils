@@ -106,7 +106,7 @@ namespace ContactEstUtils
     /// )
     ///
     /// Side note on the solution to y_dot = K (tau_c - y) in scalar case
-    /// with tau_c = A * sin(2 * PI * t):
+    /// with tau_c = A * sin(omega * t) and omega = 2 * PI * f_tau_c:
     /// y(t) = (y0 + A * k * w^2/ (k^2 + w^2)) * e^{-k*t} +
     ///        + A * k / sqrt(k^2 + w^2) * sin(omega * t + phi), with phi = atan(omega/k)
     ///
