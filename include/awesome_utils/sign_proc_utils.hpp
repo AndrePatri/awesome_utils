@@ -12,6 +12,8 @@
 
 namespace SignProcUtils{
 
+    /// \brief Class to perform numerical differentiation of a
+    /// constant rate signal.
     class NumDiff
     {
       public:
@@ -46,6 +48,8 @@ namespace SignProcUtils{
         int _n_jnts, _order;
     };
 
+    /// \brief Class to perform numerical integration of a
+    /// constant rate signal over a fixed time horizon.
     class NumInt
     {
       public:
@@ -71,6 +75,49 @@ namespace SignProcUtils{
 
     };
 
+    /// \brief Class to perform moving-average filtering of a signal s(t).
+    ///
+    /// To get an approximate expression for this filter bandwidth (valid for large window size)
+    /// consider the continous version of the filter:
+    ///
+    /// (0.0) y(t) = -1/T_w * int_0^{T_w} s(t - tau) d_tau
+    ///
+    /// say s = A * sin(omega * t)
+    ///
+    /// the result of the integral is
+    ///
+    /// y(t) = S/(omega * T_w) * sqrt(2 * (1 - cos(omega * T_w))) * sin(omega * t + phi)
+    ///
+    /// the bandwidth is defined as y(t) / (A * sin(omega * t)) = 1/sqrt(2)
+    ///
+    /// by manipulating the expression one gets
+    ///
+    /// sin^2(omega * T_W/2.0) = 1/2.0 * (omega * T_w/2.0)^2
+    ///
+    /// considering that omega * T_w is positive
+    /// the equation to be solved for is sin x = x/sqrt(2.0)
+    ///
+    /// which shows that necessarily 0 <= x <= sqrt(2.0)
+    /// This equation is trivial to solve numerically. The result is
+    ///
+    /// x \approx k:= 1.3915576345446
+    ///
+    /// This means that an approximate formula for the bandwidth is
+    ///
+    /// (1) f_bw \approx k/(PI * dt * (window_size - 1))
+    ///
+    /// or, equivalently, for the window size
+    ///
+    /// (2)  window_size \approx 1 + k/(PI * f_bw * dt)
+    ///
+    /// A less approximate expression for (1) and (2) can be found by working
+    /// directly with the discrete version of (0.0).
+    /// See https://dsp.stackexchange.com/questions/9966/what-is-the-cut-off-frequency-of-a-moving-average-filter
+    ///
+    /// (1.1) f_bw \approx sqrt( (_magic_number / (_samples_dt * _cutoff_freq))^2 + 1)
+    ///
+    /// (1.2) window_size \approx (k/PI) /dt * 1.0 / sqrt(_window_size^2 - 1)
+
     class MovAvrgFilt
     {
         public:
@@ -91,9 +138,10 @@ namespace SignProcUtils{
 
           Eigen::MatrixXd _window_data;
 
-          double _magic_number = 0.442946470689452340308369; // reference
+          double _k = 1.3915576345446;
+          double _PI =  2 * std::acos(0);
+          double _magic_number = _k / _PI; // reference
           // @ https://dsp.stackexchange.com/questions/9966/what-is-the-cut-off-frequency-of-a-moving-average-filter
-
           int _n_jnts, _window_size;
 
           double _cutoff_freq = -1.0;
@@ -103,6 +151,27 @@ namespace SignProcUtils{
         bool _is_first_run = true;
 
     };
+
+    /// \brief Simple implementation of a sign with memory.
+    /// Instead of using directly the sign of the signal to detect sign changes,
+    /// we use a continous approximation of the sign function (tanh function)
+    /// which has two benefits -> one: it is naturally normalized ([-1, 1])
+    /// and is continous and differentiable in 0. On the contrary, using directly a
+    /// normalized version of the signal would cause numerical instability close to the origin.
+    ///
+    /// The sign change is triggered when the
+    /// continous approximation of the sign function goes above or below
+    /// the inteval [ -tanh(_tanh_coeff * signal_3sigma), tanh(_tanh_coeff * signal_3sigma)]
+    ///
+    /// where signal_3sigma is 3 * standard deviation of the signal noise.
+    ///
+    /// This way we are pretty much sure that the sign implementation will be immune to
+    /// instability due to noise (assuming some characteristics of the noise are known).
+    ///
+    /// This mechanism introduces a lower bound on the sensitivity of the sign function.
+    ///
+    /// With an ideal and clean signal, one would set signal_3sigma to 0 and have infinite
+    /// sensitivity.
 
     class SignWithMem
     {
