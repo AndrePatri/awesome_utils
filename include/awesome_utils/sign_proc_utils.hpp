@@ -120,7 +120,7 @@ namespace SignProcUtils{
     ///
     /// As a side note, the exact equations to be solved for obtaining the bandwidth would be
     ///
-    /// { window_size ° 1/sqrt(2) = sum_{j = 0}^{N-1} cos(omega * dt * j)
+    /// { window_size * 1/sqrt(2) = sum_{j = 0}^{N-1} cos(omega * dt * j)
     /// {
     /// {
     /// {sum_{j = 0}^{N-1} sin(omega * dt * j) = 0
