@@ -170,7 +170,7 @@ void IqEstimator::get_tau_link(Eigen::VectorXd& tau)
 
 void IqEstimator::get_tau_friction(Eigen::VectorXd& tau_friction)
 {
-    tau_friction = _tau_friction;
+    tau_friction = _tau_friction_linkside;
 }
 
 void IqEstimator::get_q_ddot(Eigen::VectorXd& q_ddot)
