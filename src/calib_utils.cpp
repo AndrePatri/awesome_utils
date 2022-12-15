@@ -13,13 +13,13 @@ IqEstimator::IqEstimator(Eigen::VectorXd K_t,
                          Eigen::VectorXd K_d0, Eigen::VectorXd K_d1,
                          Eigen::VectorXd rot_MoI,
                          Eigen::VectorXd red_ratio,
-                         double tanh_coeff,
+                         int alpha,
                          double q_dot_3sigma)
   :_K_t{K_t},
    _K_d0{K_d0}, _K_d1{K_d1},
    _rot_MoI{rot_MoI},
    _red_ratio{red_ratio},
-   _tanh_coeff{tanh_coeff},
+   _alpha{alpha},
    _q_dot_3sigma{q_dot_3sigma}
 {
 
@@ -32,8 +32,8 @@ IqEstimator::IqEstimator(Eigen::VectorXd K_t,
 
     _iq_est = Eigen::VectorXd::Zero(_n_jnts);
 
-    // initialize the awesome sign function
-    _sign_with_memory = SignProcUtils::SignWithMem(_q_dot_3sigma, _tanh_coeff);
+    // initialize the smooth sign function
+    _smooth_sign = SmoooothSign(_q_dot_3sigma, _alpha);
 }
 
 IqEstimator::IqEstimator()
@@ -183,7 +183,7 @@ void IqEstimator::compute_iq_estimates()
     for (int i = 0; i < _n_jnts; i++)
     {
 
-        double static_friction_effort = _K_d0(i) * _sign_with_memory.sign(_q_dot(i));
+        double static_friction_effort = _K_d0(i) * _smooth_sign.sign(_q_dot(i));
         double dynamic_friction_effort = _K_d1(i) * _q_dot(i);
 
         _tau_friction(i) = static_friction_effort + dynamic_friction_effort;
@@ -249,14 +249,14 @@ IqCalib::IqCalib(int window_size,
                  Eigen::VectorXd red_ratio,
                  Eigen::VectorXd ig_Kd0,
                  Eigen::VectorXd ig_Kd1,
-                 double tanh_coeff,
+                 int alpha,
                  double q_dot_3sigma,
                  double lambda,
                  bool verbose)
   :_window_size{window_size},
     _K_t{K_t}, _rot_MoI{rot_MoI},
     _red_ratio{red_ratio},
-    _tanh_coeff{tanh_coeff},
+    _alpha{alpha},
     _q_dot_3sigma{q_dot_3sigma},
     _verbose{verbose},
     _lambda{lambda},
@@ -367,8 +367,8 @@ IqCalib::IqCalib(int window_size,
 
     _sol_time = Eigen::VectorXd::Zero(_n_jnts);
 
-    // initialize the awesome sign-with-memory function
-    _sign_with_memory = SignProcUtils::SignWithMem(_q_dot_3sigma, _tanh_coeff);
+    // initialize the smooth sign function
+    _smooth_sign = SignProcUtils::SmoooothSign(_q_dot_3sigma, _alpha);
 
 
   }
@@ -568,7 +568,7 @@ void IqCalib::compute_alphad0()
 
     for (int i = 0; i < _n_jnts; i++)
     {
-        _alpha_d0(i * _window_size) =  (double) _sign_with_memory.sign(_q_dot(i)); // assign last sample
+        _alpha_d0(i * _window_size) =  _smooth_sign.sign(_q_dot(i)); // assign last sample
     }
 }
 

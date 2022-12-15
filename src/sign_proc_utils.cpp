@@ -314,7 +314,23 @@ int SignWithMem::sign(double value)
 SmoooothSign::SmoooothSign(double signal_3sigma,
                            int alpha,
                            double beta)
-    :_alpha{alpha}, _signal_3sigma{signal_3sigma}, _beta{beta}
+    :_signal_3sigma{signal_3sigma}, _alpha{alpha}, _beta{beta}
+{
+
+    if(alpha < 1)
+    {
+        std::string exception = std::string("SmoooothSign::SmoooothSign(): alpha should more or equal to 1");
+
+        throw std::invalid_argument(exception);
+    }
+
+    _k = atanh(_beta) / (abs(_signal_3sigma) * _alpha);
+
+}
+
+SmoooothSign::SmoooothSign(double signal_3sigma,
+                           int alpha)
+    :_signal_3sigma{signal_3sigma}, _alpha{alpha}
 {
 
     if(alpha < 1)

@@ -122,7 +122,7 @@ namespace CalibUtils{
                     Eigen::VectorXd K_d0, Eigen::VectorXd K_d1,
                     Eigen::VectorXd rot_MoI,
                     Eigen::VectorXd red_ratio,
-                    double tanh_coeff = 30.0,
+                    int alpha = 10,
                     double q_dot_3sigma = 0.001);
 
         IqEstimator();
@@ -149,7 +149,7 @@ namespace CalibUtils{
 
         Eigen::VectorXd _q_dot, _q_ddot, _tau;
 
-        double _tanh_coeff = 10.0;
+        int _alpha = 10;
         double _q_dot_3sigma = 0.001; // max amplitute of the noise contained in the velocity signal
         // (basically equal to 3 * sigma, where sigma is the standard deviation of the noise)
 
@@ -157,7 +157,7 @@ namespace CalibUtils{
 
         void compute_iq_estimates();
 
-        SignProcUtils::SignWithMem _sign_with_memory;
+        SmoooothSign _smooth_sign;
 
     };
 
@@ -179,7 +179,7 @@ namespace CalibUtils{
                 Eigen::VectorXd red_ratio,
                 Eigen::VectorXd ig_Kd0,
                 Eigen::VectorXd ig_Kd1,
-                double tanh_coeff = 30.0,
+                int alpha = 10,
                 double q_dot_3sigma = 0.001,
                 double lambda = 2.0,
                 bool verbose = false
@@ -214,7 +214,7 @@ namespace CalibUtils{
 
         int _n_opt_vars = 2;
 
-        double _tanh_coeff = 10.0; // handtuned coefficient used to approximate the
+        int _alpha = 10; // handtuned coefficient used to approximate the
                             // ideal sign() function with a C^{inf} hyperbolic tangent function.
                             // The higher tanh_coeff, the steeper the transition from -1 to 1 is.
         double _q_dot_3sigma = 0.001; // max amplitute of the noise contained in the velocity signal
@@ -269,7 +269,7 @@ namespace CalibUtils{
                         _red_ratio; // actuator paramters (supposed to be perfectly known in
                                     // advance)
 
-        SignProcUtils::SignWithMem _sign_with_memory;
+        SmoooothSign _smooth_sign;
 
         void shift_data(Eigen::VectorXd& data,
                         bool towards_back = true); // shift vector data towards the

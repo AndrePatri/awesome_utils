@@ -258,9 +258,12 @@ namespace SignProcUtils{
 
             SmoooothSign();
 
-            SmoooothSign(double signal_3sigma = 1e-8,
-                           int alpha = 10,
-                           double beta = 0.95);
+            SmoooothSign(double signal_3sigma,
+                           int alpha,
+                           double beta);
+
+            SmoooothSign(double signal_3sigma,
+                           int alpha);
 
             double sign(double value);
 
