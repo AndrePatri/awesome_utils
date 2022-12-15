@@ -145,7 +145,9 @@ namespace CalibUtils{
       private:
 
         Eigen::VectorXd _K_t, _K_d0, _K_d1, _rot_MoI, _red_ratio,
-                        _iq_est, _tau_l, _tau_friction;
+                        _iq_est, _tau_l,
+                        _tau_friction_linkside,
+                        _tau_friction_rotorside;
 
         Eigen::VectorXd _q_dot, _q_ddot, _tau;
 

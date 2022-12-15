@@ -28,7 +28,8 @@ IqEstimator::IqEstimator(Eigen::VectorXd K_t,
     _q_dot = Eigen::VectorXd::Zero(_n_jnts);
     _q_ddot = Eigen::VectorXd::Zero(_n_jnts);
     _tau = Eigen::VectorXd::Zero(_n_jnts);
-    _tau_friction = Eigen::VectorXd::Zero(_n_jnts);
+    _tau_friction_linkside = Eigen::VectorXd::Zero(_n_jnts);
+    _tau_friction_rotorside = Eigen::VectorXd::Zero(_n_jnts);
 
     _iq_est = Eigen::VectorXd::Zero(_n_jnts);
 
@@ -183,16 +184,18 @@ void IqEstimator::compute_iq_estimates()
     for (int i = 0; i < _n_jnts; i++)
     {
 
-        double static_friction_effort = _K_d0(i) * _smooth_sign.sign(_q_dot(i));
-        double dynamic_friction_effort = _K_d1(i) * _q_dot(i);
+        double static_friction_effort_linkside = _K_d0(i) * _smooth_sign.sign(_q_dot(i));
+        double dynamic_friction_effort_linkside  = _K_d1(i) * _q_dot(i);
 
-        _tau_friction(i) = static_friction_effort + dynamic_friction_effort;
+        _tau_friction_linkside(i) = - (static_friction_effort_linkside + dynamic_friction_effort_linkside);
 
-        double total_torque_on_motor = _tau(i) + _tau_friction(i);
+        _tau_friction_rotorside(i) = _tau_friction_linkside(i) * _red_ratio(i);
+
+        double total_torque_on_motor = - _tau(i) * _red_ratio(i) + _tau_friction_rotorside(i);
 
         double motor_omega_dot = _q_ddot(i) / _red_ratio(i);
 
-        double required_motor_torque = _rot_MoI(i) * motor_omega_dot + total_torque_on_motor * _red_ratio(i);
+        double required_motor_torque = _rot_MoI(i) * motor_omega_dot - total_torque_on_motor;
 
         _iq_est(i) = required_motor_torque / _K_t(i);
     }
@@ -568,7 +571,7 @@ void IqCalib::compute_alphad0()
 
     for (int i = 0; i < _n_jnts; i++)
     {
-        _alpha_d0(i * _window_size) =  _smooth_sign.sign(_q_dot(i)); // assign last sample
+        _alpha_d0(i * _window_size) =  - _smooth_sign.sign(_q_dot(i)); // assign last sample
     }
 }
 
@@ -576,7 +579,7 @@ void IqCalib::compute_alphad1()
 {
     for (int i = 0; i < _n_jnts; i++)
     {
-        _alpha_d1(i * _window_size) = _q_dot(i); // assign last sample
+        _alpha_d1(i * _window_size) = - _q_dot(i); // assign last sample
     }
 }
 
@@ -592,7 +595,7 @@ void IqCalib::compute_tau_friction()
     {
 
         _tau_total(i) = 1.0 / _red_ratio(i) *
-              ( - _rot_MoI(i) * _q_ddot(i) / _red_ratio(i) + _K_t(i) * _iq(i)); // total torque acting
+              ( _rot_MoI(i) * _q_ddot(i) / _red_ratio(i) - _K_t(i) * _iq(i)); // total torque acting
         // on the motor rotor estimated using the iq measurement and the estimate on the motor axis acceleration.
         // The difference between this component and the torque measured on the link side gives the cumulative unmodeled
         // effort on the rotor caused by dissipative actions present between the link and the rotor itself. Ideally,
@@ -600,7 +603,7 @@ void IqCalib::compute_tau_friction()
         // To model this dissipative effects, we use a simple static friction + dynamic friction model:
         // tau_friction = Kd0 * sign(q_dot) * Kd1 * q_dot
 
-        _tau_friction(i * _window_size) = _tau_total(i) - _tau(i); // assign to last sample
+        _tau_friction(i * _window_size) = _tau_total(i) + _tau(i); // assign to last sample
     }
 }
 
