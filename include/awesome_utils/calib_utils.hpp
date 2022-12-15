@@ -19,7 +19,88 @@ using namespace SignProcUtils;
 
 namespace CalibUtils{
 
-    /// \brief Class to a friction-compensated estimate for the quadrature
+    //************* Notes on rotor-side dynamics *************//
+
+    /// The dynamics of the rotor is:
+    ///
+    /// (1) tau_m - tau_r = J_r * q_m_ddot
+    ///
+    /// where
+    ///
+    /// (2) tau_m = K_t * i_q
+    ///
+    /// and tau_r is the resultant torque on the rotor side coming from the reducer
+    /// (or directly from the link, if there's no transmission).
+    /// tau_r can be simply modeled as
+    ///
+    /// (3) tau_r = tau_lm + tau_f
+    ///
+    /// where
+    /// tau_lm is the link-side measured torque, reflected to the rotor-side and
+    /// tau_f is the disturbance torque on the rotor, which can be attributed to
+    /// frictional effects.
+    ///
+    /// (4) tau_lm = tau_l * eta
+    ///
+    /// where tau_l is the measured link-side torque and
+    /// eta is the reduction ratio of the tranmission
+    ///
+    /// Specifically, we employ a simple Coulomb model for the tau_f:
+    ///
+    /// (5) tau_f = k_d0 * sign(q_m_dot) + K_d1 * q_m_dot
+
+    //************* first order friction observer *************//
+
+    /// It is trivial, for example, to build a first order friction observer exploiting the model (1).
+    /// Specifically, one can obtain an estimate for tau_f as
+    ///
+    /// tau_f = tau_m - (tau_lm + J_r * q_m_ddot)
+    ///
+    /// where q_m_ddot can be estimated numerically from measurements of q_m_dot
+    /// The dynamics of the observer is
+    ///
+    /// y_dot = K * (tau_f - y)
+    /// -> (5) y_dot = K * (K_t * i_q - (tau_l * eta + J_r * q_m_ddot) - y)
+    ///
+    /// where K is a positive definite matrix (usually a diagonal matrix)
+    /// We integrate numerically (5) over a control interval to obtain
+    ///
+    /// y_k - y_km1 = K * ( int_{t_km1}^{t_k}{K_t * i_q - tau_l * eta} * dt - J_r * (q_m_dot_k - q_m_dot_km1) - int_{t_km1}^{t_k}{ y } * dt )
+    ///
+    /// Let us approximate the integral of y over dt as (y_k + y_km1)/2 * h
+    /// where h = t_k - t_km1 (i.e. trapezoidal integration).
+    ///
+    /// --> (I + K * h/2.0) * y_k = (I - K * h/2.0) * y_km1 + b_k
+    ///
+    /// where
+    ///
+    /// b_k = K * ( int_{t_km1}^{t_k}{K_t * i_q - tau_l * eta} * dt - J_r * (q_m_dot_k - q_m_dot_km1) )
+    ///
+    /// which means that the update law for the observer is given by
+    ///
+    /// (6) y_k = (I + K * h/2.0)^{-1} * (I - K * h/2.0) * y_km1 + (I + K * h/2.0)^{-1} * b_k
+    ///
+    /// (6) is a discrete time-invariant system of the type
+    ///
+    /// y_k = A * y_km1 + B * u_k
+    ///
+    /// If we approximate (6) with its continous equivalent (5) we can compute the bandwidth of the
+    /// observer considering that the filter is a first order system. -->
+    ///
+    /// 2 * PI * BW = K
+    ///
+    /// (7) BW = K / (2.0 * PI)
+    ///
+    /// Additional remarks:
+    /// - the friction observer is a first order filter and, as such, introduced
+    ///   a lag in the estimate of the friction torque. If this torque is used to compensate
+    ///   friction, the lag can introduce instabilities in the closed loop system.
+    /// - The BW computed with (7) is an approximation of the actual one, which should
+    ///   be computed using the discrete dynamics (6)
+    ///
+    ///
+    ///
+    /// \brief Class to computed a friction-compensated estimate for the quadrature
     /// current of a classical three-phase BLDC actuator, without the need to
     /// employ the current measurement.
     ///
@@ -29,6 +110,8 @@ namespace CalibUtils{
     /// - rot_MoI --> rotor axial moment of inertia
     /// - red_ratio --> actuator reduction ratio
     /// - tanh_coeff, q_dot_3sigma --> paramters needed by the awesome SignWithMem class
+
+    //************* iq model calibration-related stuff *************//
 
     class IqEstimator
     {
@@ -205,6 +288,7 @@ namespace CalibUtils{
         void compute_tau_friction();
 
     };
+
 }
 
 #endif
