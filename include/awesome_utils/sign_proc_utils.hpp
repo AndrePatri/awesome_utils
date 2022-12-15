@@ -237,14 +237,20 @@ namespace SignProcUtils{
     /// To do that, we use the linear approximation of the function and set it to 1
     /// after a predefined input threshold:
     ///
-    /// k * signal_3sigma * alpha = 1
+    /// tanh(k * signal_3sigma * alpha) \approx 1
+    ///
+    /// or, equivalently,
+    ///
+    /// tanh(k * signal_3sigma * alpha) = beta
     ///
     /// where
+    /// - beta is a value indicating how much the sign function will be close to 1
+    ///   after signal_3sigma * alpha (e.g. 0.95 a.k.a. 95%)
     /// - signal_3sigma is 3 * standard deviation of the signal noise
     /// - alpha indicates after how many signal_3sigma the sign output should be close to 1
     ///   and should be [1, +inf] where higher values produce a slower transition
     ///
-    /// -> (1) k = 1.0 / (signal_3sigma * alpha)
+    /// -> (1) k = atanh(beta) / (signal_3sigma * alpha)
 
     class SmoooothSign
     {
@@ -253,7 +259,8 @@ namespace SignProcUtils{
             SmoooothSign();
 
             SmoooothSign(double signal_3sigma = 1e-8,
-                           int alpha = 5);
+                           int alpha = 10,
+                           double beta = 0.95);
 
             double sign(double value);
 
@@ -262,9 +269,9 @@ namespace SignProcUtils{
             double _signal_3sigma = 1e-8; // 3 * standard deviation
             // of the noise present in the signal of which it's necessary to compute the sign.
 
-            int _alpha = 5;
+            int _alpha = 10;
 
-            double _k = 1.0;
+            double _k = 1.0, _beta = 0.95;
 
             double _sign = 0.0;
 

@@ -312,8 +312,9 @@ int SignWithMem::sign(double value)
 //************* SmoothTanhSign *************//
 
 SmoooothSign::SmoooothSign(double signal_3sigma,
-                           int alpha)
-    :_alpha{alpha}, _signal_3sigma{signal_3sigma}
+                           int alpha,
+                           double beta)
+    :_alpha{alpha}, _signal_3sigma{signal_3sigma}, _beta{beta}
 {
 
     if(alpha < 1)
@@ -323,7 +324,7 @@ SmoooothSign::SmoooothSign(double signal_3sigma,
         throw std::invalid_argument(exception);
     }
 
-    _k = 1.0 / (abs(_signal_3sigma) * _alpha);
+    _k = atanh(_beta) / (abs(_signal_3sigma) * _alpha);
 
 }
 
