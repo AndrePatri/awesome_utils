@@ -216,6 +216,64 @@ namespace SignProcUtils{
 
     };
 
+    /// \brief An implementation of continous sign function approximation.
+    /// instead of computing
+    ///
+    /// sign(value)
+    ///
+    /// or sign(value/abs(value))
+    ///
+    /// we compute the sign as
+    ///
+    /// sign = tanh(k * value)
+    ///
+    /// How to give k a "smart" value?
+    /// we approximate the derivative of the continous sign function at the origin as
+    ///
+    /// k/cosh^2(k * value)|_0 = k
+    ///
+    /// We want tanh(k * value) to be approximately 1 after a user defined threshold,
+    /// which should depend on the uncertainty we have of the signal (i.e. noise).
+    /// To do that, we use the linear approximation of the function and set it to 1
+    /// after a predefined input threshold:
+    ///
+    /// k * signal_3sigma * alpha = 1
+    ///
+    /// where
+    /// - signal_3sigma is 3 * standard deviation of the signal noise
+    /// - alpha indicates after how many signal_3sigma the sign output should be close to 1
+    ///   and should be [1, +inf] where higher values produce a slower transition
+    ///
+    /// -> (1) k = 1.0 / (signal_3sigma * alpha)
+
+    class SmoooothSign
+    {
+        public:
+
+            SmoooothSign();
+
+            SmoooothSign(double signal_3sigma = 1e-8,
+                           int alpha = 5);
+
+            double sign(double value);
+
+        private:
+
+            double _signal_3sigma = 1e-8; // 3 * standard deviation
+            // of the noise present in the signal of which it's necessary to compute the sign.
+
+            int _alpha = 5;
+
+            double _k = 1.0;
+
+            double _sign = 0.0;
+
+            double _value = 0.0;
+
+            double smooooth_sign(double value);
+    };
+
+
 }
 
 #endif // SIGN_PROC_UTILS_H

@@ -308,3 +308,61 @@ int SignWithMem::sign(double value)
     return _sign;
 
 }
+
+//************* SmoothTanhSign *************//
+
+SmoooothSign::SmoooothSign(double signal_3sigma,
+                           int alpha)
+    :_alpha{alpha}, _signal_3sigma{signal_3sigma}
+{
+
+    if(alpha < 1)
+    {
+        std::string exception = std::string("SmoooothSign::SmoooothSign(): alpha should more or equal to 1");
+
+        throw std::invalid_argument(exception);
+    }
+
+    _k = 1.0 / (abs(_signal_3sigma) * _alpha);
+
+}
+
+double SmoooothSign::smooooth_sign(double value)
+{
+
+    return tanh(_k * value);
+
+}
+
+double SmoooothSign::sign(double value)
+{
+
+    return SmoooothSign::smooooth_sign(value);
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
