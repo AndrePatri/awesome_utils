@@ -23,7 +23,7 @@ namespace CalibUtils{
 
     /// The dynamics of the rotor is:
     ///
-    /// (1) tau_m - tau_r = J_r * q_m_ddot
+    /// (1) tau_m + tau_r = J_r * q_m_ddot
     ///
     /// where
     ///
@@ -40,32 +40,32 @@ namespace CalibUtils{
     /// tau_f is the disturbance torque on the rotor, which can be attributed to
     /// frictional effects.
     ///
-    /// (4) tau_lm = tau_l * eta
+    /// (4) tau_lm = - tau_l * eta
     ///
     /// where tau_l is the measured link-side torque and
     /// eta is the reduction ratio of the tranmission
     ///
     /// Specifically, we employ a simple Coulomb model for the tau_f:
     ///
-    /// (5) tau_f = k_d0 * sign(q_m_dot) + K_d1 * q_m_dot
+    /// (5) tau_f = - ( k_d0 * sign(q_m_dot) + K_d1 * q_m_dot)
 
     //************* first order friction observer *************//
 
     /// It is trivial, for example, to build a first order friction observer exploiting the model (1).
     /// Specifically, one can obtain an estimate for tau_f as
     ///
-    /// tau_f = tau_m - (tau_lm + J_r * q_m_ddot)
+    /// tau_f = - (tau_m + tau_lm - J_r * q_m_ddot)
     ///
     /// where q_m_ddot can be estimated numerically from measurements of q_m_dot
     /// The dynamics of the observer is
     ///
     /// y_dot = K * (tau_f - y)
-    /// -> (5) y_dot = K * (K_t * i_q - (tau_l * eta + J_r * q_m_ddot) - y)
+    /// -> (5) y_dot = K * (- K_t * i_q + tau_l * eta + J_r * q_m_ddot) - y)
     ///
     /// where K is a positive definite matrix (usually a diagonal matrix)
     /// We integrate numerically (5) over a control interval to obtain
     ///
-    /// y_k - y_km1 = K * ( int_{t_km1}^{t_k}{K_t * i_q - tau_l * eta} * dt - J_r * (q_m_dot_k - q_m_dot_km1) - int_{t_km1}^{t_k}{ y } * dt )
+    /// y_k - y_km1 = K * ( int_{t_km1}^{t_k}{- K_t * i_q + tau_l * eta} * dt + J_r * (q_m_dot_k - q_m_dot_km1) - int_{t_km1}^{t_k}{ y } * dt )
     ///
     /// Let us approximate the integral of y over dt as (y_k + y_km1)/2 * h
     /// where h = t_k - t_km1 (i.e. trapezoidal integration).
@@ -74,7 +74,7 @@ namespace CalibUtils{
     ///
     /// where
     ///
-    /// b_k = K * ( int_{t_km1}^{t_k}{K_t * i_q - tau_l * eta} * dt - J_r * (q_m_dot_k - q_m_dot_km1) )
+    /// b_k = K * ( int_{t_km1}^{t_k}{-K_t * i_q + tau_l * eta} * dt + J_r * (q_m_dot_k - q_m_dot_km1) )
     ///
     /// which means that the update law for the observer is given by
     ///
