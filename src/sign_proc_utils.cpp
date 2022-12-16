@@ -311,6 +311,11 @@ int SignWithMem::sign(double value)
 
 //************* SmoothTanhSign *************//
 
+SmoooothSign::SmoooothSign()
+{
+
+}
+
 SmoooothSign::SmoooothSign(double signal_3sigma,
                            int alpha,
                            double beta)
