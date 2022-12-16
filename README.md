@@ -1,4 +1,4 @@
-# Various robotics-tailored cpp utilities perform signal processing, parameter identification 
+# Various robotics-tailored cpp utilities to perform signal processing, parameter identification and more
 
 These include
 
