@@ -260,10 +260,12 @@ namespace SignProcUtils{
 
             SmoooothSign(double signal_3sigma,
                            int alpha,
-                           double beta);
+                           double beta,
+                           bool use_threshold = false);
 
             SmoooothSign(double signal_3sigma,
-                           int alpha);
+                           int alpha,
+                           bool use_threshold = false);
 
             double sign(double value);
 
@@ -273,6 +275,10 @@ namespace SignProcUtils{
             // of the noise present in the signal of which it's necessary to compute the sign.
 
             int _alpha = 5;
+
+            double _threshold = 1e-8;
+
+            bool _use_threshold = false;
 
             double _k = 1.0, _beta = 0.95;
 

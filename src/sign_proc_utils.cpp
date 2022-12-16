@@ -318,7 +318,8 @@ SmoooothSign::SmoooothSign()
 
 SmoooothSign::SmoooothSign(double signal_3sigma,
                            int alpha,
-                           double beta)
+                           double beta,
+                           bool use_threshold)
     :_signal_3sigma{signal_3sigma}, _alpha{alpha}, _beta{beta}
 {
 
@@ -331,10 +332,15 @@ SmoooothSign::SmoooothSign(double signal_3sigma,
 
     _k = atanh(_beta) / (abs(_signal_3sigma) * _alpha);
 
+    _threshold = _signal_3sigma;
+
+    _use_threshold = use_threshold;
+
 }
 
 SmoooothSign::SmoooothSign(double signal_3sigma,
-                           int alpha)
+                           int alpha,
+                           bool use_threshold)
     :_signal_3sigma{signal_3sigma}, _alpha{alpha}
 {
 
@@ -347,12 +353,22 @@ SmoooothSign::SmoooothSign(double signal_3sigma,
 
     _k = atanh(_beta) / (abs(_signal_3sigma) * _alpha);
 
+    _threshold = _signal_3sigma;
+
+    _use_threshold = use_threshold;
+
 }
 
 double SmoooothSign::smooooth_sign(double value)
 {
+    if (_use_threshold && abs(value) <= _threshold)
 
-    return tanh(_k * value);
+        return 0.0;
+
+    else
+    {
+        return tanh(_k * value);
+    }
 
 }
 
