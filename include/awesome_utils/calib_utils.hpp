@@ -157,6 +157,8 @@ namespace CalibUtils{
 
         int _n_jnts;
 
+        bool _use_thresholded_sign = true;
+
         void compute_iq_estimates();
 
         SmoooothSign _smooth_sign;
@@ -223,6 +225,8 @@ namespace CalibUtils{
         // (basically equal to 3 * sigma, where sigma is the standard deviation of the noise)
 
         double _lambda = 2.0; // regularization gain for the least square problem
+
+        bool _use_thresholded_sign = true;
 
         std::chrono::time_point<std::chrono::high_resolution_clock> _sol_start, _sol_stop;
 

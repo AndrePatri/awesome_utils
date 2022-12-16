@@ -34,7 +34,7 @@ IqEstimator::IqEstimator(Eigen::VectorXd K_t,
     _iq_est = Eigen::VectorXd::Zero(_n_jnts);
 
     // initialize the smooth sign function
-    _smooth_sign = SmoooothSign(_q_dot_3sigma, _alpha);
+    _smooth_sign = SmoooothSign(_q_dot_3sigma, _alpha, _use_thresholded_sign);
 }
 
 IqEstimator::IqEstimator()
@@ -371,7 +371,7 @@ IqCalib::IqCalib(int window_size,
     _sol_time = Eigen::VectorXd::Zero(_n_jnts);
 
     // initialize the smooth sign function
-    _smooth_sign = SignProcUtils::SmoooothSign(_q_dot_3sigma, _alpha);
+    _smooth_sign = SignProcUtils::SmoooothSign(_q_dot_3sigma, _alpha, _use_thresholded_sign);
 
 
   }
