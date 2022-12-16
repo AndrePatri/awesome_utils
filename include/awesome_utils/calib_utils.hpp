@@ -151,7 +151,7 @@ namespace CalibUtils{
 
         Eigen::VectorXd _q_dot, _q_ddot, _tau;
 
-        int _alpha = 10;
+        int _alpha = 5;
         double _q_dot_3sigma = 0.001; // max amplitute of the noise contained in the velocity signal
         // (basically equal to 3 * sigma, where sigma is the standard deviation of the noise)
 
@@ -216,7 +216,7 @@ namespace CalibUtils{
 
         int _n_opt_vars = 2;
 
-        int _alpha = 10; // handtuned coefficient used to approximate the
+        int _alpha = 5; // handtuned coefficient used to approximate the
                             // ideal sign() function with a C^{inf} hyperbolic tangent function.
                             // The higher tanh_coeff, the steeper the transition from -1 to 1 is.
         double _q_dot_3sigma = 0.001; // max amplitute of the noise contained in the velocity signal

@@ -272,7 +272,7 @@ namespace SignProcUtils{
             double _signal_3sigma = 1e-8; // 3 * standard deviation
             // of the noise present in the signal of which it's necessary to compute the sign.
 
-            int _alpha = 10;
+            int _alpha = 5;
 
             double _k = 1.0, _beta = 0.95;
 
