@@ -23,8 +23,8 @@ if(${pybind11_FOUND})
             DESTINATION ${PYTHON_SITE}/awesome_utils)
             
     file(WRITE ${CMAKE_BINARY_DIR}/__init__.py "")
-    install(FILES  ${CMAKE_BINARY_DIR}/__init__.py DESTINATION ${PYTHON_SITE}/awesome_utils)
 
+    install(FILES  ${CMAKE_BINARY_DIR}/__init__.py DESTINATION ${PYTHON_SITE}/awesome_utils)
             
 else()
 
