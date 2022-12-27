@@ -79,6 +79,7 @@ TEST_F(TestModelInterface, compute_quantities)
     std::string base_link_frame_name = "base_link";
     std::string test_rig_frame_name = "test_rig";
 
+    double mass = -1.0;
     Eigen::VectorXd q, v, a, tau,
                     g, p, b;
     Eigen::MatrixXd B, C;
@@ -97,6 +98,7 @@ TEST_F(TestModelInterface, compute_quantities)
     model_ptr->update(); // computes all terms of the dynamics
     // and updates the forward kinematis
 
+    model_ptr->get_robot_mass(mass);
     model_ptr->get_B(B);
     model_ptr->get_C(C);
     model_ptr->get_g(g);
@@ -116,6 +118,7 @@ TEST_F(TestModelInterface, compute_quantities)
                              vel);
 
     std::cout << "\nLoaded URDF at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
+    std::cout << "** Robot mass: \n" << mass << "\n " << std::endl;
     std::cout << "** B: \n" << B.format(CleanFmt) << "\n " << std::endl;
     std::cout << "** C: \n" << C.format(CleanFmt) << "\n " << std::endl;
     std::cout << "** g: \n" << g.format(CleanFmt) << "\n " << std::endl;

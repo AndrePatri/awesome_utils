@@ -92,12 +92,9 @@ namespace ModelInterface
             void set_v(VectorXd v);
             void set_a(VectorXd a);
             void set_tau(VectorXd tau);
+
             void get_state(VectorXd& q, VectorXd& v, VectorXd& a,
                            VectorXd& tau);
-
-            void get_B(MatrixXd& B); // joint-space inertia matrix
-            void get_C(MatrixXd& C); // Coriolis-matrix
-            void get_g(VectorXd& g);
 
             void get_q(VectorXd& q);
             void get_v(VectorXd& v);
@@ -106,8 +103,12 @@ namespace ModelInterface
             void get_tau(VectorXd& tau);
             void get_rnea_tau(VectorXd& tau);
 
-            void get_p(VectorXd& p);
-            void get_b(VectorXd& b);
+            void get_B(MatrixXd& B); // joint-space inertia matrix
+            void get_C(MatrixXd& C); // Coriolis-matrix
+            void get_g(VectorXd& g);
+
+            void get_p(VectorXd& p); // generalized momentum (B * v)
+            void get_b(VectorXd& b); // bias vector (C * v)
             void get_jac(std::string frame_name,
                          SpatialJac& J,
                          ReferenceFrame ref = ReferenceFrame::LOCAL_WORLD_ALIGNED);
