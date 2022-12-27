@@ -9,110 +9,105 @@
 using namespace SignProcUtils;
 using namespace ModelInterface;
 
-//namespace Eigen
-//{
-//    typedef Eigen::Matrix<double, 6, 1> Vector6d;
-//    typedef Eigen::Matrix<double, 3, 1> Vector3d;
-//}
-
 namespace ContactEstUtils
 {
     typedef Eigen::MatrixXd MatrixXd;
     typedef Eigen::VectorXd VectorXd;
 
-    /// \brief Class to perform a momentum-based force estimation.
-    ///
-    /// Consider the following expression of the rigid-body dynamics:
-    ///
-    /// (1.1) B(q) * a + C(q, v) * q_dot + g = tau + tau_c
-    ///
-    /// where
-    /// - B is the joint-space inertia matrix
-    /// - C is the matrix of Coriolis and centrifugal terms (recall that (2) B_dot = C + C^T)
-    /// - g is the joint-space gravitational vector
-    /// - tau is a vector of joint-space effort measurements
-    /// - tau_c is a "disturbance" vector, which can be used
-    ///   to estimate the contact forces, reflected to the joints.
-    ///
-    /// The dynamics of the generalized momentum is given by
-    ///
-    /// (1.2) p_dot = C^T*v - g + tau + tau_c
-    ///
-    /// The dynamics of the (linear) observer is given by
-    ///
-    /// (3) y_dot = K * (p_dot - tau + g - C^T * v - y)
-    ///
-    /// which is an asymptotically stable dynamics when is
-    /// K positive definite square matrix (usually is chosen as a diagonal matrix).
-    ///
-    /// - p is the joint-space momentum, given by B(q) * v
-    ///
-    /// Equation (3) can be obtained easily by considering that
-    ///
-    /// (4) p_dot = B_dot * v + B * a
-    ///
-    /// substituting (1) and (2) into (3) and extracting tau_c as the desired variable
-    /// to be observed, one obtains the observer dynamics (3).
-    ///
-    /// How to use (3)? It can be easily integrated (numerically) to obtain an estimate of tau_c
-    /// with some noise rejection properties: the higher the gains, the lower the rejection
-    /// of noise, the faster the convergence.
-    /// In particular, supposing a matrix of diagonals values, the bandwidth of this observer
-    /// can be approximated as (5) BW = - k/log(1 - 0.707)
-    ///
-    /// Clearly, the quality of the estimate depends on the quality of the measurements (accuracy, noise, etc..)
-    /// but also on the accuracy up to which the inertial properties of the system are known
-    ///
-    /// a numerical implementation to obtain y at the current time (y_k) can be implemented integrating both sides of (3)
-    /// over a sample interval:
-    ///
-    /// int_0^{h} [ y_dot * d_t] = K * int_0^{h} [ (p_dot - tau + g - C^T * v - y) * dt] --->
-    ///
-    /// y_k - y_km1 = K * (p_k - p_km1 + int_0^{h} [ g - tau - C^T * v - y ] * dt)
-    ///
-    /// let us approximate  int_0^{h} [ y * dt] as (y_k + y_km1)/2.0 * h (trapezoidal integration).
-    ///
-    /// Rearranging,  we obtain
-    ///
-    /// (6) (I + dt/2.0 * K) * y_k = (I - dt/2.0 * K) * y_km1 + K * (p_k - p_km1 + int_0^{dt} [ g - tau - C^T * v - y ] * dt)
-    ///
-    /// The term " int_0^{dt} [ g - tau - C^T * v - y ] * dt " can be simply approximated using again trapezoidal integration.
-    ///
-    /// Inverting (6) w.r.t. y_k gives the update equation for y, i.e. the observer of the residual joint torques
-    ///
-    /// Note that (6) does not require the differentiation of q_dot and is hence less prone to noise than other possible model-based
-    /// observer implementations.
-    ///
-    /// To obtain the the contact wrenches consider that:
-    /// y \approx tau_c = sum_0^{n_c - 1} J^T_{i} * w_i
-    /// where n_c is the number of contacts, w_i is the wrench on the i-th contact and J_i is the analytical
-    /// jacobian of the i-th contact (each contact is described by a frame).
-    /// we can concatenate everything into
-    ///
-    /// y \approc tau_c = J^T_{tot} * W
-    /// where
-    /// J_{tot} = [J_1; J_2; ....; J_k; ....; J_{n_c - 1}]
-    /// and W = [w_1; w_2; ...; w_k; ....; w_{n_c - 1}]
-    ///
-    /// Given a regularization W_{lambda},
-    /// and a regularization diagonal matrix Lambda,
-    /// this problem can be approached in a least-square error sense
-    /// by solving the system
-    /// [J^T_{tot}; sqrt(Lambda)] * W = [tau_c; sqrt(Lambda) * W_lambda]
-    /// which can be synthetically written as
-    /// A * W = b
-    /// (recall that the least square regression problem is TBsolved is
-    /// min_{W_c}{ 1/2 * ||A * W_c - b||^2 }
-    /// )
-    ///
-    /// Side note on the solution to y_dot = K (tau_c - y) in scalar case
-    /// with tau_c = A * sin(omega * t) and omega = 2 * PI * f_tau_c:
-    /// y(t) = (y0 + A * k * w^2/ (k^2 + w^2)) * e^{-k*t} +
-    ///        + A * k / sqrt(k^2 + w^2) * sin(omega * t + phi), with phi = atan(omega/k)
-    ///
-    /// which means the bandwidth of the observer can be computed as
-    /// 2 * pi * f_bw = k (recall that the bandwidth is defined as a reduction of the amplitude of
-    /// the frequency response of -3dB = 20 * log(1/sqrt(2)))
+    /**
+    * @brief Class to perform a momentum-based force estimation.
+    *
+    * Consider the following expression of the rigid-body dynamics:
+    *
+    * (1.1) B(q) * a + C(q, v) * q_dot + g = tau + tau_c
+    *
+    * where
+    * - B is the joint-space inertia matrix
+    * - C is the matrix of Coriolis and centrifugal terms (recall that (2) B_dot = C + C^T)
+    * - g is the joint-space gravitational vector
+    * - tau is a vector of joint-space effort measurements
+    * - tau_c is a "disturbance" vector, which can be used
+    * to estimate the contact forces, reflected to the joints.
+    *
+    * The dynamics of the generalized momentum is given by
+    *
+    * (1.2) p_dot = C^T*v - g + tau + tau_c
+    *
+    * The dynamics of the (linear) observer is given by
+    *
+    * (3) y_dot = K * (p_dot - tau + g - C^T * v - y)
+    *
+    * which is an asymptotically stable dynamics when is
+    * K positive definite square matrix (usually is chosen as a diagonal matrix).
+    *
+    * - p is the joint-space momentum, given by B(q) * v
+    *
+    *   Equation (3) can be obtained easily by considering that
+    *
+    * (4) p_dot = B_dot * v + B * a
+    *
+    * substituting (1) and (2) into (3) and extracting tau_c as the desired variable
+    * to be observed, one obtains the observer dynamics (3).
+    *
+    * How to use (3)? It can be easily integrated (numerically) to obtain an estimate of tau_c
+    *  with some noise rejection properties: the higher the gains, the lower the rejection
+    * of noise, the faster the convergence.
+    * In particular, supposing a matrix of diagonals values, the bandwidth of this observer
+    * can be approximated as (5) BW = - k/log(1 - 0.707)
+    *
+    * Clearly, the quality of the estimate depends on the quality of the measurements (accuracy, noise, etc..)
+    * but also on the accuracy up to which the inertial properties of the system are known
+    *
+    * a numerical implementation to obtain y at the current time (y_k) can be implemented integrating both sides of (3)
+    * over a sample interval:
+    *
+    * int_0^{h} [ y_dot * d_t] = K * int_0^{h} [ (p_dot - tau + g - C^T * v - y) * dt] --->
+    *  y_k - y_km1 = K * (p_k - p_km1 + int_0^{h} [ g - tau - C^T * v - y ] * dt)
+    *
+    *  let us approximate  int_0^{h} [ y * dt] as (y_k + y_km1)/2.0 * h (trapezoidal integration).
+    *
+    * Rearranging,  we obtain
+    *
+    * (6) (I + dt/2.0 * K) * y_k = (I - dt/2.0 * K) * y_km1 + K * (p_k - p_km1 + int_0^{dt} [ g - tau - C^T * v - y ] * dt)
+    *
+    * The term " int_0^{dt} [ g - tau - C^T * v - y ] * dt " can be simply approximated using again trapezoidal integration.
+    * Inverting (6) w.r.t. y_k gives the update equation for y, i.e. the observer of the residual joint torques
+    *
+    * Note that (6) does not require the differentiation of q_dot and is hence less prone to noise than other possible model-based
+    * observer implementations.
+    *
+    * To obtain the the contact wrenches consider that:
+    * y \approx tau_c = sum_0^{n_c - 1} J^T_{i} * w_i
+    * where n_c is the number of contacts, w_i is the wrench on the i-th contact and J_i is the analytical
+    * jacobian of the i-th contact (each contact is described by a frame).
+    * we can concatenate everything into
+    *
+    * y \approc tau_c = J^T_{tot} * W
+    * where
+    * J_{tot} = [J_1; J_2; ....; J_k; ....; J_{n_c - 1}]
+    * and W = [w_1; w_2; ...; w_k; ....; w_{n_c - 1}]
+    *
+    * Given a regularization W_{lambda},
+    * and a regularization diagonal matrix Lambda,
+    * this problem can be approached in a least-square error sense
+    * by solving the system
+    * [J^T_{tot}; sqrt(Lambda)] * W = [tau_c; sqrt(Lambda) * W_lambda]
+    * which can be synthetically written as
+    * A * W = b
+    * (recall that the least square regression problem is TBsolved is
+    * min_{W_c}{ 1/2 * ||A * W_c - b||^2 }
+    * )
+    *
+    * Side note on the solution to y_dot = K (tau_c - y) in scalar case
+    * with tau_c = A * sin(omega * t) and omega = 2 * PI * f_tau_c:
+    * y(t) = (y0 + A * k * w^2/ (k^2 + w^2)) * e^{-k*t} +
+    *       + A * k / sqrt(k^2 + w^2) * sin(omega * t + phi), with phi = atan(omega/k)
+    *
+    * which means the bandwidth of the observer can be computed as
+    * 2 * pi * f_bw = k (recall that the bandwidth is defined as a reduction of the amplitude of
+    * the frequency response of -3dB = 20 * log(1/sqrt(2)))
+    */
+
 
     class MomentumBasedFObs
     {
