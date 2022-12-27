@@ -1,3 +1,6 @@
+#ifndef CONTACT_EST_UTILS_HPP
+#define CONTACT_EST_UTILS_HPP
+
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
@@ -222,3 +225,5 @@ namespace ContactEstUtils
     };
 
 }
+
+#endif // CONTACT_EST_UTILS_HPP
