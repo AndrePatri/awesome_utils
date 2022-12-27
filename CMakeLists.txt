@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 project(awesome_utils VERSION 1.0.0 LANGUAGES CXX)
 
 option(WITH_XBOT2 "Compile and install xbot2-dependent comonents" TRUE)
-option(WITH_PYTHON "Compile and install python bindings" FALSE)
+option(WITH_PYTHON "Compile and install python bindings" TRUE)
 option(BUILD_TESTS "Compile ${PROJECT_NAME} tests" FALSE)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
