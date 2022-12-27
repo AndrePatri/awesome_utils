@@ -25,10 +25,21 @@ if __name__ == '__main__':
 
 	q = np.zeros(nq)
 	v = np.zeros(nv)
-	a = np.zeros(nv)
-	tau = np.zeros(nv)
 
 	model.set_q(q)
 	model.set_v(v)
-	model.set_a(a)
+
+	model.update()
+
+	print("\n \\\****  Debug print ****\\\ \n")
+	print("Model mass: " + str(mass) + " Kg")
+	print("nq: " + str(nq))
+	print("nv: " + str(nv))
+	print("n_jnts: " + str(n_jnts))
+	print("p: " + str(model.get_p()))
+	print("b: " + str(model.get_b()))
+	print("B: " + str(model.get_B()))
+	print("C: " + str(model.get_C()))
+	print("g: " + str(model.get_g()))
+
 
