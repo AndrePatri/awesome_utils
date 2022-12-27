@@ -101,7 +101,6 @@ namespace ModelInterface
             void get_a(VectorXd& a);
 
             void get_tau(VectorXd& tau);
-            void get_rnea_tau(VectorXd& tau);
 
             void get_B(MatrixXd& B); // joint-space inertia matrix
             void get_C(MatrixXd& C); // Coriolis-matrix
