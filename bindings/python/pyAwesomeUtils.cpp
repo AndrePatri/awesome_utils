@@ -54,16 +54,16 @@ auto get_v = [](Model& self)
 
 };
 
-//auto get_a = [](Model& self)
-//{
+auto get_a = [](Model& self)
+{
 
-//    Eigen::VectorXd a;
+    Eigen::VectorXd a;
 
-//    self.get_a(a);
+    self.get_a(a);
 
-//    return a;
+    return a;
 
-//};
+};
 
 auto get_tau = [](Model& self)
 {
@@ -73,17 +73,6 @@ auto get_tau = [](Model& self)
     self.get_tau(tau);
 
     return tau;
-
-};
-
-auto get_rnea_tau = [](Model& self)
-{
-
-    Eigen::VectorXd rnea_tau;
-
-    self.get_rnea_tau(rnea_tau);
-
-    return rnea_tau;
 
 };
 
@@ -156,9 +145,8 @@ PYBIND11_MODULE(awesome_pyutils, m) {
 
             .def("get_q",  get_q)
             .def("get_v",  get_v)
-//            .def("get_a",  get_a)
+            .def("get_a",  get_a)
             .def("get_tau",  get_tau)
-            .def("get_rnea_tau",  get_rnea_tau)
             .def("get_p",  get_p)
             .def("get_b",  get_b)
             .def("get_B",  get_B)
