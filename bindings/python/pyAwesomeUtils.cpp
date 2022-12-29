@@ -129,7 +129,38 @@ auto get_C = [](Model& self)
 
 };
 
+auto get_J = [](Model& self,
+                std::string frame_name,
+                Model::ReferenceFrame ref_frame = Model::ReferenceFrame::LOCAL_WORLD_ALIGNED)
+{
+
+    Model::SpatialJac J;
+
+    self.get_jac(frame_name, J, ref_frame);
+
+    return J;
+
+};
+
+auto get_J_dot = [](Model& self,
+                    std::string frame_name,
+                    Model::ReferenceFrame ref_frame = Model::ReferenceFrame::LOCAL_WORLD_ALIGNED)
+{
+
+    Model::SpatialJac J_dot;
+
+    self.get_jac_dot(frame_name, J_dot, ref_frame);
+
+    return J_dot;
+
+};
+
 PYBIND11_MODULE(awesome_pyutils, m) {
+
+    py::enum_<Model::ReferenceFrame>(m, "ReferenceFrame", py::arithmetic())
+                .value("WORLD", Model::ReferenceFrame::WORLD)
+                .value("LOCAL", Model::ReferenceFrame::LOCAL)
+                .value("LOCAL_WORLD_ALIGNED", Model::ReferenceFrame::LOCAL_WORLD_ALIGNED);
 
     py::class_<Model, std::shared_ptr<Model>>(m, "Model")
             .def(py::init(construct_model_interface),
@@ -150,6 +181,9 @@ PYBIND11_MODULE(awesome_pyutils, m) {
             .def("get_B",  get_B)
             .def("get_C",  get_C)
             .def("get_g",  get_g)
+
+            .def("get_J",  get_J)
+            .def("get_J_dot",  get_J_dot)
 
             .def("set_q",  &Model::set_q)
             .def("set_v", &Model::set_v)

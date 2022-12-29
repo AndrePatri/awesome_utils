@@ -63,9 +63,9 @@ namespace ModelInterface
             typedef Matrix<double, 3, 1> Force3D;
             typedef Matrix<double, 3, 1> Torque3D;
 
-
             typedef Matrix<double, 6, -1> SpatialJac;
             typedef Matrix<double, -1, 6> SpatialJacT;
+            typedef Matrix<double, 6, -1> SpatialJacDot;
 
             typedef std::weak_ptr<Model> WeakPtr;
             typedef std::shared_ptr<Model> Ptr;
@@ -111,6 +111,9 @@ namespace ModelInterface
             void get_jac(std::string frame_name,
                          SpatialJac& J,
                          ReferenceFrame ref = ReferenceFrame::LOCAL_WORLD_ALIGNED);
+            void get_jac_dot(std::string frame_name,
+                         SpatialJacDot& J_dot,
+                         ReferenceFrame ref = ReferenceFrame::LOCAL_WORLD_ALIGNED); // time derivative of Jacobian
 
             void get_frame_pose(std::string frame_name,
                                 PosVec3D& position, RotMat3D& rotation);
@@ -174,6 +177,9 @@ namespace ModelInterface
 
             void jacobian(std::string frame_name, Model::ReferenceFrame ref,
                           SpatialJac& J);
+
+            void jacobian_dot(std::string frame_name, Model::ReferenceFrame ref,
+                          SpatialJacDot& J_dot);
 
             void rnea(); // The Recursive Newton-Euler algorithm.
             // It computes the inverse dynamics, aka the joint torques \\
