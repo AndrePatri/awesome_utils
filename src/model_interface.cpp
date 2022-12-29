@@ -155,6 +155,14 @@ void Model::B()
 {
     pinocchio::crba(_pin_model, _pin_data, _q); // only computes the upper triangular part of B
     // we copy the upper triangular half into the lower
+    _pin_data.Minv.triangularView<Eigen::StrictlyLower>() = _pin_data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
+
+    _B_inv = _pin_data.Minv; // we get the full joint-space inertia matrix
+}
+
+void Model::B_inv()
+{
+    pinocchio::computeMinverse(_pin_model, _pin_data, _q); // only computes the upper triangular part
     _pin_data.M.triangularView<Eigen::StrictlyLower>() = _pin_data.M.transpose().triangularView<Eigen::StrictlyLower>();
 
     _B = _pin_data.M; // we get the full joint-space inertia matrix

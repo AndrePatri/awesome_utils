@@ -90,6 +90,8 @@ namespace ModelInterface
             void get_tau(VectorXd& tau);
 
             void get_B(MatrixXd& B); // joint-space inertia matrix
+            void get_B_inv(MatrixXd& B_inv); // inverse of joint-space inertia matrix
+
             void get_C(MatrixXd& C); // Coriolis-matrix
             void get_g(VectorXd& g);
 
@@ -142,7 +144,7 @@ namespace ModelInterface
 
             VectorXd _q, _v, _a;
 
-            MatrixXd _B, _C;
+            MatrixXd _B, _B_inv, _C;
             VectorXd _g, _tau,
                     _p, _b;
 
@@ -157,6 +159,7 @@ namespace ModelInterface
 
             void update_all();
             void B(); // joint-space inertia matrix
+            void B_inv(); // inverse of joint-space inertia matrix
             void C(); // Coriolis
             void g();
             void p(); // joint space momentum of the system
