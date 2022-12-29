@@ -5,6 +5,7 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>
+#include <pybind11/stl.h>
 
 namespace py = pybind11;
 using namespace ModelInterface;
@@ -134,7 +135,7 @@ auto get_J = [](Model& self,
                 Model::ReferenceFrame ref_frame = Model::ReferenceFrame::LOCAL_WORLD_ALIGNED)
 {
 
-    Model::SpatialJac J;
+    utils_defs::SpatialJac J;
 
     self.get_jac(frame_name, J, ref_frame);
 
@@ -147,7 +148,7 @@ auto get_J_dot = [](Model& self,
                     Model::ReferenceFrame ref_frame = Model::ReferenceFrame::LOCAL_WORLD_ALIGNED)
 {
 
-    Model::SpatialJac J_dot;
+    utils_defs::SpatialJac J_dot;
 
     self.get_jac_dot(frame_name, J_dot, ref_frame);
 
@@ -171,6 +172,7 @@ PYBIND11_MODULE(awesome_pyutils, m) {
             .def("get_nq", &Model::get_nq)
             .def("get_nv", &Model::get_nv)
             .def("get_jnt_number", &Model::get_jnt_number)
+            .def("get_jnt_names", &Model::get_jnt_names)
 
             .def("get_q",  get_q)
             .def("get_v",  get_v)
