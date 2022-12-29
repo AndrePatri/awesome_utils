@@ -8,7 +8,7 @@ option(BUILD_TESTS "Compile ${PROJECT_NAME} tests" FALSE)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-find_package(catkin REQUIRED sensor_msgs geometry_msgs std_msgs message_generation)
+find_package(catkin OPTIONAL_COMPONENTS sensor_msgs geometry_msgs std_msgs message_generation)
 find_package(Eigen3 REQUIRED)
 find_package(pinocchio REQUIRED)
 find_package(matlogger2 REQUIRED)
