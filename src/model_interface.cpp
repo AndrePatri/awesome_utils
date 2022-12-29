@@ -218,6 +218,11 @@ void Model::get_v(VectorXd& v)
     v = _v;
 }
 
+void Model::get_a(VectorXd& a)
+{
+    a = _a;
+}
+
 void Model::update_p()
 {
     p();

@@ -4,6 +4,7 @@ project(awesome_utils VERSION 1.0.0 LANGUAGES CXX)
 
 option(WITH_XBOT2 "Compile and install xbot2-dependent comonents" FALSE)
 option(WITH_PYTHON "Compile and install python bindings" TRUE)
+option(WITH_DOCS "Compile documentation" FALSE)
 option(BUILD_TESTS "Compile ${PROJECT_NAME} tests" FALSE)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -118,6 +119,10 @@ install_basic_package_files(${LIBRARY_TARGET_NAME}
 # Compile python bindings
 if(${WITH_PYTHON})
     add_subdirectory(bindings/python/)
+endif()
+
+if(${WITH_DOCS})
+    add_subdirectory(doc/)
 endif()
 
 # Add the uninstall target
