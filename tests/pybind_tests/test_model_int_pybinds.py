@@ -39,6 +39,7 @@ if __name__ == '__main__':
     model.update()
 
     print("\n \\\****  Debug print ****\\\ \n")
+    print("Joint names: ", model.get_jnt_names())
     print("Model mass: " + str(mass) + " Kg")
     print("nq: " + str(nq))
     print("nv: " + str(nv))
