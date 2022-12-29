@@ -87,7 +87,7 @@ TEST_F(TestModelInterface, compute_quantities)
     utils_defs::PosVec3D position;
     utils_defs::RotMat3D rotation;
     utils_defs::Twist vel;
-    Model::Affine3D pose;
+    utils_defs::Affine3D pose;
 
     model_ptr->get_state(q, v, a, tau);
     model_ptr->set_q(q);
