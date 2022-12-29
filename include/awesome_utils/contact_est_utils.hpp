@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "awesome_utils/sign_proc_utils.hpp"
-#include "awesome_utils/model_interface.hpp"
+#include "include/awesome_utils/sign_proc_utils.hpp"
+#include "include/awesome_utils/model_interface.hpp"
 
 using namespace SignProcUtils;
 using namespace ModelInterface;

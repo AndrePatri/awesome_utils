@@ -1,4 +1,4 @@
-#include "awesome_utils/model_interface.hpp"
+#include "include/awesome_utils/model_interface.hpp"
 
 using namespace ModelInterface;
 

@@ -7,7 +7,7 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "awesome_utils/traj_utils.hpp"
+#include "include/awesome_utils/traj_utils.hpp"
 
 using namespace TrajUtils;
 

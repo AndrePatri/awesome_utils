@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(awesome_utils VERSION 1.0.0 LANGUAGES CXX)
 
-option(WITH_XBOT2 "Compile and install xbot2-dependent comonents" TRUE)
+option(WITH_XBOT2 "Compile and install xbot2-dependent comonents" FALSE)
 option(WITH_PYTHON "Compile and install python bindings" TRUE)
 option(BUILD_TESTS "Compile ${PROJECT_NAME} tests" FALSE)
 
@@ -37,8 +37,11 @@ set(${LIBRARY_TARGET_NAME}_SRC
 
 add_library(${LIBRARY_TARGET_NAME} SHARED ${${LIBRARY_TARGET_NAME}_SRC})
 
-include_directories(
-    include/
+if(${WITH_XBOT2})
+	
+	include_directories(
+    include/awesome_utils/
+    include/xbot2_utils/
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${EIGEN3_INCLUDE_DIR}/
@@ -46,13 +49,30 @@ include_directories(
     ${xbot_msgs_INCLUDE_DIRS}/
     ${CMAKE_BINARY_DIR}/generated/
     ${matlogger2_INCLUDE_DIRS}
-)
+	)	
+
+else()
+	
+	include_directories(
+    include/awesome_utils/
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${EIGEN3_INCLUDE_DIR}/
+    ${catkin_INCLUDE_DIRS}/
+    ${xbot_msgs_INCLUDE_DIRS}/
+    ${CMAKE_BINARY_DIR}/generated/
+    ${matlogger2_INCLUDE_DIRS}
+	)	
+
+endif()
+
+
 
 target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE ${catkin_LIBRARIES}
-                                                     Eigen3::Eigen
-                                                     pinocchio::pinocchio
-                                                     matlogger2::matlogger2)
-
+                                                    Eigen3::Eigen
+                                                    pinocchio::pinocchio
+                                                    matlogger2::matlogger2)
+                                                     
 target_compile_options(${LIBRARY_TARGET_NAME} PRIVATE -std=c++17)
 
 set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES
@@ -64,7 +84,6 @@ if(APPLE)
 endif()
 
 target_compile_definitions(${LIBRARY_TARGET_NAME} PRIVATE -DAWESOMEUTILS_LIB_EXT="${LIB_EXT}")
-
 
 target_include_directories(${LIBRARY_TARGET_NAME} INTERFACE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
                                                             "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>"
