@@ -78,15 +78,50 @@ namespace CartesianImpUtils
             typedef std::shared_ptr<CartesianImpController> Ptr;
             typedef std::unique_ptr<CartesianImpController> UniquePtr;
 
+            typedef Matrix<double, 6, 6> CartInertiaMat;
+            typedef Matrix<double, 6, 6> CartStiffMat;
+            typedef Matrix<double, 6, 6> CartDampMat;
+            typedef Matrix<double, 6, 1> CartStiffVect; // we assume diagonal impedance
+            // matrices for simplicity
+            typedef Matrix<double, 6, 1> CartDampVect;
+
             CartesianImpController();
 
-            CartesianImpController(Model::Ptr model_ptr);
+            CartesianImpController(Model::Ptr model_ptr,
+                                   CartesianTask::Ptr cart_task);
+            CartesianImpController(Model::Ptr model_ptr,
+                                   CartesianTask::Ptr cart_task,
+                                   std::string cart_cntrl_framename);
 
             void update();
 
+            void set_cart_impedance(CartStiffMat stifness_mat,
+                                    CartDampMat damping_mat);
+            void set_cart_impedance(CartStiffVect stifness_vect,
+                                    CartDampVect damping_vect);
+
         private:
 
+            Model::Ptr _model_ptr;
+
             int _nq = 0, _nv = 0;
+
+            std::string _cart_cntrl_framename;
+
+            CartesianTask::Ptr _cart_task;
+
+            CartStiffMat _cart_stiff;
+            CartDampMat _cart_damp;
+
+            CartStiffVect _cart_stiff_vect;
+            CartDampVect _cart_damp_vect;
+
+            CartInertiaMat _lambda;
+
+            void map_impedance_vect2mat();
+
+            void compute_cart_inertia_mat();
+
 
     };
 }

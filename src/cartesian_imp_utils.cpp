@@ -94,8 +94,82 @@ CartesianImpController::CartesianImpController()
 
 }
 
+CartesianImpController::CartesianImpController(Model::Ptr model_ptr,
+                                               CartesianTask::Ptr cart_task,
+                                               std::string cart_cntrl_framename)
+{
+    _model_ptr = model_ptr;
+
+    _cart_task = cart_task;
+
+    _nq = _model_ptr->get_nq();
+
+    _nv = _model_ptr->get_nv();
+
+    _cart_cntrl_framename = cart_cntrl_framename;
+}
+
+CartesianImpController::CartesianImpController(Model::Ptr model_ptr,
+                                               CartesianTask::Ptr cart_task)
+{
+    _model_ptr = model_ptr;
+
+    _cart_task = cart_task;
+
+    _nq = _model_ptr->get_nq();
+
+    _nv = _model_ptr->get_nv();
+
+}
+
+void CartesianImpController::map_impedance_vect2mat()
+{
+    // diagonal
+    _cart_stiff(0, 0) = _cart_stiff_vect(0);
+    _cart_stiff(1, 1) = _cart_stiff_vect(1);
+    _cart_stiff(2, 2) = _cart_stiff_vect(2);
+    _cart_damp(0, 0) = _cart_damp_vect(0);
+    _cart_damp(1, 1) = _cart_damp_vect(1);
+    _cart_damp(2, 2) = _cart_damp_vect(2);
+    // upper triangular part
+    _cart_stiff(3, 3) = _cart_stiff_vect(3);
+    _cart_stiff(4, 4) = _cart_stiff_vect(4);
+    _cart_stiff(5, 5) = _cart_stiff_vect(5);
+    _cart_damp(3, 3) = _cart_damp_vect(3);
+    _cart_damp(4, 4) = _cart_damp_vect(4);
+    _cart_damp(5, 5) = _cart_damp_vect(5);
+}
+
 void CartesianImpController::update()
 {
 
 }
 
+void CartesianImpController::set_cart_impedance(CartStiffMat stifness_mat,
+                        CartDampMat damping_mat)
+{
+    // we make sure inputs are symmetric
+    _cart_stiff = 0.5 * (stifness_mat + stifness_mat.transpose());
+
+    _cart_damp = 0.5 * (damping_mat + damping_mat.transpose());
+}
+
+void CartesianImpController::set_cart_impedance(CartStiffVect stifness_vect,
+                        CartDampVect damping_vect)
+{
+    _cart_stiff_vect = stifness_vect;
+    _cart_damp_vect = damping_vect;
+
+    // since we assume diagonal imp. matrices
+    // we reset them to 0 before adding the diagonal in case
+    // theie off-diagonal elements different from 0 before
+
+    _cart_stiff = Eigen::MatrixXd::Zero(6, 6);
+    _cart_damp = Eigen::MatrixXd::Zero(6, 6);
+
+    map_impedance_vect2mat(); // updates _cart_stiff and _cart_damp
+}
+
+void CartesianImpController::compute_cart_inertia_mat()
+{
+}
