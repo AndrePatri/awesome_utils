@@ -26,6 +26,8 @@ set(SIGN_PROC_UTILS_TRGT src/sign_proc_utils.cpp)
 set(TRAJ_UTILS_TRGT src/traj_utils.cpp)
 set(CONTACT_EST_UTILS_TRGT src/contact_est_utils.cpp)
 set(MODEL_INTERFACE_TRGT src/model_interface.cpp)
+set(CARTESIAN_IMP_TRGT src/cartesian_imp_utils.cpp)
+set(ORIENTATION_TRGT src/orientation_utils.cpp)
 
 set(${LIBRARY_TARGET_NAME}_SRC
         ${CALIB_UTILS_TRGT}
@@ -34,13 +36,15 @@ set(${LIBRARY_TARGET_NAME}_SRC
         ${CONTACT_EST_UTILS_TRGT}
         ${MODEL_INTERFACE_TRGT}
         ${XBOT2_UTILS_TRGT}
+        ${CARTESIAN_IMP_TRGT}
+        ${ORIENTATION_TRGT}
     )
 
 add_library(${LIBRARY_TARGET_NAME} SHARED ${${LIBRARY_TARGET_NAME}_SRC})
 
 if(${WITH_XBOT2})
 	
-	include_directories(
+    include_directories(
     include/awesome_utils/
     include/xbot2_utils/
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -50,11 +54,11 @@ if(${WITH_XBOT2})
     ${xbot_msgs_INCLUDE_DIRS}/
     ${CMAKE_BINARY_DIR}/generated/
     ${matlogger2_INCLUDE_DIRS}
-	)	
+    )
 
 else()
 	
-	include_directories(
+    include_directories(
     include/awesome_utils/
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
@@ -63,7 +67,7 @@ else()
     ${xbot_msgs_INCLUDE_DIRS}/
     ${CMAKE_BINARY_DIR}/generated/
     ${matlogger2_INCLUDE_DIRS}
-	)	
+    )
 
 endif()
 
