@@ -8,6 +8,8 @@ using namespace Eigen;
 
 namespace utils_defs
 {
+    typedef Matrix<double, 3, 3> Mat3D;
+
     typedef Matrix<double, 3, 3> RotMat3D;
     typedef Affine3d Affine3D;
     typedef Matrix<double, 3, 1> PosVec3D;

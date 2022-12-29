@@ -6,13 +6,14 @@
 
 #include<cmath>
 
+#include "include/awesome_utils/typedefs.hpp"
+
 using namespace Eigen;
 
 namespace RotErr
 {
 
-    typedef Matrix<double, 3, 3> Mat3D;
-    typedef Matrix<double, 3, 1> RotErr3D;
+    typedef Matrix<double, 3, 1> RotErr3d;
 
     /**
     * @brief Class to compute an orientation error between two frames
@@ -37,7 +38,7 @@ namespace RotErr
     *
     */
 
-    RotErr3D LogMap(Mat3D R, Mat3D R_ref);
+    RotErr3d LogMap(utils_defs::RotMat3D R, utils_defs::RotMat3D R_ref);
 
 }
 

@@ -2,13 +2,13 @@
 
 using namespace RotErr;
 
-RotErr3D LogMap(Mat3D R, Mat3D R_ref)
+RotErr3d LogMap(utils_defs::RotMat3D R, utils_defs::RotMat3D R_ref)
 {
-    Mat3D R_err = R_ref.transpose() * R; // orientation or actual frame w.r.t. target frame
+    utils_defs::RotMat3D R_err = R_ref.transpose() * R; // orientation or actual frame w.r.t. target frame
 
-    Mat3D S = (R_err - R_err.transpose())/ 2.0;  // logarithmic map
+    utils_defs::Mat3D S = (R_err - R_err.transpose())/ 2.0;  // logarithmic map
 
-    RotErr3D r_err;
+    RotErr3d r_err;
 
     r_err(0) = S(2, 1);
     r_err(1) = S(0, 2);
