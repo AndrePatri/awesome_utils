@@ -83,10 +83,10 @@ TEST_F(TestModelInterface, compute_quantities)
     Eigen::VectorXd q, v, a, tau,
                     g, p, b;
     Eigen::MatrixXd B, C;
-    Model::SpatialJac J;
-    Model::PosVec3D position;
-    Model::RotMat3D rotation;
-    Model::Twist vel;
+    utils_defs::SpatialJac J;
+    utils_defs::PosVec3D position;
+    utils_defs::RotMat3D rotation;
+    utils_defs::Twist vel;
     Model::Affine3D pose;
 
     model_ptr->get_state(q, v, a, tau);

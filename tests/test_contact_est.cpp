@@ -58,9 +58,9 @@ TEST_F(TestContactEst, compute_quantities)
     Eigen::VectorXd q, v, a, tau, p,
                     tau_c;
 
-    Model::Force3D f_c;
-    Model::Torque3D t_c;
-    Model::SpatialJac J;
+    utils_defs::Force3D f_c;
+    utils_defs::Torque3D t_c;
+    utils_defs::SpatialJac J;
 
     Eigen::MatrixXd B, C;
 

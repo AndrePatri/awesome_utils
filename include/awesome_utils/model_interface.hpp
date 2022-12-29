@@ -31,7 +31,8 @@
 
 #include <pinocchio/parsers/urdf.hpp>
 
-#include "sign_proc_utils.hpp"
+#include "include/awesome_utils/typedefs.hpp"
+#include "include/awesome_utils/sign_proc_utils.hpp"
 
 using namespace Eigen;
 using namespace SignProcUtils;
@@ -52,20 +53,6 @@ namespace ModelInterface
                 LOCAL = 1, //This is spatial in local frame
                 LOCAL_WORLD_ALIGNED = 2 //This is classical in world frame
             };
-
-            typedef Matrix<double, 3, 3> RotMat3D;
-            typedef Affine3d Affine3D;
-            typedef Matrix<double, 3, 1> PosVec3D;
-            typedef Matrix<double, 6, 1> Twist;
-            typedef Matrix<double, 3, 1> LinVel;
-            typedef Matrix<double, 3, 1> AngVel;
-            typedef Matrix<double, 6, 1> Wrench;
-            typedef Matrix<double, 3, 1> Force3D;
-            typedef Matrix<double, 3, 1> Torque3D;
-
-            typedef Matrix<double, 6, -1> SpatialJac;
-            typedef Matrix<double, -1, 6> SpatialJacT;
-            typedef Matrix<double, 6, -1> SpatialJacDot;
 
             typedef std::weak_ptr<Model> WeakPtr;
             typedef std::shared_ptr<Model> Ptr;
@@ -109,21 +96,21 @@ namespace ModelInterface
             void get_p(VectorXd& p); // generalized momentum (B * v)
             void get_b(VectorXd& b); // bias vector (C * v)
             void get_jac(std::string frame_name,
-                         SpatialJac& J,
+                         utils_defs::SpatialJac& J,
                          ReferenceFrame ref = ReferenceFrame::LOCAL_WORLD_ALIGNED);
             void get_jac_dot(std::string frame_name,
-                         SpatialJacDot& J_dot,
+                         utils_defs::SpatialJacDot& J_dot,
                          ReferenceFrame ref = ReferenceFrame::LOCAL_WORLD_ALIGNED); // time derivative of Jacobian
 
             void get_frame_pose(std::string frame_name,
-                                PosVec3D& position, RotMat3D& rotation);
+                                utils_defs::PosVec3D& position, utils_defs::RotMat3D& rotation);
             void get_frame_pose(std::string frame_name,
                                 Affine3d& pose);
             void get_frame_vel(std::string frame_name,
-                               Twist& vel,
+                               utils_defs::Twist& vel,
                                ReferenceFrame ref = ReferenceFrame::LOCAL_WORLD_ALIGNED);
             void get_frame_vel(std::string frame_name,
-                               LinVel& lin_vel, AngVel& omega,
+                               utils_defs::LinVel& lin_vel, utils_defs::AngVel& omega,
                                ReferenceFrame ref = ReferenceFrame::LOCAL_WORLD_ALIGNED);
 
             void get_robot_mass(double& mass);
@@ -176,10 +163,10 @@ namespace ModelInterface
             void b(); // bias forces (C * v)
 
             void jacobian(std::string frame_name, Model::ReferenceFrame ref,
-                          SpatialJac& J);
+                          utils_defs::SpatialJac& J);
 
             void jacobian_dot(std::string frame_name, Model::ReferenceFrame ref,
-                          SpatialJacDot& J_dot);
+                          utils_defs::SpatialJacDot& J_dot);
 
             void rnea(); // The Recursive Newton-Euler algorithm.
             // It computes the inverse dynamics, aka the joint torques \\

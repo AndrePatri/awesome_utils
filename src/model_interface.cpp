@@ -290,7 +290,7 @@ void Model::get_jnt_lim(VectorXd& q_min, VectorXd& q_max)
 
 
 void Model::jacobian(std::string frame_name, Model::ReferenceFrame ref,
-                    SpatialJac& J)
+                    utils_defs::SpatialJac& J)
 {
 
     bool does_frame_exist = frame_exists(frame_name);
@@ -305,14 +305,14 @@ void Model::jacobian(std::string frame_name, Model::ReferenceFrame ref,
 
     pinocchio::FrameIndex frame_idx = _pin_model.getFrameId(frame_name);
 
-    J = SpatialJac(6, _nv);
+    J = utils_defs::SpatialJac(6, _nv);
 
     pinocchio::computeFrameJacobian(_pin_model, _pin_data, _q, frame_idx, pinocchio::ReferenceFrame(ref), J); // using latest set q
 
 }
 
 void Model::jacobian_dot(std::string frame_name, Model::ReferenceFrame ref,
-              SpatialJacDot& J_dot)
+              utils_defs::SpatialJacDot& J_dot)
 {
 
     bool does_frame_exist = frame_exists(frame_name);
@@ -327,7 +327,7 @@ void Model::jacobian_dot(std::string frame_name, Model::ReferenceFrame ref,
 
     pinocchio::FrameIndex frame_idx = _pin_model.getFrameId(frame_name);
 
-    J_dot = SpatialJacDot(6, _nv);
+    J_dot = utils_defs::SpatialJacDot(6, _nv);
 
     pinocchio::computeJointJacobiansTimeVariation(_pin_model, _pin_data, _q, _v); // this is needed
     // before the call to getFrameJacobianTimeVariation
@@ -341,7 +341,7 @@ void Model::jacobian_dot(std::string frame_name, Model::ReferenceFrame ref,
 }
 
 void Model::get_jac(std::string frame_name,
-                    SpatialJac& J,
+                    utils_defs::SpatialJac& J,
                     Model::ReferenceFrame ref)
 {
 
@@ -350,7 +350,7 @@ void Model::get_jac(std::string frame_name,
 }
 
 void Model::get_jac_dot(std::string frame_name,
-             SpatialJacDot& J_dot,
+             utils_defs::SpatialJacDot& J_dot,
              ReferenceFrame ref)
 {
 
@@ -360,7 +360,7 @@ void Model::get_jac_dot(std::string frame_name,
 
 
 void Model::get_frame_vel(std::string frame_name,
-                          Twist& vel,
+                          utils_defs::Twist& vel,
                           ReferenceFrame ref)
 {
 
@@ -387,7 +387,7 @@ void Model::get_frame_vel(std::string frame_name,
 }
 
 void Model::get_frame_vel(std::string frame_name,
-                          LinVel& lin_vel, AngVel& omega,
+                          utils_defs::LinVel& lin_vel, utils_defs::AngVel& omega,
                           ReferenceFrame ref)
 {
 
@@ -414,7 +414,7 @@ void Model::get_frame_vel(std::string frame_name,
 }
 
 void Model::get_frame_pose(std::string frame_name,
-                    Model::Affine3D& pose)
+                    utils_defs::Affine3D& pose)
 {
     bool does_frame_exist = _pin_model.existFrame(frame_name);
 
@@ -428,10 +428,10 @@ void Model::get_frame_pose(std::string frame_name,
 
     pinocchio::FrameIndex frame_idx = _pin_model.getFrameId(frame_name);
 
-    PosVec3D position = _pin_data.oMf.at(frame_idx).translation();
-    RotMat3D rotation = _pin_data.oMf.at(frame_idx).rotation();
+    utils_defs::PosVec3D position = _pin_data.oMf.at(frame_idx).translation();
+    utils_defs::RotMat3D rotation = _pin_data.oMf.at(frame_idx).rotation();
 
-    pose = Model::Affine3D::Identity(); // resetting input data
+    pose = utils_defs::Affine3D::Identity(); // resetting input data
 
     pose.translation() = position;
     pose.linear() = rotation;
@@ -439,7 +439,7 @@ void Model::get_frame_pose(std::string frame_name,
 }
 
 void Model::get_frame_pose(std::string frame_name,
-                    PosVec3D& position, RotMat3D& rotation)
+                    utils_defs::PosVec3D& position, utils_defs::RotMat3D& rotation)
 {
 
     bool does_frame_exist = _pin_model.existFrame(frame_name);

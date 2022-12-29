@@ -79,9 +79,9 @@ namespace ContactEstUtils
     * Note that (6) does not require the differentiation of q_dot and is hence less prone to noise than other possible model-based
     * observer implementations.
     *
-    * To obtain the the contact wrenches consider that:
+    * To obtain the the contact utils_defs::Wrenches consider that:
     * y \approx tau_c = sum_0^{n_c - 1} J^T_{i} * w_i
-    * where n_c is the number of contacts, w_i is the wrench on the i-th contact and J_i is the analytical
+    * where n_c is the number of contacts, w_i is the utils_defs::Wrench on the i-th contact and J_i is the analytical
     * jacobian of the i-th contact (each contact is described by a frame).
     * we can concatenate everything into
     *
@@ -142,12 +142,12 @@ namespace ContactEstUtils
 
         void get_tau_obs(VectorXd& tau_c); // get contact joint efforts estimate
         void get_w(Eigen::VectorXd& w);
-        void get_w_est_at(std::string contact_framename, Model::Wrench& w_c); // get the wrench estimate at a specific contact frame
-        void get_w_est_at(int contact_index, Model::Wrench& w_c);
-        void get_f_est_at(std::string contact_framename, Model::Force3D& f_c); // get force estimate
-        void get_f_est_at(int contact_index, Model::Force3D& f_c); // get force estimate
-        void get_t_est_at(std::string contact_framename, Model::Torque3D& t_c); // get wrench estimate
-        void get_t_est_at(int contact_index, Model::Torque3D& t_c);
+        void get_w_est_at(std::string contact_framename, utils_defs::Wrench& w_c); // get the utils_defs::Wrench estimate at a specific contact frame
+        void get_w_est_at(int contact_index, utils_defs::Wrench& w_c);
+        void get_f_est_at(std::string contact_framename, utils_defs::Force3D& f_c); // get force estimate
+        void get_f_est_at(int contact_index, utils_defs::Force3D& f_c); // get force estimate
+        void get_t_est_at(std::string contact_framename, utils_defs::Torque3D& t_c); // get utils_defs::Wrench estimate
+        void get_t_est_at(int contact_index, utils_defs::Torque3D& t_c);
         void get_contact_framenames(std::vector<std::string> names);
         void get_contact_indeces(std::vector<int> indeces);
 
@@ -164,7 +164,7 @@ namespace ContactEstUtils
         double _dt = -1.0;
 
         Reg6D _lambda; // regularization vector
-        // for the contact wrench of each contact
+        // for the contact utils_defs::Wrench of each contact
 
         double _BW_red_factor = 0.70711; // attenuation of -3dB ( = 20 * log10 (1/sqrt(2)) )
         double _PI =  2 * std::acos(0);
@@ -202,11 +202,11 @@ namespace ContactEstUtils
                  _A_lambda;
         VectorXd _b, _b_lambda;
 
-        Eigen::VectorXd _W; // estimated contact wrenches ([6 x 1 -> linear + angular] * 6)
+        Eigen::VectorXd _W; // estimated contact utils_defs::Wrenches ([6 x 1 -> linear + angular] * 6)
         Eigen::VectorXd _W_reg; // regularization vector for W
-        Model::Wrench _w_buff; // used only as a temporary holder
+        utils_defs::Wrench _w_buff; // used only as a temporary holder
 
-        Model::SpatialJac _J_buffer; // used only as a temporary holder
+        utils_defs::SpatialJac _J_buffer; // used only as a temporary holder
         Eigen::MatrixXd _J_c_tot; // vertical contactenation
         // of all (generalized) contact jacobians
 
@@ -219,8 +219,8 @@ namespace ContactEstUtils
 
         void compute_tau_c(); // computes the observed value of tau_c, i.e. the residual joint efforts
 
-        void apply_component_selector(Model::Wrench& vector);
-        void apply_component_selector(Model::SpatialJac& J);
+        void apply_component_selector(utils_defs::Wrench& vector);
+        void apply_component_selector(utils_defs::SpatialJac& J);
 
     };
 

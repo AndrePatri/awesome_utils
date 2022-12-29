@@ -197,14 +197,14 @@ void MomentumBasedFObs::process_selector()
         _selector.begin(), _selector.end(),
         [](const int& x) {
             return x > 5;
-        }), _selector.end()); // removing elements above 5 (a wrench can have a max. of 6 components)
+        }), _selector.end()); // removing elements above 5 (a utils_defs::Wrench can have a max. of 6 components)
     _selector.erase( unique( _selector.begin(), _selector.end() ), _selector.end() ); // erasing duplicates
     std::sort(_selector.begin(), _selector.end()); // sorting selector in growing order
 
     // _deselector is used to make 0 the columns of J^T corresponding to
-    // components of the contact wrench which are not to be stimated.
+    // components of the contact utils_defs::Wrench which are not to be stimated.
     // For the same reason, also the corresponding elements of w_c_reg
-    // are set to 0 (we want the components of the wrench which are not to be
+    // are set to 0 (we want the components of the utils_defs::Wrench which are not to be
     // estimated to be 0).
     for (auto i = _selector.begin(); i != _selector.end(); ++i)
     { // we go through each element of the provided selector and
@@ -232,7 +232,7 @@ void MomentumBasedFObs::set_active_contacts(std::vector<int> contact_indeces)
         filtered_indeces.begin(), filtered_indeces.end(),
         [this](const int& x) {
             return x > _contact_indeces.back();
-        }), filtered_indeces.end()); // removing elements above 5 (a wrench can have a max. of 6 components)
+        }), filtered_indeces.end()); // removing elements above 5 (a utils_defs::Wrench can have a max. of 6 components)
     filtered_indeces.erase( unique( filtered_indeces.begin(), filtered_indeces.end() ), filtered_indeces.end() ); // erasing duplicates
     std::sort(filtered_indeces.begin(), filtered_indeces.end()); // sorting selector in growing order
 
@@ -256,7 +256,7 @@ void MomentumBasedFObs::get_contact_jacobians()
                                _J_buffer);
 
             apply_component_selector(_J_buffer); // will set to zero the rows corresponding
-            // to the components of the wrench which are NOT to be estimated
+            // to the components of the utils_defs::Wrench which are NOT to be estimated
 
         }
         else
@@ -309,7 +309,7 @@ void MomentumBasedFObs::update()
     }
 }
 
-void MomentumBasedFObs::apply_component_selector(Model::Wrench& vector)
+void MomentumBasedFObs::apply_component_selector(utils_defs::Wrench& vector)
 {
 
     for (int i = 0; i < _deselector.size(); i++)
@@ -319,7 +319,7 @@ void MomentumBasedFObs::apply_component_selector(Model::Wrench& vector)
 
 }
 
-void MomentumBasedFObs::apply_component_selector(Model::SpatialJac& J)
+void MomentumBasedFObs::apply_component_selector(utils_defs::SpatialJac& J)
 {
 
     for (int i = 0; i < _deselector.size(); i++)
@@ -339,32 +339,32 @@ void MomentumBasedFObs::get_w(Eigen::VectorXd& w)
     w = _W;
 }
 
-void MomentumBasedFObs::get_w_est_at(std::string contact_framename, Model::Wrench& w_c)
+void MomentumBasedFObs::get_w_est_at(std::string contact_framename, utils_defs::Wrench& w_c)
 {
     w_c = _W.segment(_contact_map[contact_framename] * _lambda.size(), _lambda.size());
 }
 
-void MomentumBasedFObs::get_w_est_at(int contact_index, Model::Wrench& w_c)
+void MomentumBasedFObs::get_w_est_at(int contact_index, utils_defs::Wrench& w_c)
 {
     w_c = _W.segment(contact_index * _lambda.size(), _lambda.size());
 }
 
-void MomentumBasedFObs::get_f_est_at(std::string contact_framename, Model::Force3D& f_c)
+void MomentumBasedFObs::get_f_est_at(std::string contact_framename, utils_defs::Force3D& f_c)
 {
     f_c = _W.segment(_contact_map[contact_framename] * _lambda.size(), 3);
 }
 
-void MomentumBasedFObs::get_f_est_at(int contact_index, Model::Force3D& f_c)
+void MomentumBasedFObs::get_f_est_at(int contact_index, utils_defs::Force3D& f_c)
 {
     f_c = _W.segment(contact_index * _lambda.size(), 3);
 }
 
-void MomentumBasedFObs::get_t_est_at(std::string contact_framename, Model::Torque3D& t_c)
+void MomentumBasedFObs::get_t_est_at(std::string contact_framename, utils_defs::Torque3D& t_c)
 {
     t_c = _W.segment(3 + _contact_map[contact_framename] * _lambda.size(), 3);
 }
 
-void MomentumBasedFObs::get_t_est_at(int contact_index, Model::Torque3D& t_c)
+void MomentumBasedFObs::get_t_est_at(int contact_index, utils_defs::Torque3D& t_c)
 {
     t_c = _W.segment(3 + contact_index * _lambda.size(), 3);
 }
