@@ -4,8 +4,8 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "include/awesome_utils/typedefs.hpp"
-#include "include/awesome_utils/model_interface.hpp"
+#include "typedefs.hpp"
+#include "model_interface.hpp"
 
 using namespace ModelInterface;
 

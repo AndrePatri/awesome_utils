@@ -6,7 +6,7 @@
 
 #include<cmath>
 
-#include "include/awesome_utils/typedefs.hpp"
+#include "typedefs.hpp"
 
 using namespace Eigen;
 

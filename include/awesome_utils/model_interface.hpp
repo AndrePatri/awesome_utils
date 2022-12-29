@@ -31,8 +31,8 @@
 
 #include <pinocchio/parsers/urdf.hpp>
 
-#include "include/awesome_utils/typedefs.hpp"
-#include "include/awesome_utils/sign_proc_utils.hpp"
+#include "typedefs.hpp"
+#include "sign_proc_utils.hpp"
 
 using namespace Eigen;
 using namespace SignProcUtils;

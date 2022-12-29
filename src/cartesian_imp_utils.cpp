@@ -1,5 +1,7 @@
 #include "include/awesome_utils/cartesian_imp_utils.hpp"
 
+#include "include/awesome_utils/orientation_utils.hpp"
+
 using namespace CartesianImpUtils;
 
 
@@ -48,20 +50,40 @@ void CartesianTask::update(utils_defs::PosVec3D pos_ref, utils_defs::RotMat3D ro
 CartesianTask::CartTaskErr CartesianTask::compute_task_err(utils_defs::PosVec3D pos, utils_defs::RotMat3D rot)
 {
 
+    CartesianTask::CartTaskErr err;
+
+    err.segment(0, 3) = pos - _chi_ref.pos;
+
+    err.segment(3, 3) = RotErr::LogMap(rot, _chi_ref.rot);
+
+    return err;
+
 }
 
 CartesianTask::CartTaskErr CartesianTask::compute_task_err(CartTask cart_task)
 {
 
+    CartesianTask::CartTaskErr err;
+
+    err.segment(0, 3) = cart_task.pos - _chi_ref.pos;
+
+    err.segment(3, 3) = RotErr::LogMap(cart_task.rot, _chi_ref.rot);
+
+    return err;
+
 }
 
-CartesianTask::CartTaskDotErr CartesianTask::compute_task_dot_err(CartTaskDot cart_task)
+CartesianTask::CartTaskDotErr CartesianTask::compute_task_dot_err(CartTaskDot cart_task_dot)
 {
+
+    return (cart_task_dot - _chi_dot_ref);
 
 }
 
-CartesianTask::CartTaskDdotErr CartesianTask::compute_task_ddot_err(CartTaskDdot cart_task)
+CartesianTask::CartTaskDdotErr CartesianTask::compute_task_ddot_err(CartTaskDdot cart_task_ddot)
 {
+
+    return (cart_task_ddot - _chi_ddot_ref);
 
 }
 

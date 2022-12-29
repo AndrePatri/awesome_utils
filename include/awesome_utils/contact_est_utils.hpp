@@ -6,8 +6,8 @@
 
 #include <string>
 
-#include "include/awesome_utils/sign_proc_utils.hpp"
-#include "include/awesome_utils/model_interface.hpp"
+#include "sign_proc_utils.hpp"
+#include "model_interface.hpp"
 
 using namespace SignProcUtils;
 using namespace ModelInterface;

@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <chrono>
 
-#include "include/awesome_utils/sign_proc_utils.hpp"
+#include "sign_proc_utils.hpp"
 
 using namespace SignProcUtils;
 
