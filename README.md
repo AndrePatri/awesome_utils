@@ -13,3 +13,11 @@ These include
 - calibration utilities: quadrature current estimator for three-phase BLDC-based actuators, actuator friction model runtime calibrator, friction observer
 
 - contact estimation utilities: implementation of a first order momentum-based force estimator
+
+Non-optional external dependencies:
+
+- [Eigen3](https://eigen.tuxfamily.org/index.php?title=Main_Page)
+
+- [Pinocchio](https://github.com/stack-of-tasks/pinocchio)
+
+- [matlogger2](https://github.com/ADVRHumanoids/MatLogger2)
