@@ -12,7 +12,7 @@ if(${pybind11_FOUND})
 
     # get python install path
     execute_process(
-        COMMAND python -c "if True:
+        COMMAND python3 -c "if True:
             from distutils import sysconfig as sc
             print(sc.get_python_lib(prefix='', plat_specific=True))"
         OUTPUT_VARIABLE PYTHON_SITE
