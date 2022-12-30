@@ -13,6 +13,28 @@ using namespace Eigen;
 namespace CartesianImpUtils
 {
 
+    /**
+    * @brief Class to represent a cartesian task.
+    *
+    * A cartesian task is specified by three reference quantities:
+    *
+    * - The task(positional), which is represented by a desired orientation and position
+    *
+    * - The derivative of the task, represented by a 6D vector made of translational vel and
+    *   and rotational one
+    *
+    * - The double derivative of the task, which is also a 6D vector representing translational
+    *   and angular acceleration
+    *
+    * The class holds a methods for computing the difference of the reference task wrt
+    * to a given task (e.g. measured). The error for the velocity and acceleration parts are
+    * computed by simply making the difference of the inputs, while for the rototranslational
+    * representation of the task we make use of the logarithmic map, so that the resulting
+    * error vector is a 6D vector, where the first three elements represent the translational
+    * error, while the remaining represent the orientation error along the coordinated axis of the
+    * referene orientation frame.
+    */
+
     class CartesianTask
     {
         public:
@@ -46,12 +68,12 @@ namespace CartesianImpUtils
                         CartTaskDdot chi_ddot_ref);
 
             // compute task error between last set reference task and the input
-            CartTaskErr compute_task_err(utils_defs::PosVec3D pos, utils_defs::RotMat3D rot);
-            CartTaskErr compute_task_err(CartTask cart_task);
+            CartTaskErr task_err(utils_defs::PosVec3D pos, utils_defs::RotMat3D rot);
+            CartTaskErr task_err(CartTask cart_task);
 
-            CartTaskDotErr compute_task_dot_err(CartTaskDot cart_task_dot);
+            CartTaskDotErr task_dot_err(CartTaskDot cart_task_dot);
 
-            CartTaskDdotErr compute_task_ddot_err(CartTaskDdot cart_task_ddot);
+            CartTaskDdotErr task_ddot_err(CartTaskDdot cart_task_ddot);
 
         private:
 
@@ -67,7 +89,97 @@ namespace CartesianImpUtils
     };
 
     /**
-    * @brief Class to perform cartesian impedance control.
+    * @brief Class to perform model-based cartesian impedance control at
+    * a specific robot frame.
+    *
+    * Let's look at the derivation of the control law.
+    *
+    * Given a task Chi, it's dynamics is given by
+    *
+    * (1.0) Chi_ddot = J * a + J_dot * v
+    *
+    * (Chi_dot = J_dot * v)
+    *
+    * where a can be computed with the forward dynamics.
+    *
+    * Specifically,
+    *
+    *   B(q) * a + C(q, v) * v + g(q) = tau_cmd + tau_d + tau_c + tau_i
+    * ->B(q) * a + C(q, v) * q_dot + g(q) = tau_cmd + tau_d + sum_j^{nc} {J_j^T * f_j} + J^T * f_i
+    *
+    * where f_i is the interaction force at the cartesian control frame,
+    * expressed in the frame coherent with the jacobian J.
+    *
+    * tau_d is a "disturbance" torque vector which, for example,
+    * can include friction torques
+    *
+    * tau_c is the sum of the contact forces reflected at the joint level (f_i excluded)
+    *
+    * Given the invertibility of B, the forward dynamics is computed with
+    *
+    * (1.1) a = B_inv * (J^T * f + tau_cmd + tau_d - C * v - g)
+    *
+    * Substitution of (1.1) into (1.0) gives, after a little rearranging
+    *
+    *   Chi_ddot = J * B_inv * (J^T * f + tau_cmd + tau_d - C * v - g) + J_dot * v
+    *-->Chi_ddot = (J * B_inv * J^T) * f + J * B_inv * (tau_cmd + tau_d - C * v - g) + J_dot * v
+    *-->Chi_ddot = (J * B_inv * J^T) * f + J * B_inv * (tau_cmd + tau_d + tau_c - g) + (J_dot - J * B_inv * C) * v
+    *
+    * Let define the cartesian inertia matrix as
+    *
+    * (1.2) Lambda:= (J * B_inv * J^T)^{-1}
+    *
+    * The dynamics of the task Chi can hence be written as
+    *
+    *    Lambda * Chi_ddot = f_i + Lambda * J * B_inv * (tau_cmd + tau_d - g) + Lambda * (J_dot - J * B_inv * C) * v
+    *--> Lambda * Chi_ddot = f_i + Lambda * J * B_inv * (tau_cmd + tau_d - g) - Lambda * (J * B_inv * C - J_dot) * v
+    *
+    *--> Lambda * Chi_ddot + Lambda * (J * B_inv * C - J_dot) * v + Lambda * J * B_inv * g = f_i + Lambda * J * B_inv * (tau_cmd + tau_d)
+    *
+    * we define the right weighted pseudo inverse of J as
+    *
+    * (1.4) J_rps_w := B_inv * J^T * Lambda
+    *
+    * The final version of the task dynamics is
+    *
+    * (1.5) Lambda * Chi_ddot + Lambda * (J * B_inv * C - J_dot) * v + J^T_rps_w * g = f_i + J^T_rps_w * (tau_cmd + tau_d + tau_c)
+    *
+    * Suppose we choose tau_cmd as
+    *
+    * tau_cmd = - tau_d - tau_c + tau^ =  - tau_d - tau_c + J^T * f^
+    *
+    * (1.5) becomes
+    *
+    * (1.5.1) Lambda * Chi_ddot + Lambda * (J * B_inv * C - J_dot) * v + J^T_rps_w * g =
+    * = f_i + f_star
+    *
+    * We'd like to impose the MSD-like error dynamics given by
+    *
+    * (1.6) Lambda_ref * Chi_err_ddot + K_D^ref * Chi_err_dot + K_P^ref * Chi_err = f_i
+    *
+    * We extract Chi_ddot from (1.6), plug it in (1.5.1) and extract f^ :
+    *
+    * (1.7) f^ = (Lambda * Lambda_ref^{-1} - I) * f_i + Lambda * Chi_ddot_ref + h(q, v) + J^T_rps_w * g +
+    *           - Lambda * Lambda_ref^{-1} * (K_D_ref * Chi_err_dot + K_P^ref * Chi_err)
+    *
+    * where h(q, v) := (J^T_rps_w * C - Lambda * J_dot) * v
+    *
+    * In particular, if we choose Lambda_ref = Lambda the (1.7) simplifies to
+    *
+    * (1.7.1) f^ = Lambda * Chi_ddot_ref + h(q, v) + J^T_rps_w * g +
+    *              - (K_D_ref * Chi_err_dot + K_P^ref * Chi_err)
+    *
+    * which has the advantage of not needing a measurement of f_i
+    *
+    * Under the hypothesis that Lambda is diagonally dominant and the gain matrices
+    * K_D and K_P are chosen to be diagonal, then we have approximately a 6 decoupled oscillators.
+    * We can simply choose the gains to that K_P(j, j) = (K_D(j, j))^2 / (4 * Lambda(j, j))
+    *
+    * For a more in depth analysis refer to
+    *
+    * ## F. Angelini et al., "Online Optimal Impedance Planning for Legged Robots," 2019 IEEE/RSJ
+    * International Conference on Intelligent Robots and Systems (IROS), 2019, pp. 6028-6035,
+    * doi: 10.1109/IROS40897.2019.8967696. ##
     *
     */
 
@@ -78,13 +190,6 @@ namespace CartesianImpUtils
             typedef std::weak_ptr<CartesianImpController> WeakPtr;
             typedef std::shared_ptr<CartesianImpController> Ptr;
             typedef std::unique_ptr<CartesianImpController> UniquePtr;
-
-            typedef Matrix<double, 6, 6> CartInertiaMat;
-            typedef Matrix<double, 6, 6> CartStiffMat;
-            typedef Matrix<double, 6, 6> CartDampMat;
-            typedef Matrix<double, 6, 1> CartStiffVect; // we assume diagonal impedance
-            // matrices for simplicity
-            typedef Matrix<double, 6, 1> CartDampVect;
 
             CartesianImpController();
 
@@ -98,10 +203,13 @@ namespace CartesianImpUtils
 
             void update(std::string cart_cntrl_framename);
 
-            void set_cart_impedance(CartStiffMat stifness_mat,
-                                    CartDampMat damping_mat);
-            void set_cart_impedance(CartStiffVect stifness_vect,
-                                    CartDampVect damping_vect);
+            void set_cart_impedance(utils_defs::CartStiffMat stifness_mat,
+                                    utils_defs::CartDampMat damping_mat);
+            void set_cart_impedance(utils_defs::CartStiffVect stifness_vect,
+                                    utils_defs::CartDampVect damping_vect);
+
+            void set_cart_impedance(utils_defs::CartStiffVect stifness_vect); // damping is
+            // computed to give an (approximately) critically damped response
 
         private:
 
@@ -113,33 +221,45 @@ namespace CartesianImpUtils
 
             bool _was_cntrl_framename_set = false;
 
+            bool _auto_critical_damp = true; // whether to employ a
+            // simple approximation of the critical damping gains
+
             CartesianTask::Ptr _cart_task;
 
-            CartStiffMat _cart_stiff;
-            CartDampMat _cart_damp;
+            utils_defs::CartStiffMat _cart_stiff;
+            utils_defs::CartDampMat _cart_damp;
 
-            CartStiffVect _cart_stiff_vect;
-            CartDampVect _cart_damp_vect;
+            utils_defs::CartStiffVect _cart_stiff_vect;
+            utils_defs::CartDampVect _cart_damp_vect;
 
-            CartInertiaMat _lambda,
-                           _lambda_inv; // cartesian impedance matrix
+            utils_defs::CartInertiaMat _Lambda,
+                           _Lambda_inv; // cartesian impedance matrix
 
             utils_defs::SpatialJacDot _J_dot;
             utils_defs::SpatialJac _J;
 
-            utils_defs::JacRightPseudoInv _J_w_right_pseudoinv;
+            utils_defs::JacRightPseudoInv _J_rps_w;
 
             MatrixXd _B_inv,
                      _C; // inverse of generalized inertia matrix and bias Matrix
             VectorXd _g; // joint-space gravitational vector
 
+            VectorXd h; // auxiliary vector
 
-            VectorXd tau_d; // disturbance torques on the joints (basically, whatever is generated by
-            // unmodeled joint effects, e.g. additional contact forces, friction, etc...)
+            VectorXd tau_d; // disturbance torques on the joints (e.g. friction torques)
+            VectorXd tau_c; // contact torques
 
             void map_impedance_vect2mat();
 
             void compute_quantities();
+
+            void compute_critically_damped_gains();
+
+            void compute_J_rps_w();
+
+            void compute_lambda_inv(); // exposed here for possible
+            // external usage
+            void compute_lambda();
 
     };
 }

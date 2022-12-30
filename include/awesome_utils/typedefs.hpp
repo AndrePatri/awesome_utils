@@ -26,6 +26,12 @@ namespace utils_defs
 
     typedef Matrix<double, -1, 6> JacRightPseudoInv;
     typedef Matrix<double, 6, -1> JacLeftPseudoInv;
+
+    typedef Matrix<double, 6, 6> CartInertiaMat;
+    typedef Matrix<double, 6, 6> CartStiffMat;
+    typedef Matrix<double, 6, 6> CartDampMat;
+    typedef Matrix<double, 6, 1> CartStiffVect;
+    typedef Matrix<double, 6, 1> CartDampVect;
 }
 
 #endif // TYPEDEFS_HPP
