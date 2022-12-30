@@ -38,6 +38,10 @@ add_executable(TestContactEst test_contact_est.cpp)
 target_link_libraries(TestContactEst ${TestLibs})
 add_test(NAME TestContactEst COMMAND TestContactEst)
 
+add_executable(TestCartImp test_cart_imp_utils.cpp)
+target_link_libraries(TestCartImp ${TestLibs})
+add_test(NAME TestCartImp COMMAND TestCartImp)
+
 install(FILES ${CMAKE_DEF_CONFIG_GENDIR}/${CMAKE_DEF_CONFIG_FNAME}.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
 )
