@@ -84,6 +84,7 @@ TEST_F(TestModelInterface, compute_quantities)
                     g, p, b;
     Eigen::MatrixXd B, C;
     utils_defs::SpatialJac J;
+    utils_defs::SpatialJac J_dot;
     utils_defs::PosVec3D position;
     utils_defs::RotMat3D rotation;
     utils_defs::Twist vel;
@@ -107,6 +108,7 @@ TEST_F(TestModelInterface, compute_quantities)
     model_ptr->get_jac(tip_framename,
                   J,
                   Model::ReferenceFrame::LOCAL_WORLD_ALIGNED);
+    model_ptr->get_jac_dot(tip_framename, J_dot, Model::ReferenceFrame::LOCAL_WORLD_ALIGNED);
 
     model_ptr->get_frame_pose(tip_framename,
                               position, rotation);
@@ -125,6 +127,7 @@ TEST_F(TestModelInterface, compute_quantities)
     std::cout << "** b: \n" << b.format(CleanFmt) << "\n " << std::endl;
     std::cout << "** p: \n" << p.format(CleanFmt) << "\n " << std::endl;
     std::cout << "** J (q_dot -> " << tip_framename << " - LOCAL_WORLD_ALIGNED) :\n " << J.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** J_dot (q_dot -> " << tip_framename << " - LOCAL_WORLD_ALIGNED) :\n " << J_dot.format(CleanFmt) << "\n " << std::endl;
     std::cout << "** frame position: \n" << position.format(CleanFmt) << "\n " << std::endl;
     std::cout << "** frame rotation matrix: \n" << rotation.format(CleanFmt) << "\n " << std::endl;
     std::cout << "** frame position from Affine3D: \n" << pose.translation().format(CleanFmt) << "\n " << std::endl;
