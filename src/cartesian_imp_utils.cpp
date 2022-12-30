@@ -107,6 +107,8 @@ CartesianImpController::CartesianImpController(Model::Ptr model_ptr,
     _nv = _model_ptr->get_nv();
 
     _cart_cntrl_framename = cart_cntrl_framename;
+
+    _was_cntrl_framename_set = true;
 }
 
 CartesianImpController::CartesianImpController(Model::Ptr model_ptr,
@@ -142,6 +144,17 @@ void CartesianImpController::map_impedance_vect2mat()
 
 void CartesianImpController::update()
 {
+    if (!_was_cntrl_framename_set)
+    {
+        std::string exception = std::string("CartesianImpUtils::CartesianImpController::update(): you have to set a control frame name!");
+
+        throw std::invalid_argument(exception);
+    }
+
+}
+
+void CartesianImpController::update(std::string cart_cntrl_framename)
+{
 
 }
 
@@ -170,6 +183,24 @@ void CartesianImpController::set_cart_impedance(CartStiffVect stifness_vect,
     map_impedance_vect2mat(); // updates _cart_stiff and _cart_damp
 }
 
-void CartesianImpController::compute_cart_inertia_mat()
+void CartesianImpController::compute_quantities()
 {
+    _model_ptr->get_jac(_cart_cntrl_framename,
+                        _J,
+                        Model::ReferenceFrame::LOCAL_WORLD_ALIGNED);
+
+    _model_ptr->get_jac_dot(_cart_cntrl_framename,
+                        _J_dot,
+                        Model::ReferenceFrame::LOCAL_WORLD_ALIGNED);
+
+    _model_ptr->get_B_inv(_B_inv);
+
+    _model_ptr->get_C(_C);
+
+    _model_ptr->get_g(_g);
+
+    _lambda_inv = _J * _B_inv * _J.transpose();
+
+    _lambda = _lambda_inv.inverse();
+
 }

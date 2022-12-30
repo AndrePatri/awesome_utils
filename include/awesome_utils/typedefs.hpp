@@ -23,6 +23,9 @@ namespace utils_defs
     typedef Matrix<double, 6, -1> SpatialJac;
     typedef Matrix<double, -1, 6> SpatialJacT;
     typedef Matrix<double, 6, -1> SpatialJacDot;
+
+    typedef Matrix<double, -1, 6> JacRightPseudoInv;
+    typedef Matrix<double, 6, -1> JacLeftPseudoInv;
 }
 
 #endif // TYPEDEFS_HPP
