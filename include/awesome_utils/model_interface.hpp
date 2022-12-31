@@ -69,6 +69,7 @@ namespace ModelInterface
             void update_frames_forward_kin(); // updates the joint placements and spatial
             // velocities according to the current joint configuration and velocity
             void update_B();
+            void update_B_inv();
             void update_C();
             void update_b();
             void update_g();
