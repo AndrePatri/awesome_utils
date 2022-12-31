@@ -71,8 +71,6 @@ else()
 
 endif()
 
-
-
 target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE ${catkin_LIBRARIES}
                                                     Eigen3::Eigen
                                                     pinocchio::pinocchio
