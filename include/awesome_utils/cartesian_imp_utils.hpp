@@ -45,9 +45,9 @@ namespace CartesianImpUtils
 
             struct CartTask
             {
-                utils_defs::RotMat3D rot; // orientation part of the cartesian task
+                utils_defs::RotMat3D rot = MatrixXd::Identity(3, 3); // orientation part of the cartesian task
 
-                utils_defs::PosVec3D pos;
+                utils_defs::PosVec3D pos = VectorXd::Zero(3);
             };
 
             typedef Matrix<double, 6, 1> CartTaskDot;
