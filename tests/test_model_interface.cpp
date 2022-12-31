@@ -82,7 +82,7 @@ TEST_F(TestModelInterface, compute_quantities)
     double mass = -1.0;
     Eigen::VectorXd q, v, a, tau,
                     g, p, b;
-    Eigen::MatrixXd B, C;
+    Eigen::MatrixXd B, B_inv, C;
     utils_defs::SpatialJac J;
     utils_defs::SpatialJac J_dot;
     utils_defs::PosVec3D position;
@@ -101,6 +101,7 @@ TEST_F(TestModelInterface, compute_quantities)
 
     model_ptr->get_robot_mass(mass);
     model_ptr->get_B(B);
+    model_ptr->get_B_inv(B_inv);
     model_ptr->get_C(C);
     model_ptr->get_g(g);
     model_ptr->get_b(b);
@@ -122,6 +123,7 @@ TEST_F(TestModelInterface, compute_quantities)
     std::cout << "\nLoaded URDF at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
     std::cout << "** Robot mass: \n" << mass << "\n " << std::endl;
     std::cout << "** B: \n" << B.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** B_inv: \n" << B_inv.format(CleanFmt) << "\n " << std::endl;
     std::cout << "** C: \n" << C.format(CleanFmt) << "\n " << std::endl;
     std::cout << "** g: \n" << g.format(CleanFmt) << "\n " << std::endl;
     std::cout << "** b: \n" << b.format(CleanFmt) << "\n " << std::endl;
