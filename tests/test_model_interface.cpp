@@ -3,7 +3,7 @@
 
 #include "tests/generated/cmake_config.h"
 
-#include "awesome_utils/model_interface.hpp"
+#include "model_interface.hpp"
 
 #include <iostream>
 
