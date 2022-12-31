@@ -3,8 +3,8 @@
 
 #include "tests/generated/cmake_config.h"
 
-#include "awesome_utils/model_interface.hpp"
-#include "awesome_utils/contact_est_utils.hpp"
+#include "model_interface.hpp"
+#include "contact_est_utils.hpp"
 #include <iostream>
 
 #include <Eigen/Core>
