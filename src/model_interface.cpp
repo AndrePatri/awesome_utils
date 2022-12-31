@@ -37,7 +37,9 @@ Model::Model(std::string urdf_path, bool add_floating_jnt)
     _nv = _pin_model.nv;
 
     _B = MatrixXd::Zero(_nv, _nv);
+    _B_inv = MatrixXd::Zero(_nv, _nv);
     _C = MatrixXd::Zero(_nv, _nv);
+    _b = VectorXd::Zero(_nv);
     _g = VectorXd::Zero(_nv);
     _p = VectorXd::Zero(_nv);
     _tau = VectorXd::Zero(_nv);
@@ -124,6 +126,7 @@ void Model::update_all()
 
     // update dynamics quantities
     update_B(); // joint-space inertia matrix
+    update_B_inv(); // inverse of joint-space inertia matrix
     update_C(); // coriolis, centrifugal effects
     update_g(); // gravitational effects
     update_p(); // joint-space momentum (aka generalized momentum)
@@ -148,6 +151,11 @@ void Model::update_forward_kin()
 void Model::update_B()
 {
     B();
+}
+
+void Model::update_B_inv()
+{
+    B_inv();
 }
 
 void Model::B()
