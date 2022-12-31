@@ -59,32 +59,47 @@ namespace CartesianImpUtils
 
             CartesianTask();
 
-            void update(CartTask chi_ref,
+            void update_ref(CartTask chi_ref,
                         CartTaskDot chi_dot_ref,
                         CartTaskDdot chi_ddot_ref);
 
-            void update(utils_defs::PosVec3D pos_ref, utils_defs::RotMat3D rot_ref,
+            void update_ref(utils_defs::PosVec3D pos_ref, utils_defs::RotMat3D rot_ref,
                         CartTaskDot chi_dot_ref,
                         CartTaskDdot chi_ddot_ref);
 
-            // compute task error between last set reference task and the input
-            CartTaskErr task_err(utils_defs::PosVec3D pos, utils_defs::RotMat3D rot);
-            CartTaskErr task_err(CartTask cart_task);
+            void update_meas(CartTask chi_meas,
+                        CartTaskDot chi_dot_meas,
+                        CartTaskDdot chi_ddot_meas);
 
-            CartTaskDotErr task_dot_err(CartTaskDot cart_task_dot);
+            void update_meas(utils_defs::PosVec3D pos_meas, utils_defs::RotMat3D rot_meas,
+                        CartTaskDot chi_dot_meas,
+                        CartTaskDdot chi_ddot_meas);
 
-            CartTaskDdotErr task_ddot_err(CartTaskDdot cart_task_ddot);
+            // compute task errors between last set reference task and the input
+            CartTaskErr task_err();
+            CartTaskDotErr task_dot_err();
+            CartTaskDdotErr task_ddot_err();
+            CartTaskDdot task_ddot_ref();
+
+            void get_task(CartTask& task_ref, CartTask& task_meas);
+            void get_task_dot(CartTaskDot& task_dot_ref, CartTaskDot& task_dot_meas);
+            void get_task_ddot(CartTaskDdot& task_ddot_ref, CartTaskDdot& task_ddot_meas);
 
         private:
 
-            CartTask _chi_ref;
-            CartTaskDot _chi_dot_ref;
-            CartTaskDdot _chi_ddot_ref;
+            CartTask _chi_ref, _chi_meas;
+            CartTaskDot _chi_dot_ref, _chi_dot_meas;
+            CartTaskDdot _chi_ddot_ref, _chi_ddot_meas;
 
             void set_chi_ref(CartTask chi_ref);
             void set_chi_ref(utils_defs::PosVec3D pos_ref, utils_defs::RotMat3D rot_ref);
             void set_chi_dot_ref(CartTaskDot chi_dot_ref);
             void set_chi_ddot_ref(CartTaskDdot chi_ddot_ref);
+
+            void set_chi_meas(CartTask chi_meas);
+            void set_chi_meas(utils_defs::PosVec3D pos_meas, utils_defs::RotMat3D rot_meas);
+            void set_chi_dot_meas(CartTaskDot chi_dot_meas);
+            void set_chi_ddot_meas(CartTaskDdot chi_ddot_meas);
 
     };
 
@@ -199,9 +214,12 @@ namespace CartesianImpUtils
                                    CartesianTask::Ptr cart_task,
                                    std::string cart_cntrl_framename);
 
-            void update();
+            void update(VectorXd tau_d,
+                        VectorXd tau_c);
 
-            void update(std::string cart_cntrl_framename);
+            void update(std::string cart_cntrl_framename,
+                        VectorXd tau_d,
+                        VectorXd tau_c);
 
             void set_cart_impedance(utils_defs::CartStiffMat stifness_mat,
                                     utils_defs::CartDampMat damping_mat);
@@ -210,6 +228,14 @@ namespace CartesianImpUtils
 
             void set_cart_impedance(utils_defs::CartStiffVect stifness_vect); // damping is
             // computed to give an (approximately) critically damped response
+
+            VectorXd h();
+            utils_defs::Wrench f_star();
+            utils_defs::JacRightPseudoInv J_rps_w();
+            utils_defs::CartInertiaMat Lambda();
+            utils_defs::CartInertiaMat Lambda_inv();
+
+            VectorXd tau_cmd(); // cartesian impedance control torque
 
         private:
 
@@ -240,14 +266,18 @@ namespace CartesianImpUtils
 
             utils_defs::JacRightPseudoInv _J_rps_w;
 
+            utils_defs::Wrench _f_star;
+
+            VectorXd _q, _v;
             MatrixXd _B_inv,
                      _C; // inverse of generalized inertia matrix and bias Matrix
             VectorXd _g; // joint-space gravitational vector
 
-            VectorXd h; // auxiliary vector
+            utils_defs::CartVect _h; // auxiliary vector
 
-            VectorXd tau_d; // disturbance torques on the joints (e.g. friction torques)
-            VectorXd tau_c; // contact torques
+            VectorXd _tau_d; // disturbance torques on the joints (e.g. friction torques)
+            VectorXd _tau_c; // contact torques
+            VectorXd _tau_cmd; // cartesian impedance control torque
 
             void map_impedance_vect2mat();
 
@@ -260,6 +290,14 @@ namespace CartesianImpUtils
             void compute_lambda_inv(); // exposed here for possible
             // external usage
             void compute_lambda();
+
+            void compute_tau_cmd();
+
+            void compute_f_star();
+
+            void compute_h();
+
+            void update_internal_states(VectorXd tau_d, VectorXd tau_c);
 
     };
 }
