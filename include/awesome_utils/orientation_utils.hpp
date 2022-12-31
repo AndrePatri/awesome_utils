@@ -4,7 +4,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include<cmath>
+#include <cmath>
 
 #include "typedefs.hpp"
 
