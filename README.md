@@ -14,6 +14,8 @@ These include
 
 - contact estimation utilities: implementation of a first order momentum-based force estimator
 
+- cartesian impedance controllers
+
 Non-optional external dependencies:
 
 - [Eigen3](https://eigen.tuxfamily.org/index.php?title=Main_Page)
