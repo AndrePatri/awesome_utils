@@ -1,8 +1,6 @@
-#include "include/awesome_utils/orientation_utils.hpp"
+#include "orientation_utils.hpp"
 
-using namespace RotErr;
-
-RotErr3d LogMap(utils_defs::RotMat3D R, utils_defs::RotMat3D R_ref)
+RotErr::RotErr3d RotErr::LogMap(utils_defs::RotMat3D R, utils_defs::RotMat3D R_ref)
 {
     utils_defs::RotMat3D R_err = R_ref.transpose() * R; // orientation or actual frame w.r.t. target frame
 
