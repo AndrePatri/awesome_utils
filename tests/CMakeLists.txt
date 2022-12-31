@@ -57,7 +57,7 @@ if(${WITH_PYTHON})
             print(sc.get_python_lib(prefix='', plat_specific=True))"
         OUTPUT_VARIABLE PYTHON_SITE
         OUTPUT_STRIP_TRAILING_WHITESPACE)
-    message(STATUS "******************** *Python install dir: ${PYTHON_SITE}")
+    message(STATUS "Python install dir: ${PYTHON_SITE}")
 
     #install python bindings test files
     install(FILES pybind_tests/test_model_int_pybinds.py DESTINATION ${PYTHON_SITE}/awesome_utils)
