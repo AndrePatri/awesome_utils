@@ -1,7 +1,6 @@
-#include "include/awesome_utils/model_interface.hpp"
+#include "model_interface.hpp"
 
 using namespace ModelInterface;
-
 
 Model::Model(std::string urdf_path, bool add_floating_jnt)
 {
@@ -155,22 +154,27 @@ void Model::B()
 {
     pinocchio::crba(_pin_model, _pin_data, _q); // only computes the upper triangular part of B
     // we copy the upper triangular half into the lower
-    _pin_data.Minv.triangularView<Eigen::StrictlyLower>() = _pin_data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
-
-    _B_inv = _pin_data.Minv; // we get the full joint-space inertia matrix
-}
-
-void Model::B_inv()
-{
-    pinocchio::computeMinverse(_pin_model, _pin_data, _q); // only computes the upper triangular part
     _pin_data.M.triangularView<Eigen::StrictlyLower>() = _pin_data.M.transpose().triangularView<Eigen::StrictlyLower>();
 
     _B = _pin_data.M; // we get the full joint-space inertia matrix
 }
 
+void Model::B_inv()
+{
+    pinocchio::computeMinverse(_pin_model, _pin_data, _q); // only computes the upper triangular part
+    _pin_data.Minv.triangularView<Eigen::StrictlyLower>() = _pin_data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
+
+    _B_inv = _pin_data.Minv; // we get the full joint-space inertia matrix
+}
+
 void Model::get_B(MatrixXd& B)
 {
     B = _B;
+}
+
+void Model::get_B_inv(MatrixXd& B_inv)
+{
+    B_inv = _B_inv;
 }
 
 void Model::update_C()
