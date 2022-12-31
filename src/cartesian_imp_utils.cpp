@@ -7,6 +7,11 @@ using namespace CartesianImpUtils;
 
 //************* CartesianTask *************//
 
+CartesianTask::CartesianTask()
+{
+
+}
+
 void CartesianTask::set_chi_ref(CartTask chi_ref)
 {
     _chi_ref = chi_ref;
