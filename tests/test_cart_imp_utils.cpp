@@ -83,7 +83,7 @@ TEST_F(TestModelInterface, test_cart_cntrl)
 
     VectorXd q, v, a, tau;
     model_ptr->get_state(q, v, a, tau);
-    q << 0.0, 0.0, 0.0;
+    q << 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, -1.0;
     model_ptr->set_q(q);
     model_ptr->set_v(v);
     model_ptr->update(); // computes all terms of the dynamics
@@ -117,7 +117,7 @@ TEST_F(TestModelInterface, test_cart_cntrl)
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
 
-    std::string urdf_name = "awesome_leg";
+    std::string urdf_name = "awesome_leg_floating";
     // You should change here to set up your own URDF file or just pass it as an argument of this example.
     const std::string urdf_fullpath = (argc<=1) ? URDF_PATH + urdf_name + std::string(".urdf"): URDF_PATH + std::string(argv[1]) + std::string(".urdf");
     urdf_path = urdf_fullpath;
