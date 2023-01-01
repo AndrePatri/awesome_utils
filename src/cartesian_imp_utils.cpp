@@ -242,13 +242,13 @@ void CartesianImpController::update(VectorXd tau_d, VectorXd tau_c)
         throw std::invalid_argument(exception);
     }
 
+    update_internal_states(tau_d, tau_c);
+
     if(_auto_critical_damp)
     { // this is triggered depending on which overload of
       // set_cart_impedance was last called
         compute_critically_damped_gains();
     }
-
-    update_internal_states(tau_d, tau_c);
 
     compute_tau_cmd();
 
@@ -258,13 +258,14 @@ void CartesianImpController::update(std::string cart_cntrl_framename,
                                     VectorXd tau_d, VectorXd tau_c)
 {
 
+    update_internal_states(tau_d, tau_c);
+
     if(_auto_critical_damp)
     {// this is triggered depending on which overload of
      // set_cart_impedance was last called
         compute_critically_damped_gains();
     }
 
-    update_internal_states(tau_d, tau_c);
 
     compute_tau_cmd();
 
@@ -285,7 +286,7 @@ void CartesianImpController::compute_critically_damped_gains()
 {
     for (int i = 0; i < _cart_damp_vect.size(); i++)
     {
-        _cart_damp_vect(i) = 2 * std::sqrt(_Lambda(i, i) * _cart_stiff_vect(i, i));
+        _cart_damp_vect(i) = 2 * std::sqrt(_Lambda(i, i) * _cart_stiff_vect(i));
     }
 }
 
