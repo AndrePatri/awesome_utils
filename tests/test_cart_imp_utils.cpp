@@ -83,6 +83,9 @@ TEST_F(TestModelInterface, test_cart_cntrl)
 
     VectorXd q, v, a, tau;
     model_ptr->get_state(q, v, a, tau);
+    q << 0.0, 0.0, 0.0;
+    model_ptr->set_q(q);
+    model_ptr->set_v(v);
     model_ptr->update(); // computes all terms of the dynamics
     // and updates the forward kinematis
 

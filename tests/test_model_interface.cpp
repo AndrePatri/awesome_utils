@@ -12,7 +12,9 @@
 
 using namespace ModelInterface;
 
-std::string urdf_path;
+std::string urdf_path_fixed;
+std::string urdf_path_floating;
+
 IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
 
 namespace
@@ -52,15 +54,15 @@ class TestModelInterface: public ::testing::Test {
 
 };
 
-
-TEST_F(TestModelInterface, load_model)
+TEST_F(TestModelInterface, load_fixed_base_robot)
 {
-    Model::Ptr model_ptr(new Model(urdf_path));
+    Model::Ptr model_ptr(new Model(urdf_path_fixed));
 
     ASSERT_TRUE(model_ptr->was_model_init_ok());
 
     auto jnt_names = model_ptr->get_jnt_names();
 
+    std::cout << "** FIXED BASE DEBUG PRINTS**\n"  << std::endl;
     std::cout << "\nLoaded URDF at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
     std::cout << "** Joint names: **"  << std::endl;
     for (std::string i: jnt_names)
@@ -68,12 +70,6 @@ TEST_F(TestModelInterface, load_model)
     std::cout << "** joint number: " <<model_ptr->get_jnt_number() << "\n " << std::endl;
     std::cout << "** nq: " << model_ptr->get_nq() << std::endl;
     std::cout << "** nv: " << model_ptr->get_nv() << std::endl;
-
-}
-
-TEST_F(TestModelInterface, compute_quantities)
-{
-    Model::Ptr model_ptr(new Model(urdf_path));
 
     std::string tip_framename = "tip1";
     std::string base_link_frame_name = "base_link";
@@ -139,13 +135,93 @@ TEST_F(TestModelInterface, compute_quantities)
 
 }
 
+TEST_F(TestModelInterface, load_floating_base_robot)
+{
+    Model::Ptr model_ptr(new Model(urdf_path_floating));
+
+    ASSERT_TRUE(model_ptr->was_model_init_ok());
+
+    auto jnt_names = model_ptr->get_jnt_names();
+
+    std::cout << "** FLOATING BASE DEBUG PRINTS**\n"  << std::endl;
+    std::cout << "\nLoaded URDF at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
+    std::cout << "** Joint names: **"  << std::endl;
+    for (std::string i: jnt_names)
+        std::cout << "--> " << i << std::endl;
+    std::cout << "** joint number: " <<model_ptr->get_jnt_number() << "\n " << std::endl;
+    std::cout << "** nq: " << model_ptr->get_nq() << std::endl;
+    std::cout << "** nv: " << model_ptr->get_nv() << std::endl;
+
+    std::string tip_framename = "tip1";
+    std::string base_link_frame_name = "base_link";
+
+    double mass = -1.0;
+    Eigen::VectorXd q, v, a, tau,
+                    g, p, b;
+    Eigen::MatrixXd B, B_inv, C;
+    utils_defs::SpatialJac J;
+    utils_defs::SpatialJac J_dot;
+    utils_defs::PosVec3D position;
+    utils_defs::RotMat3D rotation;
+    utils_defs::Twist vel;
+    utils_defs::Affine3D pose;
+
+    model_ptr->get_state(q, v, a, tau);
+    model_ptr->set_q(q);
+    model_ptr->set_v(v);
+    model_ptr->set_a(a);
+    model_ptr->set_tau(tau);
+
+    model_ptr->update(); // computes all terms of the dynamics
+    // and updates the forward kinematis
+
+    model_ptr->get_robot_mass(mass);
+    model_ptr->get_B(B);
+    model_ptr->get_B_inv(B_inv);
+    model_ptr->get_C(C);
+    model_ptr->get_g(g);
+    model_ptr->get_b(b);
+    model_ptr->get_p(p);
+    model_ptr->get_jac(tip_framename,
+                  J,
+                  Model::ReferenceFrame::LOCAL_WORLD_ALIGNED);
+    model_ptr->get_jac_dot(tip_framename, J_dot, Model::ReferenceFrame::LOCAL_WORLD_ALIGNED);
+
+    model_ptr->get_frame_pose(tip_framename,
+                              position, rotation);
+
+    model_ptr->get_frame_vel(tip_framename,
+                             vel);
+
+    std::cout << "\nLoaded URDF at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
+    std::cout << "** Robot mass: \n" << mass << "\n " << std::endl;
+    std::cout << "** B: \n" << B.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** B_inv: \n" << B_inv.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** C: \n" << C.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** g: \n" << g.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** b: \n" << b.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** p: \n" << p.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** J (q_dot -> " << tip_framename << " - LOCAL_WORLD_ALIGNED) :\n " << J.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** J_dot (q_dot -> " << tip_framename << " - LOCAL_WORLD_ALIGNED) :\n " << J_dot.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** frame position: \n" << position.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** frame rotation matrix: \n" << rotation.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** frame position from Affine3D: \n" << pose.translation().format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** frame orientation from Affine3D: \n" << pose.rotation().format(CleanFmt) << "\n " << std::endl;
+
+    std::cout << "** frame generalized velocity: \n" << vel.format(CleanFmt) << "\n " << std::endl;
+
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
 
     std::string urdf_name = "awesome_leg";
     // You should change here to set up your own URDF file or just pass it as an argument of this example.
-    const std::string urdf_fullpath = (argc<=1) ? URDF_PATH + urdf_name + std::string(".urdf"): URDF_PATH + std::string(argv[1]) + std::string(".urdf");
-    urdf_path = urdf_fullpath;
+    const std::string urdf_fullpath_fixed = (argc<=1) ? URDF_PATH + urdf_name + std::string(".urdf"): URDF_PATH + std::string(argv[1]) + std::string(".urdf");
+    const std::string urdf_fullpath_floating = (argc<=1) ? URDF_PATH + urdf_name + std::string("_floating.urdf"): URDF_PATH + std::string(argv[1]) + std::string(".urdf");
+
+    urdf_path_fixed = urdf_fullpath_fixed;
+    urdf_path_floating = urdf_fullpath_floating;
 
     return RUN_ALL_TESTS();
 }

@@ -12,9 +12,10 @@ Model::Model(std::string urdf_path, bool add_floating_jnt)
             pinocchio::JointModelFreeFlyer floating_joint;
             pinocchio::urdf::buildModel(urdf_path, floating_joint, _pin_model);
         }
-        else{
+        else
+        {
 
-             pinocchio::urdf::buildModel(urdf_path, _pin_model);
+            pinocchio::urdf::buildModel(urdf_path, _pin_model);
 
         }
 
@@ -27,8 +28,6 @@ Model::Model(std::string urdf_path, bool add_floating_jnt)
     _urdf_path = urdf_path;
 
     _pin_data = pinocchio::Data(_pin_model);
-
-//    _q = pinocchio::randomConfiguration(_pin_model);
 
     _n_jnts = _pin_model.njoints;
     _jnt_names = _pin_model.names;
@@ -61,8 +60,6 @@ Model::Model(std::string urdf_path, bool add_floating_jnt)
 
     pinocchio::computeTotalMass(_pin_model, _pin_data);
     _mass = _pin_data.mass[0];
-
-//    pinocchio::computeJointJacobians(_pin_model, _pin_data, _q);
 
     _pin_model_init_ok = true;
 
