@@ -153,11 +153,11 @@ namespace CartesianImpUtils
     *
     * we define the right weighted pseudo inverse of J as
     *
-    * (1.4) J_rps_w := B_inv * J^T * Lambda
+    * (1.4) J_rps_w := Lambda * J * B_inv
     *
     * The final version of the task dynamics is
     *
-    * (1.5) Lambda * Chi_ddot + Lambda * (J * B_inv * C - J_dot) * v + J^T_rps_w * g = f_i + J^T_rps_w * (tau_cmd + tau_d + tau_c)
+    * (1.5) Lambda * Chi_ddot + Lambda * (J * B_inv * C - J_dot) * v + J_rps_w * g = f_i + J_rps_w * (tau_cmd + tau_d + tau_c)
     *
     * Suppose we choose tau_cmd as
     *
@@ -165,7 +165,7 @@ namespace CartesianImpUtils
     *
     * (1.5) becomes
     *
-    * (1.5.1) Lambda * Chi_ddot + Lambda * (J * B_inv * C - J_dot) * v + J^T_rps_w * g =
+    * (1.5.1) Lambda * Chi_ddot + Lambda * (J * B_inv * C - J_dot) * v + J_rps_w * g =
     * = f_i + f_star
     *
     * We'd like to impose the MSD-like error dynamics given by
@@ -174,14 +174,14 @@ namespace CartesianImpUtils
     *
     * We extract Chi_ddot from (1.6), plug it in (1.5.1) and extract f^ :
     *
-    * (1.7) f^ = (Lambda * Lambda_ref^{-1} - I) * f_i + Lambda * Chi_ddot_ref + h(q, v) + J^T_rps_w * g +
+    * (1.7) f^ = (Lambda * Lambda_ref^{-1} - I) * f_i + Lambda * Chi_ddot_ref + h(q, v) + J_rps_w * g +
     *           - Lambda * Lambda_ref^{-1} * (K_D_ref * Chi_err_dot + K_P^ref * Chi_err)
     *
-    * where h(q, v) := (J^T_rps_w * C - Lambda * J_dot) * v
+    * where h(q, v) := (J_rps_w * C - Lambda * J_dot) * v
     *
     * In particular, if we choose Lambda_ref = Lambda the (1.7) simplifies to
     *
-    * (1.7.1) f^ = Lambda * Chi_ddot_ref + h(q, v) + J^T_rps_w * g +
+    * (1.7.1) f^ = Lambda * Chi_ddot_ref + h(q, v) + J_rps_w * g +
     *              - (K_D_ref * Chi_err_dot + K_P^ref * Chi_err)
     *
     * which has the advantage of not needing a measurement of f_i
