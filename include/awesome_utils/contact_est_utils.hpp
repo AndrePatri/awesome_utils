@@ -87,7 +87,7 @@ namespace ContactEstUtils
     * Given a regularization W_{lambda},
     * and a regularization diagonal matrix Lambda,
     * this problem can be approached in a least-square error sense
-    * by solving the system
+    * by solving the system (dynamical systems obey the least action principle)
     * [J^T_{tot}; sqrt(Lambda)] * W = [tau_c; sqrt(Lambda) * W_lambda]
     * which can be synthetically written as
     * A * W = b
