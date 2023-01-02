@@ -34,16 +34,16 @@ namespace
     }
 }
 
-class TestModelInterface: public ::testing::Test {
+class TestCartImp: public ::testing::Test {
 
 
     protected:
 
-         TestModelInterface(){
+         TestCartImp(){
 
          }
 
-         virtual ~TestModelInterface() {
+         virtual ~TestCartImp() {
          }
 
          virtual void SetUp() {
@@ -56,7 +56,7 @@ class TestModelInterface: public ::testing::Test {
 
 };
 
-TEST_F(TestModelInterface, test_cart_cntrl)
+TEST_F(TestCartImp, test_cart_cntrl)
 {
     std::string tip_framename = "tip1";
     std::string base_link_frame_name = "base_link";
@@ -83,7 +83,11 @@ TEST_F(TestModelInterface, test_cart_cntrl)
 
     VectorXd q, v, a, tau;
     model_ptr->get_state(q, v, a, tau);
-    q << 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, -1.0;
+    Eigen::VectorXd base_position = Eigen::VectorXd::Zero(3);
+    Eigen::VectorXd base_orient = Eigen::VectorXd::Zero(4);
+    base_position << 0.0, 0.0, 0.0; // z height doesn't matter
+    base_orient << 0.0, 0.0, 0.0, 1.0; // qx, qy, qz, w --> pinocchio follows Eigen's convention
+    q << base_position, base_orient, 1.0, -1.0; // leg vertical with horizontal base link
     model_ptr->set_q(q);
     model_ptr->set_v(v);
     model_ptr->update(); // computes all terms of the dynamics

@@ -33,6 +33,7 @@ namespace utils_defs
     typedef Matrix<double, 6, 6> CartDampMat;
     typedef Matrix<double, 6, 1> CartStiffVect;
     typedef Matrix<double, 6, 1> CartDampVect;
+
 }
 
 #endif // TYPEDEFS_HPP

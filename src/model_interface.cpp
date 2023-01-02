@@ -94,6 +94,16 @@ void Model::update()
 
 }
 
+void Model::set_neutral()
+{
+    _q = pinocchio::neutral(_pin_model);
+}
+
+void Model::set_random()
+{
+    _q = pinocchio::randomConfiguration(_pin_model, _q_min, _q_max);
+}
+
 void Model::set_q(VectorXd q)
 {
     _q = q;

@@ -76,6 +76,8 @@ namespace ModelInterface
             void update_tau_rnea();
             void update_p();
 
+            void set_neutral();
+            void set_random();
             void set_q(VectorXd q);
             void set_v(VectorXd v);
             void set_a(VectorXd a);
