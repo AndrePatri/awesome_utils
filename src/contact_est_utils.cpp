@@ -121,7 +121,7 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt,
     _p_km1 = VectorXd::Zero(_nv);
 
     _A = MatrixXd::Zero(_nv + _lambda.size() * _nc, _lambda.size() * _nc);
-    _b = VectorXd::Zero(_nv + _lambda.size());
+    _b = VectorXd::Zero(_nv + _lambda.size() * _nc);
 
     _A_lambda = MatrixXd::Zero(_lambda.size() * _nc, _lambda.size() * _nc);
     _b_lambda = VectorXd::Zero(_A_lambda.rows());
