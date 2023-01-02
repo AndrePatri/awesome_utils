@@ -75,6 +75,33 @@ namespace SignProcUtils{
 
     };
 
+    /// \brief Class to perform numerical real time integration of a
+    /// constant rate signal.
+    class NumIntRt
+    {
+      public:
+
+        NumIntRt();
+
+        NumIntRt(int n_jnts, double dt);
+
+        void add_sample(Eigen::VectorXd sample);
+
+        void get(Eigen::VectorXd& _int_sample); // get an estimate of integral
+        // of the variable along the specified T_horizon (from 0 to T_horizon)
+        // (assuming constant dt)
+
+      private:
+
+        Eigen::VectorXd _int_k, _int_km1; // integral value
+        // at current sample and at the previous sample time
+
+        int _n_jnts = -1;
+
+        NumInt _num_int;
+
+    };
+
     /// \brief Class to perform moving-average filtering of a signal s(t).
     ///
     /// To get an approximate expression for this filter bandwidth (valid for large window size)
