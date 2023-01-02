@@ -343,7 +343,7 @@ void CartesianImpController::compute_lambda()
 
 void CartesianImpController::compute_J_rps_w()
 {
-    _J_rps_w =  _Lambda * _J * _B_inv;
+    _J_rps_w = _B_inv * _J.transpose() * _Lambda;
 }
 
 void CartesianImpController::compute_quantities()
@@ -372,14 +372,14 @@ void CartesianImpController::compute_quantities()
 
 void CartesianImpController::compute_h()
 {
-    _h = (_J_rps_w * _C - _Lambda * _J_dot) * _v;
+    _h = (_J_rps_w.transpose() * _C - _Lambda * _J_dot) * _v;
 }
 
 void CartesianImpController::compute_f_star()
 {
     compute_h();
 
-    _f_star = _Lambda * _cart_task->task_ddot_ref() + _h + _J_rps_w * _g -
+    _f_star = _Lambda * _cart_task->task_ddot_ref() + _h + _J_rps_w.transpose() * _g -
               (_cart_stiff * _cart_task->task_err() + _cart_damp * _cart_task->task_dot_err());
 }
 
