@@ -81,8 +81,8 @@ TEST_F(TestContactEst, compute_quantities_fixed_base)
 
     model_ptr->update(); // computes all terms
 
-    double dt = 0.001; // control loop dt
-    double BW = 100.0; // observer bandwitdth [Hz]
+    double dt = 0.01; // control loop dt
+    double BW = 200.0; // observer bandwitdth [Hz]
 
     MomentumBasedFObs::Reg6D lambda = Eigen::VectorXd::Zero(6);
     lambda << 0.001, 0.001, 0.001, 0.01, 0.01, 0.01;
@@ -116,7 +116,8 @@ TEST_F(TestContactEst, compute_quantities_fixed_base)
 TEST_F(TestContactEst, compute_quantities_floating_base)
 {
     Eigen::VectorXd q, v, a, tau, p,
-                    tau_c;
+                    tau_c, g, CT_v,
+                    tau_c_raw_static;
 
     utils_defs::Force3D f_c;
     utils_defs::Torque3D t_c;
@@ -131,8 +132,12 @@ TEST_F(TestContactEst, compute_quantities_floating_base)
 
     model_ptr->update(); // computes all terms
 
-    double dt = 0.001; // control loop dt
-    double BW = 100.0; // observer bandwitdth [Hz]
+    model_ptr->get_g(g);
+    model_ptr->get_tau(tau);
+    tau_c_raw_static = g - tau; // raw disturbance torques (not filtered
+
+    double dt = 0.01; // control loop dt
+    double BW = 200.0; // observer bandwitdth [Hz]
 
     MomentumBasedFObs::Reg6D lambda = Eigen::VectorXd::Zero(6);
     lambda << 0.001, 0.001, 0.001, 0.01, 0.01, 0.01;
@@ -158,6 +163,7 @@ TEST_F(TestContactEst, compute_quantities_floating_base)
     std::cout << "** FLOATING BASE DEBUG PRINTS**\n"  << std::endl;
     std::cout << "\nURDF loaded at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
     std::cout << "** tau_c: \n" << tau_c << "\n " << std::endl;
+    std::cout << "** tau_c_raw: \n" << tau_c_raw_static << "\n " << std::endl;
     std::cout << "** f_c: \n" << f_c << "\n " << std::endl;
     std::cout << "** w_c: \n" << t_c << "\n " << std::endl;
 

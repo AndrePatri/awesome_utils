@@ -52,12 +52,6 @@ namespace ContactEstUtils
     * substituting (1) and (2) into (3) and extracting tau_c as the desired variable
     * to be observed, one obtains the observer dynamics (3).
     *
-    * How to use (3)? It can be easily integrated (numerically) to obtain an estimate of tau_c
-    *  with some noise rejection properties: the higher the gains, the lower the rejection
-    * of noise, the faster the convergence.
-    * In particular, supposing a matrix of diagonals values, the bandwidth of this observer
-    * can be approximated as (5) BW = - k/log(1 - 0.707)
-    *
     * Clearly, the quality of the estimate depends on the quality of the measurements (accuracy, noise, etc..)
     * but also on the accuracy up to which the inertial properties of the system are known
     *
@@ -79,9 +73,9 @@ namespace ContactEstUtils
     * Note that (6) does not require the differentiation of q_dot and is hence less prone to noise than other possible model-based
     * observer implementations.
     *
-    * To obtain the the contact utils_defs::Wrenches consider that:
+    * To obtain the the contact wrench consider that:
     * y \approx tau_c = sum_0^{n_c - 1} J^T_{i} * w_i
-    * where n_c is the number of contacts, w_i is the utils_defs::Wrench on the i-th contact and J_i is the analytical
+    * where n_c is the number of contacts, w_i is the wrench on the i-th contact and J_i is the analytical
     * jacobian of the i-th contact (each contact is described by a frame).
     * we can concatenate everything into
     *
@@ -109,6 +103,8 @@ namespace ContactEstUtils
     * which means the bandwidth of the observer can be computed as
     * 2 * pi * f_bw = k (recall that the bandwidth is defined as a reduction of the amplitude of
     * the frequency response of -3dB = 20 * log(1/sqrt(2)))
+    *
+    * For what concerns the homogenous response, it is damped
     */
 
 
