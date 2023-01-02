@@ -4,6 +4,8 @@
 
 using namespace ContactEstUtils;
 
+//************* MomentumBasedFObs *************//
+
 MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt,
                                      std::vector<std::string> contact_framenames,
                                      double bandwidth,
