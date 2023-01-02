@@ -165,7 +165,6 @@ TEST_F(TestContactEst, compute_quantities_floating_base)
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
-
   std::string urdf_name = "awesome_leg";
   // You should change here to set up your own URDF file or just pass it as an argument of this example.
   const std::string urdf_fullpath_fixed = (argc<=1) ? URDF_PATH + urdf_name + std::string(".urdf"): URDF_PATH + std::string(argv[1]) + std::string(".urdf");
@@ -174,4 +173,5 @@ int main(int argc, char **argv) {
   urdf_path_fixed = urdf_fullpath_fixed;
   urdf_path_floating = urdf_fullpath_floating;
 
+  return RUN_ALL_TESTS();
 }
