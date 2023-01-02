@@ -158,6 +158,54 @@ void NumInt::get(Eigen::VectorXd& sample_integral)
     }
 }
 
+//************* NumIntRt *************//
+
+NumIntRt::NumIntRt()
+{
+
+}
+
+NumIntRt::NumIntRt(int n_jnts, double dt)
+    :_n_jnts{n_jnts}
+{
+
+    _num_int = NumInt(n_jnts, dt, dt); // we exploit the NumInt class over a window size of 2 samples
+
+    _int_km1 = Eigen::VectorXd::Zero(_n_jnts);
+
+    _int_k = Eigen::VectorXd::Zero(_n_jnts);
+
+}
+
+void NumIntRt::add_sample(Eigen::VectorXd sample)
+{
+
+  _num_int.add_sample(sample);
+
+  int sample_size = sample.size();
+
+  if(sample_size != _n_jnts)
+  {
+      std::string exception = std::string("NumIntRt::add_sample(): Trying to add a sample of size ") +
+                              std::to_string(sample_size) + std::string(", which is different from ") +
+                              std::to_string(_n_jnts) + std::string(", (number of joints) \n");
+
+      throw std::invalid_argument(exception);
+  }
+
+}
+
+void NumIntRt::get(Eigen::VectorXd& sample_integral)
+{
+
+    _num_int.get(_int_k);
+
+    _int_k = _int_km1 + _int_k;
+
+    _int_km1 = _int_k;
+
+}
+
 //************* MovAvrgFilt *************//
 
 MovAvrgFilt::MovAvrgFilt()
