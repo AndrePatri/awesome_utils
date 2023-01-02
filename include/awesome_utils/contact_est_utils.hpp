@@ -104,7 +104,12 @@ namespace ContactEstUtils
     * 2 * pi * f_bw = k (recall that the bandwidth is defined as a reduction of the amplitude of
     * the frequency response of -3dB = 20 * log(1/sqrt(2)))
     *
-    * For what concerns the homogenous response, it is damped
+    * For what concerns the homogenous response
+    *
+    * t_reduction = log(reduction_ratio)/(2*pi*BW)
+    *
+    * is the time it takes to the observer to settle e.g. to 99% of the
+    * steady state response
     */
 
 

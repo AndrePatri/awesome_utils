@@ -190,11 +190,32 @@ TEST_F(TestContactEst, test_contact_est_anymal)
     model_ptr->get_tau(tau);
     tau_c_raw_static = g - tau; // raw disturbance torques (not filtered
 
-    double dt = 0.001; // control loop dt
-    double BW = 100.0; // observer bandwitdth [Hz]
+    int nv = model_ptr->get_nv();
+
+    double dt = 0.0001; // control loop dt
+    double BW = 10000.0; // observer bandwitdth [Hz]
+
+    int rollout_number = 15; // number of samples for testing steady state convergence
+    // of the observer over multiple sample intervals
+
+    Eigen::MatrixXd Fc_lf, Fc_lh, Fc_rf, Fc_rh;
+    Eigen::MatrixXd Tc_lf, Tc_lh, Tc_rf, Tc_rh;
+
+    Eigen::MatrixXd Tau_c, Tau_c_raw;
+
+    Fc_lf = Eigen::MatrixXd::Zero(fc_lf.size(), rollout_number);
+    Fc_lh = Eigen::MatrixXd::Zero(fc_lf.size(), rollout_number);
+    Fc_rf = Eigen::MatrixXd::Zero(fc_lf.size(), rollout_number);
+    Fc_rh = Eigen::MatrixXd::Zero(fc_lf.size(), rollout_number);
+    Tc_lf = Eigen::MatrixXd::Zero(fc_lf.size(), rollout_number);
+    Tc_lh = Eigen::MatrixXd::Zero(fc_lf.size(), rollout_number);
+    Tc_rf = Eigen::MatrixXd::Zero(fc_lf.size(), rollout_number);
+    Tc_rh = Eigen::MatrixXd::Zero(fc_lf.size(), rollout_number);
+    Tau_c = Eigen::MatrixXd::Zero(nv, rollout_number);
+    Tau_c_raw = Eigen::MatrixXd::Zero(nv, rollout_number);
 
     MomentumBasedFObs::Reg6D lambda = Eigen::VectorXd::Zero(6);
-    lambda << 0.001, 0.001, 0.001, 0.01, 0.01, 0.01;
+    lambda << 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001;
 
     std::vector<int> selector{0, 1, 2}; // only force
 
@@ -208,30 +229,49 @@ TEST_F(TestContactEst, test_contact_est_anymal)
                                                            lambda, regularize_w,
                                                            selector));
 
-    f_obs_ptr->update(); // compute estimates using the current state in model_ptr
+    for (int i = 0; i < rollout_number; i++)
+    {
+        // we leave the state of the model fixed, so we are looking
+        // at the homogenous part of the observer dynamics.
 
-    f_obs_ptr->get_tau_obs(tau_c);
-    f_obs_ptr->get_f_est_at(contacts[0], fc_lf);
-    f_obs_ptr->get_f_est_at(contacts[1], fc_lh);
-    f_obs_ptr->get_f_est_at(contacts[2], fc_rf);
-    f_obs_ptr->get_f_est_at(contacts[3], fc_rh);
-    f_obs_ptr->get_t_est_at(contacts[0], tc_lf);
-    f_obs_ptr->get_t_est_at(contacts[1], tc_lh);
-    f_obs_ptr->get_t_est_at(contacts[2], tc_rf);
-    f_obs_ptr->get_t_est_at(contacts[3], tc_rh);
+        f_obs_ptr->update();
+
+        f_obs_ptr->get_tau_obs(tau_c);
+        f_obs_ptr->get_f_est_at(contacts[0], fc_lf);
+        f_obs_ptr->get_f_est_at(contacts[1], fc_lh);
+        f_obs_ptr->get_f_est_at(contacts[2], fc_rf);
+        f_obs_ptr->get_f_est_at(contacts[3], fc_rh);
+        f_obs_ptr->get_t_est_at(contacts[0], tc_lf);
+        f_obs_ptr->get_t_est_at(contacts[1], tc_lh);
+        f_obs_ptr->get_t_est_at(contacts[2], tc_rf);
+        f_obs_ptr->get_t_est_at(contacts[3], tc_rh);
+
+        Fc_lf.block(0, i, Fc_lf.rows(), 1) = fc_lf;
+        Fc_lh.block(0, i, Fc_lf.rows(), 1) = fc_lh;
+        Fc_rf.block(0, i, Fc_lf.rows(), 1) = fc_rf;
+        Fc_rh.block(0, i, Fc_lf.rows(), 1) = fc_rh;
+        Tc_lf.block(0, i, Fc_lf.rows(), 1) = tc_lf;
+        Tc_lh.block(0, i, Fc_lf.rows(), 1) = tc_lh;
+        Tc_rf.block(0, i, Fc_lf.rows(), 1) = tc_rf;
+        Tc_rh.block(0, i, Fc_lf.rows(), 1) = tc_rh;
+
+        Tau_c.block(0, i, Tau_c.rows(), 1) = tau_c;
+        Tau_c_raw.block(0, i, Tau_c.rows(), 1) = tau_c_raw_static;
+
+    }
 
     std::cout << "** FLOATING BASE DEBUG PRINTS**\n"  << std::endl;
     std::cout << "\nURDF loaded at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
-    std::cout << "** tau_c: \n" << tau_c << "\n " << std::endl;
-    std::cout << "** tau_c_raw: \n" << tau_c_raw_static << "\n " << std::endl;
-    std::cout << "** fc_lf: \n" << fc_lf << "\n " << std::endl;
-    std::cout << "** wc_lf: \n" << tc_lf << "\n " << std::endl;
-    std::cout << "** fc_lh: \n" << fc_lh << "\n " << std::endl;
-    std::cout << "** wc_lh: \n" << tc_lh << "\n " << std::endl;
-    std::cout << "** fc_rf: \n" << fc_rf << "\n " << std::endl;
-    std::cout << "** wc_rf: \n" << tc_rf << "\n " << std::endl;
-    std::cout << "** fc_rh: \n" << fc_rh << "\n " << std::endl;
-    std::cout << "** wc_rh: \n" << tc_rh << "\n " << std::endl;
+    std::cout << "** tau_c: \n" << Tau_c << "\n " << std::endl;
+    std::cout << "** tau_c_raw: \n" << Tau_c_raw << "\n " << std::endl;
+    std::cout << "** Fc_lf: \n" << Fc_lf << "\n " << std::endl;
+    std::cout << "** Fc_lh: \n" << Fc_lh << "\n " << std::endl;
+    std::cout << "** Fc_rf: \n" << Fc_rf << "\n " << std::endl;
+    std::cout << "** Fc_rh: \n" << Fc_rh << "\n " << std::endl;
+    std::cout << "** Tc_lf: \n" << Tc_lf << "\n " << std::endl;
+    std::cout << "** Tc_lh: \n" << Tc_lh << "\n " << std::endl;
+    std::cout << "** Tc_rf: \n" << Tc_rf << "\n " << std::endl;
+    std::cout << "** Tc_rh: \n" << Tc_rh << "\n " << std::endl;
 
 }
 
