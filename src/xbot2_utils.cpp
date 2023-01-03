@@ -1,4 +1,4 @@
-#include "awesome_utils/xbot2_utils.hpp"
+#include "xbot2_utils.hpp"
 
 using namespace Xbot2Utils;
 
