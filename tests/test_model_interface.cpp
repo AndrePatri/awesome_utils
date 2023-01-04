@@ -15,6 +15,9 @@ using namespace ModelInterface;
 std::string urdf_path_fixed;
 std::string urdf_path_floating;
 
+std::string urdf_path_anymal;
+std::string urdf_path_quadruped;
+
 IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
 
 namespace
@@ -54,7 +57,7 @@ class TestModelInterface: public ::testing::Test {
 
 };
 
-TEST_F(TestModelInterface, load_fixed_base_robot)
+TEST_F(TestModelInterface, load_fixed_base_leg)
 {
     Model::Ptr model_ptr(new Model(urdf_path_fixed));
 
@@ -62,7 +65,7 @@ TEST_F(TestModelInterface, load_fixed_base_robot)
 
     auto jnt_names = model_ptr->get_jnt_names();
 
-    std::cout << "** FIXED BASE DEBUG PRINTS**\n"  << std::endl;
+    std::cout << "** FIXED BASE LEG DEBUG PRINTS**\n"  << std::endl;
     std::cout << "\nLoaded URDF at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
     std::cout << "** Joint names: **"  << std::endl;
     for (std::string i: jnt_names)
@@ -140,7 +143,7 @@ TEST_F(TestModelInterface, load_fixed_base_robot)
 
 }
 
-TEST_F(TestModelInterface, load_floating_base_robot)
+TEST_F(TestModelInterface, load_floating_base_leg)
 {
     Model::Ptr model_ptr(new Model(urdf_path_floating));
 
@@ -148,7 +151,7 @@ TEST_F(TestModelInterface, load_floating_base_robot)
 
     auto jnt_names = model_ptr->get_jnt_names();
 
-    std::cout << "** FLOATING BASE DEBUG PRINTS**\n"  << std::endl;
+    std::cout << "** FLOATING BASE LEG DEBUG PRINTS**\n"  << std::endl;
     std::cout << "\nLoaded URDF at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
     std::cout << "** Joint names: **"  << std::endl;
     for (std::string i: jnt_names)
@@ -235,6 +238,108 @@ TEST_F(TestModelInterface, load_floating_base_robot)
 
 }
 
+TEST_F(TestModelInterface, load_floating_base_anymal)
+{
+    Model::Ptr model_ptr(new Model(urdf_path_anymal));
+
+    ASSERT_TRUE(model_ptr->was_model_init_ok());
+
+    auto jnt_names = model_ptr->get_jnt_names();
+
+    std::cout << "** FLOATING BASE ANYMAL DEBUG PRINTS**\n"  << std::endl;
+    std::cout << "\nLoaded URDF at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
+    std::cout << "** Joint names: **"  << std::endl;
+    for (std::string i: jnt_names)
+        std::cout << "--> " << i << std::endl;
+    std::cout << "** joint number: " <<model_ptr->get_jnt_number() << "\n " << std::endl;
+    std::cout << "** nq: " << model_ptr->get_nq() << std::endl;
+    std::cout << "** nv: " << model_ptr->get_nv() << std::endl;
+
+    double mass = -1.0;
+    Eigen::VectorXd q, v, a, tau,
+                    g, p, b;
+    Eigen::MatrixXd B, B_inv, C;
+
+    model_ptr->set_neutral(); // sets q to a neutral configuration vector
+    model_ptr->get_state(q, v, a, tau);
+
+    model_ptr->update(); // computes all terms of the dynamics
+    // and updates the forward kinematis
+
+    model_ptr->get_robot_mass(mass);
+    model_ptr->get_B(B);
+    model_ptr->get_B_inv(B_inv);
+    model_ptr->get_C(C);
+    model_ptr->get_g(g);
+    model_ptr->get_b(b);
+    model_ptr->get_p(p);
+
+    std::cout << "\nLoaded URDF at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
+    std::cout << "** Robot mass: \n" << mass << "\n " << std::endl;
+    std::cout << "** q: \n" << q.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** v: \n" << v.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** a: \n" << a.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** tau: \n" << tau.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** B: \n" << B.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** B_inv: \n" << B_inv.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** C: \n" << C.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** g: \n" << g.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** b: \n" << b.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** p: \n" << p.format(CleanFmt) << "\n " << std::endl;
+
+}
+
+TEST_F(TestModelInterface, load_floating_base_quadruped)
+{
+    Model::Ptr model_ptr(new Model(urdf_path_quadruped));
+
+    ASSERT_TRUE(model_ptr->was_model_init_ok());
+
+    auto jnt_names = model_ptr->get_jnt_names();
+
+    std::cout << "** FLOATING BASE QUADRUPED DEBUG PRINTS**\n"  << std::endl;
+    std::cout << "\nLoaded URDF at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
+    std::cout << "** Joint names: **"  << std::endl;
+    for (std::string i: jnt_names)
+        std::cout << "--> " << i << std::endl;
+    std::cout << "** joint number: " <<model_ptr->get_jnt_number() << "\n " << std::endl;
+    std::cout << "** nq: " << model_ptr->get_nq() << std::endl;
+    std::cout << "** nv: " << model_ptr->get_nv() << std::endl;
+
+    double mass = -1.0;
+    Eigen::VectorXd q, v, a, tau,
+                    g, p, b;
+    Eigen::MatrixXd B, B_inv, C;
+
+    model_ptr->set_random(); // sets q to a neutral configuration vector
+    model_ptr->get_state(q, v, a, tau);
+
+    model_ptr->update(); // computes all terms of the dynamics
+    // and updates the forward kinematis
+
+    model_ptr->get_robot_mass(mass);
+    model_ptr->get_B(B);
+    model_ptr->get_B_inv(B_inv);
+    model_ptr->get_C(C);
+    model_ptr->get_g(g);
+    model_ptr->get_b(b);
+    model_ptr->get_p(p);
+
+    std::cout << "\nLoaded URDF at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
+    std::cout << "** Robot mass: \n" << mass << "\n " << std::endl;
+    std::cout << "** q: \n" << q.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** v: \n" << v.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** a: \n" << a.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** tau: \n" << tau.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** B: \n" << B.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** B_inv: \n" << B_inv.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** C: \n" << C.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** g: \n" << g.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** b: \n" << b.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** p: \n" << p.format(CleanFmt) << "\n " << std::endl;
+
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
 
@@ -245,6 +350,9 @@ int main(int argc, char **argv) {
 
     urdf_path_fixed = urdf_fullpath_fixed;
     urdf_path_floating = urdf_fullpath_floating;
+
+    urdf_path_anymal = URDF_PATH + std::string("anymal") + std::string(".urdf");
+    urdf_path_quadruped = URDF_PATH + std::string("quadruped") + std::string(".urdf");
 
     return RUN_ALL_TESTS();
 }

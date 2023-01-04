@@ -2439,7 +2439,7 @@
   <!-- ************ Control frames ************ -->
   <!--xacro:include filename="$(find pholus_urdf)/urdf/control_frames.urdf.xacro"/-->
   <link name="world"/>
-  <joint name="reference" type="floating">
+  <joint name="world_joint" type="floating">
     <parent link="world"/>
     <child link="pelvis"/>
   </joint>

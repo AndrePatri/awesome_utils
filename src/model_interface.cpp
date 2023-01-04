@@ -1,4 +1,5 @@
 #include "model_interface.hpp"
+#include <pinocchio/spatial/se3.hpp>
 
 using namespace ModelInterface;
 
@@ -49,6 +50,11 @@ Model::Model(std::string urdf_path, bool add_floating_jnt)
     _q_min = _pin_model.lowerPositionLimit;
     _q_max = _pin_model.upperPositionLimit;
 
+    _q_min_aux = VectorXd::Zero(_q_min.size());
+    _q_max_aux = VectorXd::Zero(_q_max.size());
+    _q_min_aux << -1.0, -1.0, -1.0, _q_min.tail(_q_min.size() - 3);
+    _q_max_aux << 1.0, 1.0, 1.0, _q_max.tail(_q_max.size() - 3);
+
     _nqs = std::vector<int>(_n_jnts);
     _nvs = std::vector<int>(_n_jnts);
 
@@ -60,6 +66,20 @@ Model::Model(std::string urdf_path, bool add_floating_jnt)
 
     pinocchio::computeTotalMass(_pin_model, _pin_data);
     _mass = _pin_data.mass[0];
+
+    if (_jnt_names[0] == "universe" && _nqs[1] == 7 && _nvs[1] == 6)
+    { // in case the universe joint is present, look at the second joint
+
+        _is_floating_base = true;
+
+    }
+
+    if (_jnt_names[0] != "universe" && _nqs[0] == 7 && _nvs[0] == 6)
+    { // in case the universe joint is not present, look directly at the first joint
+
+        _is_floating_base = true;
+
+    }
 
     _pin_model_init_ok = true;
 
@@ -101,12 +121,23 @@ void Model::set_neutral()
 
 void Model::set_random()
 {
-    _q = pinocchio::randomConfiguration(_pin_model, _q_min, _q_max);
+
+    if(_is_floating_base)
+    {
+        _q = pinocchio::randomConfiguration(_pin_model, _q_min_aux, _q_max_aux);
+    }
+    else
+    {
+        _q = pinocchio::randomConfiguration(_pin_model, _q_min, _q_max);
+    }
+
 }
 
 void Model::set_q(VectorXd q)
 {
+
     _q = q;
+
 }
 
 void Model::set_v(VectorXd v)

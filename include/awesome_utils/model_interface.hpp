@@ -136,6 +136,8 @@ namespace ModelInterface
 
             bool _pin_model_init_ok = false;
 
+            bool _is_floating_base = false;
+
             std::string _urdf_path;
 
             int _nq = 0, _nv = 0, _n_jnts = 0;
@@ -143,6 +145,11 @@ namespace ModelInterface
             double mass = -1.0;
 
             VectorXd _q_min, _q_max;
+
+            VectorXd _q_min_aux, _q_max_aux; // these are only used internally
+            // to avoid using local variables and when setting random configurations
+            // for floating base robots
+
             VectorXd _effort_limits, _vel_limits;
 
             VectorXd _q, _v, _a;
