@@ -81,6 +81,8 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt,
     _W = VectorXd::Zero(_lambda.size() * _nc);
     _W_reg = VectorXd::Zero(_lambda.size() * _nc);
 
+    _J_buffer = MatrixXd::Zero(_lambda.size(), _nv);
+
     _J_c_tot = MatrixXd::Zero(_lambda.size() * _nc, _nv);
 
 }
@@ -141,6 +143,8 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt,
 
     _W = VectorXd::Zero(_lambda.size() * _nc);
     _W_reg = VectorXd::Zero(_lambda.size() * _nc);
+
+    _J_buffer = MatrixXd::Zero(_lambda.size(), _nv);
 
     _J_c_tot = MatrixXd::Zero(_lambda.size() * _nc, _nv);
 
