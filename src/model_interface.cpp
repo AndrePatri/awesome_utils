@@ -363,7 +363,7 @@ void Model::jacobian(std::string frame_name, Model::ReferenceFrame ref,
 
     pinocchio::FrameIndex frame_idx = _pin_model.getFrameId(frame_name);
 
-    J = utils_defs::SpatialJac(6, _nv);
+    J = MatrixXd::Zero(6, _nv);
 
     pinocchio::computeFrameJacobian(_pin_model, _pin_data, _q, frame_idx, pinocchio::ReferenceFrame(ref), J); // using latest set q
 
