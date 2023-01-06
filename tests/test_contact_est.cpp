@@ -300,7 +300,7 @@ TEST_F(TestContactEst, test_contact_est_quadruped)
 
     int nv = model_ptr->get_nv();
 
-    double dt = 0.0001; // control loop dt
+    double dt = 0.00001; // control loop dt
     double BW = 10000.0; // observer bandwitdth [Hz]
 
     int rollout_number = 15; // number of samples for testing steady state convergence
@@ -322,24 +322,18 @@ TEST_F(TestContactEst, test_contact_est_quadruped)
     Tau_c = Eigen::MatrixXd::Zero(nv, rollout_number);
     Tau_c_raw = Eigen::MatrixXd::Zero(nv, rollout_number);
 
-    MomentumBasedFObs::Reg6D lambda = Eigen::VectorXd::Zero(6);
-    lambda << 0.000000000000001,
-              0.000000000000001,
-              0.000000000000001,
-              0.000000000000001,
-              0.000000000000001,
-              0.000000000000001;
+    double lambda = 1e-4;
 
     std::vector<int> selector{0, 1, 2}; // only force
 
     std::vector<std::string> contacts{"ball_1", "ball_2", "ball_3", "ball_4"};
 
-    bool regularize_w = true;
+    bool regularize_delta_w = false;
 
     MomentumBasedFObs::Ptr f_obs_ptr(new MomentumBasedFObs(model_ptr, dt,
                                                            contacts,
                                                            BW,
-                                                           lambda, regularize_w,
+                                                           lambda, regularize_delta_w,
                                                            selector));
 
     for (int i = 0; i < rollout_number; i++)

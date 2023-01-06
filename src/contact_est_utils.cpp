@@ -13,77 +13,12 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt,
     : _model_ptr{model_ptr}, _dt{data_dt},
       _contact_framenames{contact_framenames},
       _bandwidth{bandwidth},
-      _regularize_f{regularize_f}, _selector{selector}
+      _regularize_delta_f{regularize_f}, _selector{selector}
 {
-    if(!_model_ptr->was_model_init_ok())
-    {
-        std::string exception = std::string("ContactEstUtils::MomentumBasedFObs::MomentumBasedFObs(): \n") +
-                                std::string("The provided model object is not initialized properly!!\n");
 
-        throw std::invalid_argument(exception);
-    }
+    _lambda = lambda * VectorXd::Ones(6);
 
-    for (int i = 0; i < _lambda.size(); i++)
-    {
-        _lambda(i) = lambda; // in case a scalar lambda is provided,
-        // we assign the same value to all
-    }
-
-    process_selector();
-
-    process_contactnames();
-
-    _nv = _model_ptr->get_nv();
-
-    compute_bandwidth();
-
-    _K = _k * MatrixXd::Identity(_nv, _nv); // diagonal matrix of
-    // constant values
-
-    // state transition matrices for the integration of the observer
-    // dynamic (constant, so initialzied here)
-    _Skp1 = MatrixXd::Identity(_nv, _nv) + _dt/2.0 * _K;
-    _Skp1_inv = _Skp1.inverse();
-    _Sk = MatrixXd::Identity(_nv, _nv) - _dt/2.0 * _K;
-
-    _integrator = NumInt(_nv, _dt, _dt); // numerical integrator
-
-    _tau_c_k = VectorXd::Zero(_nv);
-    _p_km1 = VectorXd::Zero(_nv);
-
-    _v = VectorXd::Zero(_nv);
-    _tau = VectorXd::Zero(_nv);
-    _g = VectorXd::Zero(_nv);
-    _p = VectorXd::Zero(_nv);
-    _to_be_integrated = VectorXd::Zero(_nv);
-    _integral = VectorXd::Zero(_nv);
-    _C = MatrixXd::Zero(_nv, _nv);
-
-    _A = MatrixXd::Zero(_nv + _lambda.size() * _nc, _lambda.size() * _nc);
-    _b = VectorXd::Zero(_nv + _lambda.size());
-
-    _A_lambda = MatrixXd::Zero(_lambda.size() * _nc, _lambda.size() * _nc);
-    _b_lambda = VectorXd::Zero(_A_lambda.rows());
-    for (int i = 0; i < _nc; i++)
-    { // we assign _lambda on the diagonal of A_lambda (replicating it
-      // for the number of contacts)
-        for (int j = 0; j < _lambda.size(); j++)
-        {
-            _A_lambda(_lambda.size() * i + j,
-                      _lambda.size() * i + j) = std::sqrt(_lambda(i));
-        }
-
-    }
-
-    // A regularization block can be assigned once and for all
-    _A.block(_nv, 0, _A_lambda.rows(), _A_lambda.cols()) = _A_lambda; // adding regularization
-
-    _W = VectorXd::Zero(_lambda.size() * _nc);
-    _W_reg = VectorXd::Zero(_lambda.size() * _nc);
-
-    _J_buffer = MatrixXd::Zero(_lambda.size(), _nv);
-
-    _J_c_tot = MatrixXd::Zero(_lambda.size() * _nc, _nv);
+    setup_vars();
 
 }
 
@@ -96,8 +31,14 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt,
       _contact_framenames{contact_framenames},
       _bandwidth{bandwidth},
       _lambda{lambda},
-      _regularize_f{regularize_f}, _selector{selector}
+      _regularize_delta_f{regularize_f}, _selector{selector}
 {
+
+    setup_vars();
+
+}
+
+void MomentumBasedFObs::setup_vars(){
 
     process_selector();
 
@@ -119,7 +60,6 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt,
     _integrator = NumInt(_nv, _dt, _dt); // numerical integrator
 
     _tau_c_k = VectorXd::Zero(_nv);
-
     _p_km1 = VectorXd::Zero(_nv);
 
     _A = MatrixXd::Zero(_nv + _lambda.size() * _nc, _lambda.size() * _nc);
@@ -138,7 +78,7 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt,
 
     }
 
-    // A regularization block can be assigned once and for all
+    // The regularization block can be assigned once and for all
     _A.block(_nv, 0, _A_lambda.rows(), _A_lambda.cols()) = _A_lambda; // adding regularization
 
     _W = VectorXd::Zero(_lambda.size() * _nc);
@@ -296,7 +236,7 @@ void MomentumBasedFObs::update()
     // exploiting Eigen builtin method for regression problems
     _W = _A.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(_b);
 
-    if(_regularize_f)
+    if(_regularize_delta_f)
     {
         _W_reg = _W; // will use previous solution to regularize the new solution
         // instead of using always a constant value
@@ -307,11 +247,15 @@ void MomentumBasedFObs::update()
             apply_component_selector(_w_buff); // will set to 0 the elements corresponding to the axes we don't need
             // to estimate --> this, in conjunction to apply_selector(J_c), will ensure that
             // unestimated components will always converge to 0 thanks to the regularization term
-            // (this is not needed if !_regularize_f, since the default value for _W_reg is a vect. of 0s)
+            // (this is not needed if !_regularize_delta_f, since the default value for _W_reg is a vect. of 0s)
 
             _W_reg.segment(i * _lambda.size(), _lambda.size()) = _w_buff; // re-assign filtered segment
         }
 
+    }
+    if(!_regularize_delta_f)
+    { // we make sure to set W_ref to 0 (just in case something else has changes W_ref)
+        _W_reg = VectorXd::Zero(_lambda.size() * _nc);
     }
 }
 

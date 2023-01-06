@@ -159,7 +159,7 @@ namespace ContactEstUtils
         int _nv = -1, // dimension of the dynamics of the system (equal to the size of the generalized velocity v)
             _nc = 0;
 
-        bool _regularize_f = false;// will use previous solution of f_c to regularize the new solution
+        bool _regularize_delta_f = false;// will use previous solution of f_c to regularize the new solution
         // instead of using always a constant value
 
         double _dt = -1.0;
@@ -211,6 +211,7 @@ namespace ContactEstUtils
         Eigen::MatrixXd _J_c_tot; // vertical contactenation
         // of all (generalized) contact jacobians
 
+        void setup_vars(); // just an auxiliary method
         void assign_regression_matrices(); // assign values to the regression matrix A and vector b
         void get_contact_jacobians(); // gets and assign jacobian from all active contact frames
         void process_contactnames();// we process input contact names and eliminate non valid ones (
