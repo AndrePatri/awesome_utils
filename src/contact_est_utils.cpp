@@ -319,6 +319,18 @@ void MomentumBasedFObs::get_t_est_at(int contact_index, utils_defs::Torque3D& t_
     t_c = _W.segment(3 + contact_index * _lambda.size(), 3);
 }
 
+void MomentumBasedFObs::get_J_c_tot(MatrixXd& Jc_tot)
+{
+    Jc_tot = _J_c_tot;
+}
+
+void MomentumBasedFObs::get_reg_matrices(MatrixXd& Lambda_w, VectorXd& b_lambda)
+{
+    Lambda_w = _A_lambda;
+    b_lambda = _b_lambda;
+}
+
+
 void MomentumBasedFObs::compute_tau_c()
 {
 
