@@ -322,19 +322,26 @@ TEST_F(TestContactEst, test_contact_est_quadruped)
     Tau_c = Eigen::MatrixXd::Zero(nv, rollout_number);
     Tau_c_raw = Eigen::MatrixXd::Zero(nv, rollout_number);
 
-    double lambda = 1e-4;
+    Eigen::MatrixXd J_c_tot;
+
+    double lambda = 1e-6;
 
     std::vector<int> selector{0, 1, 2}; // only force
 
     std::vector<std::string> contacts{"ball_1", "ball_2", "ball_3", "ball_4"};
 
-    bool regularize_delta_w = false;
+    bool regularize_delta_w = true;
 
     MomentumBasedFObs::Ptr f_obs_ptr(new MomentumBasedFObs(model_ptr, dt,
                                                            contacts,
                                                            BW,
                                                            lambda, regularize_delta_w,
                                                            selector));
+
+    Eigen::MatrixXd A_lambda = Eigen::MatrixXd::Zero(2 * fc_lf.size() * contacts.size(), 2 * fc_lf.size() * contacts.size());
+    Eigen::MatrixXd B_lambda = Eigen::MatrixXd::Zero(2 * fc_lf.size() * contacts.size(), rollout_number);
+    Eigen::VectorXd b_lambda = Eigen::VectorXd::Zero(2 * fc_lf.size() * contacts.size());
+
 
     for (int i = 0; i < rollout_number; i++)
     {
@@ -365,20 +372,30 @@ TEST_F(TestContactEst, test_contact_est_quadruped)
         Tau_c.block(0, i, Tau_c.rows(), 1) = tau_c;
         Tau_c_raw.block(0, i, Tau_c.rows(), 1) = tau_c_raw_static;
 
+        f_obs_ptr->get_reg_matrices(A_lambda, b_lambda);
+
+        B_lambda.block(0, i, A_lambda.rows(), 1) = b_lambda;
+
     }
+
+    f_obs_ptr->get_J_c_tot(J_c_tot);
 
     std::cout << "** QUADRUPED DEBUG PRINTS**\n"  << std::endl;
     std::cout << "\nURDF loaded at: "<< model_ptr->get_urdf_path() << "\n " << std::endl;
-    std::cout << "** tau_c: \n" << Tau_c << "\n " << std::endl;
-    std::cout << "** tau_c_raw: \n" << Tau_c_raw << "\n " << std::endl;
-    std::cout << "** Fc_lf: \n" << Fc_lf << "\n " << std::endl;
-    std::cout << "** Fc_lh: \n" << Fc_lh << "\n " << std::endl;
-    std::cout << "** Fc_rf: \n" << Fc_rf << "\n " << std::endl;
-    std::cout << "** Fc_rh: \n" << Fc_rh << "\n " << std::endl;
-    std::cout << "** Tc_lf: \n" << Tc_lf << "\n " << std::endl;
-    std::cout << "** Tc_lh: \n" << Tc_lh << "\n " << std::endl;
-    std::cout << "** Tc_rf: \n" << Tc_rf << "\n " << std::endl;
-    std::cout << "** Tc_rh: \n" << Tc_rh << "\n " << std::endl;
+    std::cout << "** tau_c: \n" << Tau_c.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** tau_c_raw: \n" << Tau_c_raw.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** Fc_lf: \n" << Fc_lf.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** Fc_lh: \n" << Fc_lh.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** Fc_rf: \n" << Fc_rf.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** Fc_rh: \n" << Fc_rh.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** Tc_lf: \n" << Tc_lf.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** Tc_lh: \n" << Tc_lh.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** Tc_rf: \n" << Tc_rf.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** Tc_rh: \n" << Tc_rh.format(CleanFmt) << "\n " << std::endl;
+    std::cout << "** Jc_tot transpose: \n" << J_c_tot.transpose().format(CleanFmt)<< "\n " << std::endl;
+    std::cout << "** A_lambda: \n" << A_lambda.format(CleanFmt)<< "\n " << std::endl;
+    std::cout << "** B_lambda: \n" << B_lambda.format(CleanFmt)<< "\n " << std::endl;
+
 
 }
 
