@@ -279,7 +279,7 @@ TEST_F(TestModelInterface, load_floating_base_anymal)
     std::cout << "** p: \n" << p.format(CleanFmt) << "\n " << std::endl;
     std::cout << "** J_LF_FOOT: \n" << J_foot.format(CleanFmt) << "\n " << std::endl;
 
-}/*
+}
 
 TEST_F(TestModelInterface, load_floating_base_quadruped)
 {
@@ -330,7 +330,7 @@ TEST_F(TestModelInterface, load_floating_base_quadruped)
     std::cout << "** b: \n" << b.format(CleanFmt) << "\n " << std::endl;
     std::cout << "** p: \n" << p.format(CleanFmt) << "\n " << std::endl;
 
-}*/
+}
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
