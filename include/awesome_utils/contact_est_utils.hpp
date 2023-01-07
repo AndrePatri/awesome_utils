@@ -152,6 +152,9 @@ namespace ContactEstUtils
         void get_contact_framenames(std::vector<std::string> names);
         void get_contact_indeces(std::vector<int> indeces);
 
+        void get_J_c_tot(Eigen::MatrixXd& Jc_tot);
+        void get_reg_matrices(MatrixXd& Lambda_w, VectorXd& b_lambda);
+
     private:
 
         Model::Ptr _model_ptr;
@@ -203,12 +206,12 @@ namespace ContactEstUtils
                  _A_lambda;
         VectorXd _b, _b_lambda;
 
-        Eigen::VectorXd _W; // estimated contact utils_defs::Wrenches ([6 x 1 -> linear + angular] * 6)
-        Eigen::VectorXd _W_reg; // regularization vector for W
+        VectorXd _W; // estimated contact utils_defs::Wrenches ([6 x 1 -> linear + angular] * 6)
+        VectorXd _W_reg; // regularization vector for W
         utils_defs::Wrench _w_buff; // used only as a temporary holder
 
         utils_defs::SpatialJac _J_buffer; // used only as a temporary holder
-        Eigen::MatrixXd _J_c_tot; // vertical contactenation
+        MatrixXd _J_c_tot; // vertical contactenation
         // of all (generalized) contact jacobians
 
         void setup_vars(); // just an auxiliary method
