@@ -9,16 +9,20 @@ using namespace ContactEstUtils;
 MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt,
                                      std::vector<std::string> contact_framenames,
                                      double bandwidth,
-                                     double lambda, bool regularize_f, std::vector<int> selector)
+                                     double lambda, bool regularize_f, std::vector<int> selector,
+                                     bool use_raw_tau_c)
     : _model_ptr{model_ptr}, _dt{data_dt},
       _contact_framenames{contact_framenames},
       _bandwidth{bandwidth},
-      _regularize_delta_f{regularize_f}, _selector{selector}
+      _regularize_delta_f{regularize_f}, _selector{selector},
+      _use_raw_tau_c{use_raw_tau_c}
 {
 
     _lambda = lambda * VectorXd::Ones(6);
 
     setup_vars();
+
+    _num_diff_p = NumDiff(_nv, _dt);
 
 }
 
@@ -26,15 +30,19 @@ MomentumBasedFObs::MomentumBasedFObs(Model::Ptr model_ptr, double data_dt,
                   std::vector<std::string> contact_framenames,
                   double bandwidth,
                   Reg6D lambda, bool regularize_f,
-                  std::vector<int> selector)
+                  std::vector<int> selector,
+                  bool use_raw_tau_c)
     : _model_ptr{model_ptr}, _dt{data_dt},
       _contact_framenames{contact_framenames},
       _bandwidth{bandwidth},
       _lambda{lambda},
-      _regularize_delta_f{regularize_f}, _selector{selector}
+      _regularize_delta_f{regularize_f}, _selector{selector},
+      _use_raw_tau_c{use_raw_tau_c}
 {
 
     setup_vars();
+
+    _num_diff_p = NumDiff(_nv, _dt);
 
 }
 
@@ -61,6 +69,7 @@ void MomentumBasedFObs::setup_vars(){
 
     _tau_c_k = VectorXd::Zero(_nv);
     _p_km1 = VectorXd::Zero(_nv);
+    _p_dot = VectorXd::Zero(_nv);
 
     _A = MatrixXd::Zero(_nv + _lambda.size() * _nc, _lambda.size() * _nc);
     _b = VectorXd::Zero(_nv + _lambda.size() * _nc);
@@ -341,14 +350,28 @@ void MomentumBasedFObs::compute_tau_c()
     _model_ptr->get_tau(_tau); // gets the latest model tau the user has set (e.g. from
         // a measurement)
 
-    // computing equation (6)  --> see header for more info on this
-    _to_be_integrated = _g - _C.transpose() * _v - _tau;
-    _integrator.add_sample(_to_be_integrated);
-    _integrator.get(_integral);
+    if (!_use_raw_tau_c)
+    {
+        // computing equation (6)  --> see header for more info on this
+        _to_be_integrated = _g - _C.transpose() * _v - _tau;
+        _integrator.add_sample(_to_be_integrated);
+        _integrator.get(_integral);
 
-    _tau_c_k = _Skp1_inv * ( _Sk * _tau_c_k +
-                             _K * ((_p - _p_km1) + _integral) ); // update current estimate
+        _tau_c_k = _Skp1_inv * ( _Sk * _tau_c_k +
+                                 _K * ((_p - _p_km1) + _integral) ); // update current estimate
 
-    _p_km1 = _p; // assigning joint-space momentum for the next update call
+        _p_km1 = _p; // assigning joint-space momentum for the next update call
+
+    }
+    else
+    {
+        _num_diff_p.add_sample(_p); // differentiating the generalized momentum
+        _num_diff_p.dot(_p_dot);
+
+        _tau_c_k = _p_dot - _C.transpose() * _v + _g - _tau;
+
+        _p_km1 = _p;
+    }
+
 
 }

@@ -129,12 +129,14 @@ namespace ContactEstUtils
                           std::vector<std::string> contact_framenames,
                           double bandwidth = 10.0,
                           double lambda = 1.0, bool regularize_f = true,
-                          std::vector<int> selector = std::vector<int>{0, 1, 2, 3, 4, 5});
+                          std::vector<int> selector = std::vector<int>{0, 1, 2, 3, 4, 5},
+                          bool use_raw_tau_c = false);
         MomentumBasedFObs(Model::Ptr model_ptr, double data_dt,
                           std::vector<std::string> contact_framenames,
                           double bandwidth = 10.0,
                           Reg6D lambda = Eigen::MatrixXd::Identity(6, 1), bool regularize_f = true,
-                          std::vector<int> selector = std::vector<int>{0, 1, 2, 3, 4, 5});
+                          std::vector<int> selector = std::vector<int>{0, 1, 2, 3, 4, 5},
+                          bool use_raw_tau_c = false);
 
         void update();
 
@@ -164,6 +166,7 @@ namespace ContactEstUtils
 
         bool _regularize_delta_f = false;// will use previous solution of f_c to regularize the new solution
         // instead of using always a constant value
+        bool _use_raw_tau_c = false;
 
         double _dt = -1.0;
 
@@ -198,7 +201,7 @@ namespace ContactEstUtils
 
         VectorXd _p_km1; // last joint-space momentum at k - 1 instant (i.e. previous)
 
-        VectorXd _v, _tau, _g, _p,
+        VectorXd _v, _tau, _g, _p, _p_dot,
                  _to_be_integrated, _integral;
         MatrixXd _C;
 
@@ -213,6 +216,8 @@ namespace ContactEstUtils
         utils_defs::SpatialJac _J_buffer; // used only as a temporary holder
         MatrixXd _J_c_tot; // vertical contactenation
         // of all (generalized) contact jacobians
+
+        NumDiff _num_diff_p;
 
         void setup_vars(); // just an auxiliary method
         void assign_regression_matrices(); // assign values to the regression matrix A and vector b
