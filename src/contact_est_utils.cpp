@@ -1,4 +1,4 @@
-#include "include/awesome_utils/contact_est_utils.hpp"
+﻿#include "include/awesome_utils/contact_est_utils.hpp"
 
 #include <math.h>
 
@@ -106,12 +106,12 @@ void MomentumBasedFObs::compute_bandwidth()
 
 }
 
-void MomentumBasedFObs::get_contact_framenames(std::vector<std::string> names)
+void MomentumBasedFObs::get_contact_framenames(std::vector<std::string>& names)
 {
     names = _valid_contact_names;
 }
 
-void MomentumBasedFObs::get_contact_indeces(std::vector<int> indeces)
+void MomentumBasedFObs::get_contact_indeces(std::vector<int>& indeces)
 {
     indeces = _contact_indeces;
 }
@@ -178,7 +178,7 @@ void MomentumBasedFObs::process_selector()
 
 }
 
-void MomentumBasedFObs::set_active_contacts(std::vector<int> contact_indeces)
+void MomentumBasedFObs::set_contacts(std::vector<int> contact_indeces, bool active)
 {
 
     std::vector<int> filtered_indeces = contact_indeces;
@@ -193,7 +193,7 @@ void MomentumBasedFObs::set_active_contacts(std::vector<int> contact_indeces)
 
     for (int i = 0; i < filtered_indeces.size(); i++)
     {
-        _active_contacts[filtered_indeces[i]] = true; // activating contact
+        _active_contacts[filtered_indeces[i]] = active; // setting contacts
     }
 
 }
@@ -375,3 +375,64 @@ void MomentumBasedFObs::compute_tau_c()
 
 
 }
+
+//************* ContactDetector *************//
+
+ContactDetector::ContactDetector(MomentumBasedFObs::Ptr f_obs,
+                                 double threshold)
+    :_f_obs{f_obs}, _detection_thresh{threshold}
+{
+
+    _sign = SignWithMem(_detection_thresh,
+                        _tanh_coeff);
+
+    _f_obs->get_contact_framenames(_contact_framenames); // we get valid frame names directly
+    // from the observer(this way we always use the same frames as the observer)
+
+    _f_obs->get_contact_indeces(_contact_indices);
+
+    _contacts_state = std::vector<bool>(_contact_framenames.size());
+
+    for(int i = 0; i < _contacts_state.size(); i++)
+    {
+        _contacts_state[i] = true; // we inizialiaze all contacts to active state
+    }
+
+}
+
+void ContactDetector::update()
+{
+    std::vector<int> active_idx;
+    std::vector<int> inactive_idx;
+
+    for(int i = 0; i < _contact_framenames.size(); i ++)
+    {
+        _f_obs->get_f_est_at(_contact_framenames[i], _f_c_aux);
+
+        int sign = _sign.sign(_f_c_aux(2));// we get the third component (we assume the observer
+        // will output the contact wrench in the frame normal to the contact surface)
+
+        _contacts_state[i] = (sign > 0) ? true : false;
+
+        if (_contacts_state[i])
+        {
+            active_idx.push_back(_contact_indices[i]);
+        }
+        else
+        {
+            inactive_idx.push_back(_contact_indices[i]);
+        }
+
+    }
+
+    _f_obs->set_contacts(active_idx, true); // activates active contacts
+    _f_obs->set_contacts(inactive_idx, false); // deactivates inactive contacts
+
+}
+
+void ContactDetector::get_active_contacts(std::vector<bool>& contacts_state)
+{
+    contacts_state = _contacts_state;
+}
+
+

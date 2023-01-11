@@ -140,7 +140,7 @@ namespace ContactEstUtils
 
         void update();
 
-        void set_active_contacts(std::vector<int> contact_indeces); // activates the contacts given by
+        void set_contacts(std::vector<int> contact_indeces, bool active = true); // activates the contacts given by
         // contact_indeces
 
         void get_tau_obs(VectorXd& tau_c); // get contact joint efforts estimate
@@ -151,8 +151,8 @@ namespace ContactEstUtils
         void get_f_est_at(int contact_index, utils_defs::Force3D& f_c); // get force estimate
         void get_t_est_at(std::string contact_framename, utils_defs::Torque3D& t_c); // get utils_defs::Wrench estimate
         void get_t_est_at(int contact_index, utils_defs::Torque3D& t_c);
-        void get_contact_framenames(std::vector<std::string> names);
-        void get_contact_indeces(std::vector<int> indeces);
+        void get_contact_framenames(std::vector<std::string>& names);
+        void get_contact_indeces(std::vector<int>& indeces);
 
         void get_J_c_tot(Eigen::MatrixXd& Jc_tot);
         void get_reg_matrices(MatrixXd& Lambda_w, VectorXd& b_lambda);
@@ -234,6 +234,43 @@ namespace ContactEstUtils
 
     };
 
+
+    class ContactDetector
+    {
+        public:
+
+            typedef std::weak_ptr<ContactDetector> WeakPtr;
+            typedef std::shared_ptr<ContactDetector> Ptr;
+            typedef std::unique_ptr<ContactDetector> UniquePtr;
+
+            ContactDetector();
+            ContactDetector(MomentumBasedFObs::Ptr f_obs,
+                            double threshold = 1e-3);
+
+            void update(); // checks
+
+            void get_active_contacts(std::vector<bool>& active_contacts);
+
+        private:
+
+            std::vector<bool> _contacts_state;
+
+            std::vector<std::string> _contact_framenames;
+
+            std::vector<int> _contact_indices;
+
+            SignWithMem _sign;
+            double _tanh_coeff = 10.0;
+
+            double _detection_thresh = 1e-3; // threshold over which contact can be
+            // considered present. Very much dependend on the estimator's noise
+
+            utils_defs::Force3D _f_c_aux; // auxiliary vector to avoid local variables
+
+            MomentumBasedFObs::Ptr _f_obs;
+
+
+    };
 }
 
 #endif // CONTACT_EST_UTILS_HPP
