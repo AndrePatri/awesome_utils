@@ -107,8 +107,7 @@ install(TARGETS  ${LIBRARY_TARGET_NAME}
 install(DIRECTORY include/${PROJECT_NAME}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
     FILES_MATCHING PATTERN "*.h*"
-    PATTERN ".svn" EXCLUDE
-)
+    PATTERN ".svn" EXCLUDE)
 
 include(InstallBasicPackageFiles)
 install_basic_package_files(${LIBRARY_TARGET_NAME}
