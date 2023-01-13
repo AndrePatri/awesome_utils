@@ -184,10 +184,10 @@ void IqEstimator::compute_iq_estimates()
     for (int i = 0; i < _n_jnts; i++)
     {
 
-        double static_friction_effort_linkside = _K_d0(i) * _smooth_sign.sign(_q_dot(i));
-        double dynamic_friction_effort_linkside  = _K_d1(i) * _q_dot(i);
+        double static_friction_effort_linkside = - _K_d0(i) * _smooth_sign.sign(_q_dot(i));
+        double dynamic_friction_effort_linkside  = - _K_d1(i) * _q_dot(i);
 
-        _tau_friction_linkside(i) = - (static_friction_effort_linkside + dynamic_friction_effort_linkside);
+        _tau_friction_linkside(i) = static_friction_effort_linkside + dynamic_friction_effort_linkside;
 
         _tau_friction_rotorside(i) = _tau_friction_linkside(i) * _red_ratio(i);
 
