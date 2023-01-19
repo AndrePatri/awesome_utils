@@ -37,17 +37,25 @@ namespace PowerUtils{
                       double dt,
                       bool use_iq_meas = false);
 
-            void get(double& e_current); // getter for the total (joint-wise sum) energy flowgin towards the power bus
-            void get(Eigen::VectorXd& e_jnt); // getter for the energy flowign towards the power bus from each joint
-
             void set_e0(double e0); // set initial energy level
 
             void set_omega_r(Eigen::VectorXd omega_r); // set current rotor velocity externally (only callable if use_iq_meas == true)
 
             void update();
 
-            void get
+            double get_p(); // getter for the total (joint-wise sum) energy flowgin towards the power bus
+            double get_e(); // getter for the total (joint-wise sum) power
 
+            void get(Eigen::VectorXd& ek);
+
+            void get(Eigen::VectorXd& ek, Eigen::VectorXd& pk);
+
+            void get_p_terms(Eigen::VectorXd _pk_joule,
+                             Eigen::VectorXd _pk_mech,
+                             Eigen::VectorXd _pk_indct_est);
+            void get_e_terms(Eigen::VectorXd _ek_joule,
+                             Eigen::VectorXd _ek_mech,
+                             Eigen::VectorXd _ek_indct);
 
         private:
 

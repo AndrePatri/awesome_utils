@@ -180,4 +180,40 @@ void RegEnergy::compute_energy()
 
 }
 
+void RegEnergy::get(Eigen::VectorXd& ek)
+{
+    ek = _ek;
+}
 
+void RegEnergy::get(Eigen::VectorXd& ek, Eigen::VectorXd& pk)
+{
+    pk = _pk;
+}
+
+void RegEnergy::get_p_terms(Eigen::VectorXd pk_joule,
+                 Eigen::VectorXd pk_mech,
+                 Eigen::VectorXd pk_indct_est)
+{
+    _pk_joule = pk_joule;
+    _pk_mech = pk_mech;
+    _pk_indct_est = pk_indct_est;
+}
+
+void RegEnergy::get_e_terms(Eigen::VectorXd ek_joule,
+                 Eigen::VectorXd ek_mech,
+                 Eigen::VectorXd ek_indct)
+{
+    ek_joule = ek_joule;
+    ek_mech = ek_mech;
+    ek_indct = ek_indct;
+}
+
+double RegEnergy::get_p()
+{
+    return _pk_tot;
+}
+
+double RegEnergy::get_e()
+{
+    return _ek_tot;
+}
