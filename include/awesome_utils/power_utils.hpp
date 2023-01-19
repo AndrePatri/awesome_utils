@@ -46,6 +46,8 @@ namespace PowerUtils{
 
             void update();
 
+            void get
+
 
         private:
 
@@ -57,7 +59,7 @@ namespace PowerUtils{
             double _dt; // [s]
             double _filter_cutoff_freq = 15.0; // [Hz]
             double _e0 = 0.0; // initial energy level
-            double _ek_tot; // total energy towards bus
+            double _ek_tot, _pk_tot; // total energy towards bus
 
             Eigen::VectorXd _L_leak, _L_m, _R,
                             _L_q, _R_q,

@@ -164,13 +164,17 @@ void RegEnergy::compute_power()
     _pk_mech = (_Kt.array() * _iq_k.array()) * _omega_r.array();
 
     _pk_indct_est = 3.0/2.0 * _L_q.array() * (_iq_k.array() * _iq_dot_est.array());
+
+    _pk = _pk_joule + _pk_indct_est + _pk_mech;
+
+    _pk_tot = _pk.sum();
 }
 
 void RegEnergy::compute_energy()
 {
     _ek_indct = 3.0/4.0 * _L_q.array() * (_iq_k.array().pow(2) - _iq_0.array().pow(2));
 
-    _ek = _e0 + _ek_joule.array() + _ek_mech.array() + _ek_indct.array();
+    _ek = _e0 + _ek_joule.array() + _ek_mech.array() + _ek_indct.array(); // using array to allow sum with a scalar (e0)
 
     _ek_tot = _ek.sum();
 
