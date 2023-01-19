@@ -37,11 +37,6 @@ IqEstimator::IqEstimator(Eigen::VectorXd K_t,
     _smooth_sign = SmoooothSign(_q_dot_3sigma, _alpha, _use_thresholded_sign);
 }
 
-IqEstimator::IqEstimator()
-{
-
-}
-
 void IqEstimator::get_iq_estimate(std::vector<float>& iq_est)
 {
     int err = 0;
@@ -108,21 +103,18 @@ void IqEstimator::get_iq_estimate(std::vector<float>& iq_est,
 
         throw std::invalid_argument(exception);
     }
-    else
+
+    // update K_d0 and K_d1 with the provided values
+    _K_d0 = K_d0;
+    _K_d1 = K_d1;
+
+    compute_iq_estimates(); // compute iq estimate with the runtime set gains
+
+    iq_est = std::vector<float>(_n_jnts);
+
+    for (int i = 0; i < _n_jnts; i++)
     {
-        // update K_d0 and K_d1 with the provided values
-        _K_d0 = K_d0;
-        _K_d1 = K_d1;
-
-        compute_iq_estimates(); // compute iq estimate with the runtime set gains
-
-        iq_est = std::vector<float>(_n_jnts);
-
-        for (int i = 0; i < _n_jnts; i++)
-        {
-           iq_est[i] = _iq_est[i]; // mapping Eigen Vector to std::vector (brutal way)
-        }
-
+       iq_est[i] = _iq_est[i]; // mapping Eigen Vector to std::vector (brutal way)
     }
 
 }
@@ -149,17 +141,58 @@ void IqEstimator::get_iq_estimate(Eigen::VectorXd& iq_est,
 
         throw std::invalid_argument(exception);
     }
-    else
+
+    // update K_d0 and K_d1 with the provided values
+    _K_d0 = K_d0;
+    _K_d1 = K_d1;
+
+    compute_iq_estimates(); // compute iq estimate with the runtime set gains
+
+    iq_est = _iq_est;
+
+}
+
+void IqEstimator::get_iq(Eigen::VectorXd& iq_est)
+{
+
+    iq_est = _iq_est;
+
+}
+
+void IqEstimator::update()
+{
+
+    compute_iq_estimates(); // compute iq estimate with the runtime set gains
+
+}
+
+void IqEstimator::update(Eigen::VectorXd K_d0, Eigen::VectorXd K_d1)
+{
+    int err = 0;
+    if(K_d0.size() != _n_jnts)
     {
-        // update K_d0 and K_d1 with the provided values
-        _K_d0 = K_d0;
-        _K_d1 = K_d1;
-
-        compute_iq_estimates(); // compute iq estimate with the runtime set gains
-
-        iq_est = _iq_est;
-
+        err = err + 1;
     }
+    if(K_d1.size() != _n_jnts)
+    {
+        err = err + 1;
+    }
+
+    if (err != 0)
+    {
+        std::string exception = std::string("IqEstimator::compute_iq_estimates(): dimension mismatch of input data -> \n") +
+                                std::string("K_d0 length: ") + std::to_string(K_d0.size()) + std::string("\n") +
+                                std::string("K_d1 length: ") + std::to_string(K_d1.size()) + std::string("\n") +
+                                std::string("which do not match the required length of: ") + std::to_string(_n_jnts);
+
+        throw std::invalid_argument(exception);
+    }
+
+    // update K_d0 and K_d1 with the provided values
+    _K_d0 = K_d0;
+    _K_d1 = K_d1;
+
+    compute_iq_estimates(); // compute iq estimate with the runtime set gains
 
 }
 
@@ -238,6 +271,20 @@ void IqEstimator::set_current_state(Eigen::VectorXd q_dot, Eigen::VectorXd q_ddo
 
 }
 
+int IqEstimator::get_n_jnts()
+{
+    return _n_jnts;
+}
+
+void IqEstimator::get_Kt(Eigen::VectorXd& Kt)
+{
+    Kt = _K_t;
+}
+
+void IqEstimator::get_rot_MoI(Eigen::VectorXd& rot_MoI)
+{
+    rot_MoI = _rot_MoI;
+}
 
 //************* IqCalib *************//
 

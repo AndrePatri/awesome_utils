@@ -23,6 +23,12 @@ namespace Xbot2Utils{
 
       public:
 
+        typedef std::weak_ptr<IqRosGetter> WeakPtr;
+        typedef std::shared_ptr<IqRosGetter> Ptr;
+        typedef std::unique_ptr<IqRosGetter> UniquePtr;
+
+        IqRosGetter() = default;
+
         IqRosGetter(bool verbose = false);
 
         void on_aux_signal_received(const xbot_msgs::CustomState& aux_sig);

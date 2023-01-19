@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <memory>
 
 #include "sign_proc_utils.hpp"
 
@@ -118,6 +119,12 @@ namespace CalibUtils{
 
       public:
 
+        typedef std::weak_ptr<IqEstimator> WeakPtr;
+        typedef std::shared_ptr<IqEstimator> Ptr;
+        typedef std::unique_ptr<IqEstimator> UniquePtr;
+
+        IqEstimator() = default;
+
         IqEstimator(Eigen::VectorXd K_t,
                     Eigen::VectorXd K_d0, Eigen::VectorXd K_d1,
                     Eigen::VectorXd rot_MoI,
@@ -125,22 +132,29 @@ namespace CalibUtils{
                     int alpha = 10,
                     double q_dot_3sigma = 0.001);
 
-        IqEstimator();
-
-        IqEstimator(Eigen::VectorXd K_t);
-
         void set_current_state(Eigen::VectorXd q_dot, Eigen::VectorXd q_ddot, Eigen::VectorXd tau);
 
-        void get_iq_estimate(std::vector<float>& iq_est);
-        void get_iq_estimate(Eigen::VectorXd& iq_est);
+        void get_iq_estimate(std::vector<float>& iq_est); // updates + gets estimate
+        void get_iq_estimate(Eigen::VectorXd& iq_est); // updates + gets estimate
         void get_iq_estimate(std::vector<float>& iq_est,
-                             Eigen::VectorXd K_d0, Eigen::VectorXd K_d1);
+                             Eigen::VectorXd K_d0, Eigen::VectorXd K_d1); // updates + gets estimate
         void get_iq_estimate(Eigen::VectorXd& iq_est,
-                             Eigen::VectorXd K_d0, Eigen::VectorXd K_d1);
+                             Eigen::VectorXd K_d0, Eigen::VectorXd K_d1); // updates + gets estimate
+
+        void update(Eigen::VectorXd K_d0, Eigen::VectorXd K_d1); // only updates
+        void update(); // only updates
+
+        void get_iq(Eigen::VectorXd& iq_est); // gets the current iq
 
         void get_tau_link(Eigen::VectorXd& tau);
         void get_tau_friction(Eigen::VectorXd& tau_friction);
         void get_q_ddot(Eigen::VectorXd& q_ddot);
+
+        int get_n_jnts();
+
+        void get_Kt(Eigen::VectorXd& Kt);
+
+        void get_rot_MoI(Eigen::VectorXd& rot_MoI);
 
       private:
 

@@ -28,6 +28,7 @@ set(CONTACT_EST_UTILS_TRGT src/contact_est_utils.cpp)
 set(MODEL_INTERFACE_TRGT src/model_interface.cpp)
 set(CARTESIAN_IMP_TRGT src/cartesian_imp_utils.cpp)
 set(ORIENTATION_TRGT src/orientation_utils.cpp)
+set(POWER_TRGT src/power_utils.cpp)
 
 set(${LIBRARY_TARGET_NAME}_SRC
         ${CALIB_UTILS_TRGT}
@@ -38,6 +39,7 @@ set(${LIBRARY_TARGET_NAME}_SRC
         ${XBOT2_UTILS_TRGT}
         ${CARTESIAN_IMP_TRGT}
         ${ORIENTATION_TRGT}
+        ${POWER_TRGT}
     )
 
 add_library(${LIBRARY_TARGET_NAME} SHARED ${${LIBRARY_TARGET_NAME}_SRC})
