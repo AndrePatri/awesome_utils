@@ -110,6 +110,12 @@ install(DIRECTORY include/${PROJECT_NAME}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
     FILES_MATCHING PATTERN "*.h*"
     PATTERN ".svn" EXCLUDE)
+if(${WITH_XBOT2})
+    install(DIRECTORY include/"xbot2_utils"/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+        FILES_MATCHING PATTERN "*.h*"
+        PATTERN ".svn" EXCLUDE)
+endif()
 
 include(InstallBasicPackageFiles)
 install_basic_package_files(${LIBRARY_TARGET_NAME}
