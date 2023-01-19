@@ -13,6 +13,7 @@
 
 #include <map>
 #include <vector>
+#include <memory>
 
 namespace Xbot2Utils{
 

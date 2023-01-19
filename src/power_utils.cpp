@@ -1,4 +1,5 @@
 #include<power_utils.hpp>
+
 #include<typedefs.hpp>
 
 using namespace PowerUtils;
