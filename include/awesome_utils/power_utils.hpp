@@ -34,41 +34,58 @@ namespace PowerUtils{
                       IqEstimator::Ptr iq_est,
                       Eigen::VectorXd R,
                       Eigen::VectorXd L_leak, Eigen::VectorXd L_m,
-                      double dt);
-
-            void start(bool use_iq_meas = false); // start "monitoring" the energy flow on the bus
+                      double dt,
+                      bool use_iq_meas = false);
 
             void get(double& e_current); // getter for the total (joint-wise sum) energy flowgin towards the power bus
             void get(Eigen::VectorXd& e_jnt); // getter for the energy flowign towards the power bus from each joint
+
+            void set_e0(double e0); // set initial energy level
+
+            void set_omega_r(Eigen::VectorXd omega_r); // set current rotor velocity externally (only callable if use_iq_meas == true)
+
+            void update();
+
 
         private:
 
             int _n_jnts;
 
-            bool _was_start_called = false,
+            bool _is_first_update = true,
                  _use_iq_meas = false;
 
             double _dt; // [s]
             double _filter_cutoff_freq = 15.0; // [Hz]
+            double _e0 = 0.0; // initial energy level
+            double _ek_tot; // total energy towards bus
 
             Eigen::VectorXd _L_leak, _L_m, _R,
                             _L_q, _R_q,
                             _Kt;
 
             Eigen::VectorXd _iq_k, _iq_0,
-                            _e_0;
+                            _iq_dot_est,
+                            _omega_r;
+
+            Eigen::VectorXd _pk_joule, _pk_mech, _pk_indct_est;
+            Eigen::VectorXd _ek_joule, _ek_mech, _ek_indct;
+
+            Eigen::VectorXd _ek, _pk; // joint-wise
 
             IqRosGetter::Ptr _iq_meas;
             IqEstimator::Ptr _iq_est;
 
-            NumDiff _num_diff;
-            NumInt _num_int;
+            NumDiff _num_diff_iq;
+
+            NumInt _num_int_joule, _num_int_mech;
 
             MovAvrgFilt _mov_filter;
 
-            void update(bool use_iq_meas = false);
+            void compute();
 
+            void compute_power();
 
+            void compute_energy();
     };
 
 }

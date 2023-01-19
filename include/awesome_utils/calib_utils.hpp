@@ -132,7 +132,7 @@ namespace CalibUtils{
                     int alpha = 10,
                     double q_dot_3sigma = 0.001);
 
-        void set_current_state(Eigen::VectorXd q_dot, Eigen::VectorXd q_ddot, Eigen::VectorXd tau);
+        void set_current_state(Eigen::VectorXd q_dot, Eigen::VectorXd q_ddot, Eigen::VectorXd tau); // link side state
 
         void get_iq_estimate(std::vector<float>& iq_est); // updates + gets estimate
         void get_iq_estimate(Eigen::VectorXd& iq_est); // updates + gets estimate
@@ -155,6 +155,10 @@ namespace CalibUtils{
         void get_Kt(Eigen::VectorXd& Kt);
 
         void get_rot_MoI(Eigen::VectorXd& rot_MoI);
+
+        void get_red_ratio(Eigen::VectorXd& red_ratio);
+
+        void get_omega_r(Eigen::VectorXd& omega_r);
 
       private:
 
@@ -206,7 +210,7 @@ namespace CalibUtils{
         void add_sample(Eigen::VectorXd q_dot,
                    Eigen::VectorXd q_ddot,
                    Eigen::VectorXd iq,
-                   Eigen::VectorXd tau);
+                   Eigen::VectorXd tau); // q_dot, q_ddot, etc... are link side values
 
         void set_ig(Eigen::VectorXd ig_Kd0,
                     Eigen::VectorXd ig_Kd1);

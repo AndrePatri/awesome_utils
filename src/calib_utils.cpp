@@ -286,6 +286,16 @@ void IqEstimator::get_rot_MoI(Eigen::VectorXd& rot_MoI)
     rot_MoI = _rot_MoI;
 }
 
+void IqEstimator::get_red_ratio(Eigen::VectorXd& red_ratio)
+{
+    red_ratio = _red_ratio;
+}
+
+void IqEstimator::get_omega_r(Eigen::VectorXd& omega_r)
+{
+    omega_r = _q_dot.array() * _red_ratio.array().inverse();
+}
+
 //************* IqCalib *************//
 
 IqCalib::IqCalib()
