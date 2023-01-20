@@ -106,12 +106,13 @@ install(TARGETS  ${LIBRARY_TARGET_NAME}
     RUNTIME  DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin)
 
 # Mark cpp header files for installation
-install(DIRECTORY include/${PROJECT_NAME}/
+install(DIRECTORY include/${PROJECT_NAME}
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
     FILES_MATCHING PATTERN "*.h*"
     PATTERN ".svn" EXCLUDE)
+
 if(${WITH_XBOT2})
-    install(DIRECTORY include/"xbot2_utils"/
+    install(DIRECTORY include/"xbot2_utils"
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
         FILES_MATCHING PATTERN "*.h*"
         PATTERN ".svn" EXCLUDE)
