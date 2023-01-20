@@ -9,13 +9,17 @@ RegEnergy::RegEnergy(IqRosGetter::Ptr iq_meas,
                     Eigen::VectorXd R,
                     Eigen::VectorXd L_leak, Eigen::VectorXd L_m,
                     double dt,
-                    bool use_iq_meas)
+                    bool use_iq_meas,
+                    bool dump_data2mat,
+                    std::string dump_path)
     :_iq_meas{iq_meas},
      _iq_est{iq_est},
      _R{R},
      _L_leak{L_leak}, _L_m{L_m},
      _dt{dt},
-     _use_iq_meas{use_iq_meas}
+     _use_iq_meas{use_iq_meas},
+     _dump_data2mat{dump_data2mat},
+     _dump_path{dump_path}
 {
     _n_jnts = iq_est->get_n_jnts();
     iq_est->get_Kt(_Kt);
@@ -69,6 +73,48 @@ RegEnergy::RegEnergy(IqRosGetter::Ptr iq_meas,
 
     _mov_filter = MovAvrgFilt(_n_jnts, _dt, _filter_cutoff_freq);
 
+    if(_dump_data2mat)
+    {
+        //  Initializing logger
+        MatLogger2::Options opt;
+        opt.default_buffer_size = _matlogger_buffer_size; // set default buffer size
+        opt.enable_compression = true; // enable ZLIB compression
+
+        std::string _dump_fullpath = _dump_path + std::string("/reg_energy");
+        _logger = MatLogger2::MakeLogger(_dump_fullpath, opt); // date-time automatically appended
+
+        _logger->set_buffer_mode(XBot::VariableBuffer::Mode::circular_buffer);
+
+        _logger->add("dt", _dt);
+
+        _logger->add("L_leak", _L_leak);
+        _logger->add("L_m", _L_m);
+        _logger->add("R", _R);
+        _logger->add("L_q", _L_q);
+        _logger->add("R_q", _R_q);
+        _logger->add("Kt", _Kt);
+
+        _logger->create("iq_k", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("iq_dot_est", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("omega_r", _n_jnts, 1, _matlogger_buffer_size);
+
+        _logger->create("pk_joule", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("pk_mech", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("pk_indct_est", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("ek_joule", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("ek_mech", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("ek_indct", _n_jnts, 1, _matlogger_buffer_size);
+
+        _logger->create("ek", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("pk", _n_jnts, 1, _matlogger_buffer_size);
+
+    }
+
+}
+
+RegEnergy::~RegEnergy()
+{
+    _logger.reset();
 }
 
 void RegEnergy::set_e0(double e0)
@@ -77,6 +123,11 @@ void RegEnergy::set_e0(double e0)
     {
 
         _e0 = e0;
+
+        if(_dump_data2mat)
+        {
+            _logger->add("e0", _e0);
+        }
 
     }
 }
@@ -121,6 +172,11 @@ void RegEnergy::update()
 
             _iq_meas->get_last_iq_out(_iq_0); // gets latest iq estimate sample from the actual measurements
 
+        }
+
+        if(_dump_data2mat)
+        {
+            _logger->add("iq_0", _iq_0);
         }
 
         _is_first_update = false;
@@ -217,4 +273,26 @@ double RegEnergy::get_p()
 double RegEnergy::get_e()
 {
     return _ek_tot;
+}
+
+void RegEnergy::set_log_buffsize(double size)
+{
+    _matlogger_buffer_size = abs(size);
+}
+
+void RegEnergy::add2log()
+{
+    _logger->add("iq_k", _iq_k);
+    _logger->add("iq_dot_est", _iq_dot_est);
+    _logger->add("omega_r", _omega_r);
+
+    _logger->add("pk_joule", _pk_joule);
+    _logger->add("pk_mech", _pk_mech);
+    _logger->add("pk_indct_est", _pk_indct_est);
+    _logger->add("ek_joule", _ek_joule);
+    _logger->add("ek_mech", _ek_mech);
+    _logger->add("ek_indct", _ek_indct);
+
+    _logger->add("ek", _ek);
+    _logger->add("pk", _pk);
 }

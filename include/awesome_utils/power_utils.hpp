@@ -12,6 +12,9 @@
 
 #include <algorithm>
 #include <chrono>
+#include <memory>
+
+#include <matlogger2/matlogger2.h>
 
 #include "calib_utils.hpp"
 #include "../xbot2_utils/xbot2_utils.hpp"
@@ -28,14 +31,22 @@ namespace PowerUtils{
     {
         public:
 
+            typedef std::weak_ptr<RegEnergy> WeakPtr;
+            typedef std::shared_ptr<RegEnergy> Ptr;
+            typedef std::unique_ptr<RegEnergy> UniquePtr;
+
             RegEnergy() = default;
+
+            ~RegEnergy();
 
             RegEnergy(IqRosGetter::Ptr iq_meas,
                       IqEstimator::Ptr iq_est,
                       Eigen::VectorXd R,
                       Eigen::VectorXd L_leak, Eigen::VectorXd L_m,
                       double dt,
-                      bool use_iq_meas = false);
+                      bool use_iq_meas = false,
+                      bool dump_data2mat = false,
+                      std::string dump_path = "/tmp");
 
             void set_e0(double e0); // set initial energy level
 
@@ -57,12 +68,21 @@ namespace PowerUtils{
                              Eigen::VectorXd _ek_mech,
                              Eigen::VectorXd _ek_indct);
 
+            void set_log_buffsize(double size);
+
+            void add2log();
+
         private:
 
             int _n_jnts;
 
             bool _is_first_update = true,
-                 _use_iq_meas = false;
+                 _use_iq_meas = false,
+                 _dump_data2mat = false;
+
+            std::string _dump_path = "\tmp";
+
+            double _matlogger_buffer_size = 1e5;
 
             double _dt; // [s]
             double _filter_cutoff_freq = 15.0; // [Hz]
@@ -90,6 +110,8 @@ namespace PowerUtils{
             NumInt _num_int_joule, _num_int_mech;
 
             MovAvrgFilt _mov_filter;
+
+            MatLogger2::Ptr _logger;
 
             void compute();
 
