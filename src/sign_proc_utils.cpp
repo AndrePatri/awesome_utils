@@ -202,6 +202,8 @@ void NumIntRt::get(Eigen::VectorXd& sample_integral)
 
     _int_k = _int_km1 + _int_k;
 
+    sample_integral = _int_k;
+
     _int_km1 = _int_k;
 
 }
