@@ -209,7 +209,7 @@ void RegEnergy::compute()
     _num_int_joule.add_sample(_pk_joule);
     _num_int_joule.get(_ek_joule);
     _num_int_mech.add_sample(_pk_mech);
-    _num_int_joule.get(_ek_mech);
+    _num_int_mech.get(_ek_mech);
 
     compute_energy();
 }
