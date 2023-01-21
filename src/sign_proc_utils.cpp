@@ -151,7 +151,7 @@ void NumInt::get(Eigen::VectorXd& sample_integral)
     sample_integral = Eigen::VectorXd::Zero(_n_jnts);
 
     for(int i = _n_intervals; i > 0; i--)
-    {
+    { // we integrate all the data in the window
         sample_integral = sample_integral +
                 ( _window_data.block(0, i, _n_jnts, 1) +
                   _window_data.block(0, i - 1, _n_jnts, 1) ) / 2.0 * _dt;
