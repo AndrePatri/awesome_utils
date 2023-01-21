@@ -108,6 +108,9 @@ RegEnergy::RegEnergy(IqRosGetter::Ptr iq_meas,
         _logger->create("ek", _n_jnts, 1, _matlogger_buffer_size);
         _logger->create("pk", _n_jnts, 1, _matlogger_buffer_size);
 
+        _logger->create("ek_tot", 1, 1, _matlogger_buffer_size);
+        _logger->create("pk_tot", 1, 1, _matlogger_buffer_size);
+
     }
 
 }
@@ -222,7 +225,7 @@ void RegEnergy::compute_power()
 
     _pk_indct_est = 3.0/2.0 * _L_q.array() * (_iq_k.array() * _iq_dot_est.array());
 
-    _pk = _pk_joule + _pk_indct_est + _pk_mech;
+    _pk = -_pk_joule - _pk_indct_est - _pk_mech;
 
     _pk_tot = _pk.sum();
 }
@@ -231,7 +234,7 @@ void RegEnergy::compute_energy()
 {
     _ek_indct = 3.0/4.0 * _L_q.array() * (_iq_k.array().pow(2) - _iq_0.array().pow(2));
 
-    _ek = _e0 + _ek_joule.array() + _ek_mech.array() + _ek_indct.array(); // using array to allow sum with a scalar (e0)
+    _ek = _e0 - _ek_joule.array() -_ek_mech.array() - _ek_indct.array(); // using array to allow sum with a scalar (e0)
 
     _ek_tot = _ek.sum();
 
@@ -295,4 +298,7 @@ void RegEnergy::add2log()
 
     _logger->add("ek", _ek);
     _logger->add("pk", _pk);
+
+    _logger->add("ek_tot", _ek_tot);
+    _logger->add("pk_tot", _pk_tot);
 }
