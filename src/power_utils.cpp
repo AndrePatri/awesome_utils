@@ -68,8 +68,8 @@ RegEnergy::RegEnergy(IqRosGetter::Ptr iq_meas,
 
     _num_diff_iq = NumDiff(_n_jnts, _dt);
 
-    _num_int_joule = NumInt(_n_jnts, _dt, _dt);
-    _num_int_mech = NumInt(_n_jnts, _dt, _dt);
+    _num_int_joule = NumIntRt(_n_jnts, _dt);
+    _num_int_mech = NumIntRt(_n_jnts, _dt);
 
     _mov_filter = MovAvrgFilt(_n_jnts, _dt, _filter_cutoff_freq);
 

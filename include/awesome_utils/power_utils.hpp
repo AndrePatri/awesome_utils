@@ -107,7 +107,7 @@ namespace PowerUtils{
 
             NumDiff _num_diff_iq;
 
-            NumInt _num_int_joule, _num_int_mech;
+            NumIntRt _num_int_joule, _num_int_mech;
 
             MovAvrgFilt _mov_filter;
 
