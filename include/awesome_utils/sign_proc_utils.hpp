@@ -76,7 +76,9 @@ namespace SignProcUtils{
     };
 
     /// \brief Class to perform numerical real time integration of a
-    /// constant rate signal.
+    /// constant rate signal (exploits NumInt over a window of two samples).
+    /// The two most recent samples are integrated and added to the current
+    /// value of the integral.
     class NumIntRt
     {
       public:
