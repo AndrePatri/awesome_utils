@@ -61,7 +61,6 @@ IqEstimator::IqEstimator(Eigen::VectorXd K_t,
         _logger->create("rot_MoI", _n_jnts, 1, _matlogger_buffer_size);
         _logger->create("red_ratio", _n_jnts, 1, _matlogger_buffer_size);
         _logger->create("iq_est", _n_jnts, 1, _matlogger_buffer_size);
-        _logger->create("tau_l", _n_jnts, 1, _matlogger_buffer_size);
         _logger->create("tau_friction_linkside", _n_jnts, 1, _matlogger_buffer_size);
         _logger->create("tau_friction_rotorside", _n_jnts, 1, _matlogger_buffer_size);
 
@@ -352,7 +351,6 @@ void IqEstimator::add2log()
          _logger->add("rot_MoI", _rot_MoI);
          _logger->add("red_ratio", _red_ratio);
          _logger->add("iq_est", _iq_est);
-         _logger->add("tau_l", _tau_l);
          _logger->add("tau_friction_linkside", _tau_friction_linkside);
          _logger->add("tau_friction_rotorside", _tau_friction_rotorside);
          _logger->add("q_dot", _q_dot);
