@@ -252,18 +252,18 @@ void RegEnergy::get(Eigen::VectorXd& ek, Eigen::VectorXd& pk)
     pk = _pk;
 }
 
-void RegEnergy::get_p_terms(Eigen::VectorXd pk_joule,
-                 Eigen::VectorXd pk_mech,
-                 Eigen::VectorXd pk_indct_est)
+void RegEnergy::get_p_terms(Eigen::VectorXd& pk_joule,
+                 Eigen::VectorXd& pk_mech,
+                 Eigen::VectorXd& pk_indct_est)
 {
     pk_joule = _pk_joule;
     pk_mech = _pk_mech;
     pk_indct_est = _pk_indct_est;
 }
 
-void RegEnergy::get_e_terms(Eigen::VectorXd ek_joule,
-                 Eigen::VectorXd ek_mech,
-                 Eigen::VectorXd ek_indct)
+void RegEnergy::get_e_terms(Eigen::VectorXd& ek_joule,
+                 Eigen::VectorXd& ek_mech,
+                 Eigen::VectorXd& ek_indct)
 {
     ek_joule = _ek_joule;
     ek_mech = _ek_mech;
