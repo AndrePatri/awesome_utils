@@ -248,6 +248,7 @@ void RegEnergy::get(Eigen::VectorXd& ek)
 
 void RegEnergy::get(Eigen::VectorXd& ek, Eigen::VectorXd& pk)
 {
+    ek = _ek;
     pk = _pk;
 }
 
