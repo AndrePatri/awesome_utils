@@ -14,13 +14,17 @@ IqEstimator::IqEstimator(Eigen::VectorXd K_t,
                          Eigen::VectorXd rot_MoI,
                          Eigen::VectorXd red_ratio,
                          int alpha,
-                         double q_dot_3sigma)
+                         double q_dot_3sigma,
+                         bool dump_data2mat,
+                         std::string dump_path)
   :_K_t{K_t},
    _K_d0{K_d0}, _K_d1{K_d1},
    _rot_MoI{rot_MoI},
    _red_ratio{red_ratio},
    _alpha{alpha},
-   _q_dot_3sigma{q_dot_3sigma}
+   _q_dot_3sigma{q_dot_3sigma},
+   _dump_data2mat{dump_data2mat},
+   _dump_path{dump_path}
 {
 
     _n_jnts = _K_t.size();
@@ -35,6 +39,42 @@ IqEstimator::IqEstimator(Eigen::VectorXd K_t,
 
     // initialize the smooth sign function
     _smooth_sign = SmoooothSign(_q_dot_3sigma, _alpha, _use_thresholded_sign);
+
+    if(_dump_data2mat)
+    {
+        //  Initializing logger
+        MatLogger2::Options opt;
+        opt.default_buffer_size = _matlogger_buffer_size; // set default buffer size
+        opt.enable_compression = true; // enable ZLIB compression
+
+        std::string _dump_fullpath = _dump_path + std::string("/iq_est");
+        _logger = MatLogger2::MakeLogger(_dump_fullpath, opt); // date-time automatically appended
+
+        _logger->set_buffer_mode(XBot::VariableBuffer::Mode::circular_buffer);
+
+        _logger->add("q_dot_3sigma", _q_dot_3sigma);
+        _logger->add("q_dot_3sigma", _q_dot_3sigma);
+
+        _logger->create("Kt", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("K_d0", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("K_d1", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("rot_MoI", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("red_ratio", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("iq_est", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("tau_l", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("tau_friction_linkside", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("tau_friction_rotorside", _n_jnts, 1, _matlogger_buffer_size);
+
+        _logger->create("q_dot", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("q_ddot", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("tau", _n_jnts, 1, _matlogger_buffer_size);
+
+    }
+}
+
+IqEstimator::~IqEstimator()
+{
+    _logger.reset();
 }
 
 void IqEstimator::get_iq_estimate(std::vector<float>& iq_est)
@@ -294,6 +334,32 @@ void IqEstimator::get_red_ratio(Eigen::VectorXd& red_ratio)
 void IqEstimator::get_omega_r(Eigen::VectorXd& omega_r)
 {
     omega_r = _q_dot.array() * _red_ratio.array().inverse();
+}
+
+
+void IqEstimator::set_log_buffsize(double size)
+{
+    _matlogger_buffer_size = abs(size);
+}
+
+void IqEstimator::add2log()
+{
+    if(_dump_data2mat)
+    {
+         _logger->add("Kt", _K_t);
+         _logger->add("K_d0", _K_d0);
+         _logger->add("K_d1", _K_d1);
+         _logger->add("rot_MoI", _rot_MoI);
+         _logger->add("red_ratio", _red_ratio);
+         _logger->add("iq_est", _iq_est);
+         _logger->add("tau_l", _tau_l);
+         _logger->add("tau_friction_linkside", _tau_friction_linkside);
+         _logger->add("tau_friction_rotorside", _tau_friction_rotorside);
+         _logger->add("q_dot", _q_dot);
+         _logger->add("q_ddot", _q_ddot);
+         _logger->add("tau", _tau);
+
+    }
 }
 
 //************* IqCalib *************//
@@ -708,4 +774,3 @@ void IqCalib::get_current_alpha(Eigen::VectorXd& alpha_d0, Eigen::VectorXd& alph
     }
 
 }
-

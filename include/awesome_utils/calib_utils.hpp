@@ -16,7 +16,10 @@
 
 #include "sign_proc_utils.hpp"
 
+#include <matlogger2/matlogger2.h>
+
 using namespace SignProcUtils;
+using namespace XBot;
 
 namespace CalibUtils{
 
@@ -125,12 +128,16 @@ namespace CalibUtils{
 
         IqEstimator() = default;
 
+        ~IqEstimator();
+
         IqEstimator(Eigen::VectorXd K_t,
                     Eigen::VectorXd K_d0, Eigen::VectorXd K_d1,
                     Eigen::VectorXd rot_MoI,
                     Eigen::VectorXd red_ratio,
                     int alpha = 10,
-                    double q_dot_3sigma = 0.001);
+                    double q_dot_3sigma = 0.001,
+                    bool dump_data2mat = false,
+                    std::string dump_path = "/tmp");
 
         void set_current_state(Eigen::VectorXd q_dot, Eigen::VectorXd q_ddot, Eigen::VectorXd tau); // link side state
 
@@ -160,6 +167,10 @@ namespace CalibUtils{
 
         void get_omega_r(Eigen::VectorXd& omega_r);
 
+        void set_log_buffsize(double size);
+
+        void add2log();
+
       private:
 
         Eigen::VectorXd _K_t, _K_d0, _K_d1, _rot_MoI, _red_ratio,
@@ -175,11 +186,18 @@ namespace CalibUtils{
 
         int _n_jnts;
 
-        bool _use_thresholded_sign = true;
+        bool _use_thresholded_sign = true,
+            _dump_data2mat = false;
+
+        std::string _dump_path = "\tmp";
+
+        double _matlogger_buffer_size = 1e5;
 
         void compute_iq_estimates();
 
         SmoooothSign _smooth_sign;
+
+        MatLogger2::Ptr _logger;
 
     };
 
