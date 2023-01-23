@@ -22,6 +22,7 @@
 using namespace CalibUtils;
 using namespace Xbot2Utils;
 using namespace SignProcUtils;
+using namespace XBot;
 
 namespace PowerUtils{
 
