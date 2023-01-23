@@ -287,20 +287,24 @@ void RegEnergy::set_log_buffsize(double size)
 
 void RegEnergy::add2log()
 {
-    _logger->add("iq_k", _iq_k);
-    _logger->add("iq_dot_est", _iq_dot_est);
-    _logger->add("omega_r", _omega_r);
+    if(_dump_data2mat)
+    {
+        _logger->add("iq_k", _iq_k);
+        _logger->add("iq_dot_est", _iq_dot_est);
+        _logger->add("omega_r", _omega_r);
 
-    _logger->add("pk_joule", _pk_joule);
-    _logger->add("pk_mech", _pk_mech);
-    _logger->add("pk_indct_est", _pk_indct_est);
-    _logger->add("ek_joule", _ek_joule);
-    _logger->add("ek_mech", _ek_mech);
-    _logger->add("ek_indct", _ek_indct);
+        _logger->add("pk_joule", _pk_joule);
+        _logger->add("pk_mech", _pk_mech);
+        _logger->add("pk_indct_est", _pk_indct_est);
+        _logger->add("ek_joule", _ek_joule);
+        _logger->add("ek_mech", _ek_mech);
+        _logger->add("ek_indct", _ek_indct);
 
-    _logger->add("ek", _ek);
-    _logger->add("pk", _pk);
+        _logger->add("ek", _ek);
+        _logger->add("pk", _pk);
 
-    _logger->add("ek_tot", _ek_tot);
-    _logger->add("pk_tot", _pk_tot);
+        _logger->add("ek_tot", _ek_tot);
+        _logger->add("pk_tot", _pk_tot);
+    }
+
 }
