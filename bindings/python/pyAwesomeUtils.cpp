@@ -1,7 +1,9 @@
+#include "include/awesome_utils/model_interface.hpp"
+
 #include "include/awesome_utils/calib_utils.hpp"
 #include "include/awesome_utils/sign_proc_utils.hpp"
+
 #include "include/awesome_utils/contact_est_utils.hpp"
-#include "include/awesome_utils/model_interface.hpp"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>
