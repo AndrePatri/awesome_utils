@@ -61,12 +61,12 @@ namespace PowerUtils{
 
             void get(Eigen::VectorXd& ek, Eigen::VectorXd& pk);
 
-            void get_p_terms(Eigen::VectorXd _pk_joule,
-                             Eigen::VectorXd _pk_mech,
-                             Eigen::VectorXd _pk_indct_est);
-            void get_e_terms(Eigen::VectorXd _ek_joule,
-                             Eigen::VectorXd _ek_mech,
-                             Eigen::VectorXd _ek_indct);
+            void get_p_terms(Eigen::VectorXd& _pk_joule,
+                             Eigen::VectorXd& _pk_mech,
+                             Eigen::VectorXd& _pk_indct_est);
+            void get_e_terms(Eigen::VectorXd& _ek_joule,
+                             Eigen::VectorXd& _ek_mech,
+                             Eigen::VectorXd& _ek_indct);
 
             void set_log_buffsize(double size);
 
