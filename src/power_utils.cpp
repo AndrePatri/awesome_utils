@@ -117,7 +117,10 @@ RegEnergy::RegEnergy(IqRosGetter::Ptr iq_meas,
 
 RegEnergy::~RegEnergy()
 {
-    _logger.reset();
+    if(_dump_data2mat)
+    {
+        _logger.reset();
+    }
 }
 
 void RegEnergy::set_e0(double e0)

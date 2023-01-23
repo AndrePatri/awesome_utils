@@ -73,7 +73,10 @@ IqEstimator::IqEstimator(Eigen::VectorXd K_t,
 
 IqEstimator::~IqEstimator()
 {
-    _logger.reset();
+    if(_dump_data2mat)
+    {
+        _logger.reset();
+    }
 }
 
 void IqEstimator::get_iq_estimate(std::vector<float>& iq_est)
