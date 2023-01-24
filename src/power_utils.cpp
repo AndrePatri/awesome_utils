@@ -197,7 +197,18 @@ void RegEnergy::update()
 
     }else{
 
-        _iq_meas->get_last_iq_out(_iq_k);
+        if(_use_filt_iq_meas)
+        {
+
+            _iq_meas->get_last_iq_out_filt(_iq_k);
+
+        }
+        else{
+
+            _iq_meas->get_last_iq_out(_iq_k);
+
+        }
+
     }
 
     compute(); // updates energy and power values
@@ -310,4 +321,9 @@ void RegEnergy::add2log()
         _logger->add("pk_tot", _pk_tot);
     }
 
+}
+
+void RegEnergy::use_filt_iq_meas(bool filter_it)
+{
+    _use_filt_iq_meas =  filter_it;
 }

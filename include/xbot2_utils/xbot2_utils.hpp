@@ -15,6 +15,10 @@
 #include <vector>
 #include <memory>
 
+#include "../awesome_utils/sign_proc_utils.hpp"
+
+using namespace SignProcUtils;
+
 namespace Xbot2Utils{
 
     using namespace XBot;
@@ -28,13 +32,19 @@ namespace Xbot2Utils{
         typedef std::shared_ptr<IqRosGetter> Ptr;
         typedef std::unique_ptr<IqRosGetter> UniquePtr;
 
-        IqRosGetter(bool verbose = false);
+        IqRosGetter() = default;
+
+        IqRosGetter(double dt,
+                    bool verbose = false,
+                    double mov_avrg_cutoff_freq = 15.0);
 
         void on_aux_signal_received(const xbot_msgs::CustomState& aux_sig);
 
         void on_js_signal_received(const xbot_msgs::JointState& js_sig);
 
         void get_last_iq_out(Eigen::VectorXd& iq_out_fb);
+
+        void get_last_iq_out_filt(Eigen::VectorXd& iq_out_fb_filt);
 
         void get_last_iq_out_stamps(Eigen::VectorXd& timestamps);
 
@@ -55,6 +65,10 @@ namespace Xbot2Utils{
 
         double _time_ref = 0.0;
 
+        double _dt;
+
+        double _mov_avrg_cutoff_freq = 15.0;
+
         std::string _iq_sig_basename = "iq_out_fb";
 
         int _aux_types_encode_number = 0; // global counter used to assign incremental values to aux signal types
@@ -67,6 +81,8 @@ namespace Xbot2Utils{
         std::vector<std::string> _jnt_names; // auxiliary vector where the joint names (as visible in the js message) are saved.
 
         Eigen::VectorXd _iq_out_fb, _timestamps;
+
+        MovAvrgFilt _mov_avrg_filter;
 
         void init_vars();
 

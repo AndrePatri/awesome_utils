@@ -71,6 +71,7 @@ namespace PowerUtils{
 
             void set_log_buffsize(double size);
 
+            void use_filt_iq_meas(bool filter_it = true);
             void add2log();
 
         private:
@@ -79,7 +80,8 @@ namespace PowerUtils{
 
             bool _is_first_update = true,
                  _use_iq_meas = false,
-                 _dump_data2mat = false;
+                 _dump_data2mat = false,
+                 _use_filt_iq_meas = true;
 
             std::string _dump_path = "\tmp";
 

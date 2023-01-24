@@ -4,8 +4,10 @@ using namespace Xbot2Utils;
 
 //************* IqRosGetter *************//
 
-IqRosGetter::IqRosGetter(bool verbose)
-  :_verbose{verbose}
+IqRosGetter::IqRosGetter(double dt,
+                         bool verbose,
+                         double mov_avrg_cutoff_freq)
+    :_dt{dt}, _verbose{verbose}, _mov_avrg_cutoff_freq{mov_avrg_cutoff_freq}
 {
 
 }
@@ -16,6 +18,9 @@ void IqRosGetter::init_vars()
 
     _iq_out_fb = Eigen::VectorXd::Zero(_n_active_jnts);
     _timestamps = Eigen::VectorXd::Zero(_n_active_jnts);
+
+    _mov_avrg_filter = MovAvrgFilt(_n_active_jnts, _dt, _mov_avrg_cutoff_freq);
+
 }
 
 void IqRosGetter::get_last_iq_out(Eigen::VectorXd& iq_out_fb)
@@ -24,6 +29,17 @@ void IqRosGetter::get_last_iq_out(Eigen::VectorXd& iq_out_fb)
     { // only assign output if _iq_out_fb has a nonzero dimension
       // (guaranteed after init_vars is called)
         iq_out_fb = _iq_out_fb;
+    }
+}
+
+void IqRosGetter::get_last_iq_out_filt(Eigen::VectorXd& iq_out_fb_filt)
+{
+    if(_vars_were_initialized)
+    { // only assign output if _iq_out_fb has a nonzero dimension
+      // (guaranteed after init_vars is called)
+
+        _mov_avrg_filter.add_sample(_iq_out_fb);
+        _mov_avrg_filter.get(iq_out_fb_filt);
     }
 }
 
