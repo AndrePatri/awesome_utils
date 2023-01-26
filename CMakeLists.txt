@@ -18,6 +18,7 @@ if(${WITH_XBOT2})
     message(STATUS "The xbot2-dependent components will be built")
     set(XBOT2_UTILS_TRGT src/xbot2_utils.cpp)
     find_package(xbot_msgs REQUIRED)
+    find_package(xbot2 REQUIRED)
 endif()
 
 set(LIBRARY_TARGET_NAME awesome_utils) # set library name
@@ -54,6 +55,7 @@ if(${WITH_XBOT2})
     ${EIGEN3_INCLUDE_DIR}/
     ${catkin_INCLUDE_DIRS}/
     ${xbot_msgs_INCLUDE_DIRS}/
+    ${xbot2_INCLUDE_DIRS}/
     ${CMAKE_BINARY_DIR}/generated/
     ${matlogger2_INCLUDE_DIRS}
     )
@@ -66,17 +68,25 @@ else()
     ${CMAKE_CURRENT_BINARY_DIR}
     ${EIGEN3_INCLUDE_DIR}/
     ${catkin_INCLUDE_DIRS}/
-    ${xbot_msgs_INCLUDE_DIRS}/
     ${CMAKE_BINARY_DIR}/generated/
     ${matlogger2_INCLUDE_DIRS}
     )
 
 endif()
 
-target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE ${catkin_LIBRARIES}
+if(${WITH_XBOT2})
+
+	target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE ${catkin_LIBRARIES}
                                                     Eigen3::Eigen
                                                     pinocchio::pinocchio
                                                     matlogger2::matlogger2)
+else()
+	target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE ${catkin_LIBRARIES}
+                                                    Eigen3::Eigen
+                                                    pinocchio::pinocchio
+                                                    matlogger2::matlogger2
+                                                    xbot2::xbot2_ros_support)
+endif()
                                                      
 target_compile_options(${LIBRARY_TARGET_NAME} PRIVATE -std=c++17)
 
