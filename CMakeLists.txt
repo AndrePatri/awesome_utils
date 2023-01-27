@@ -46,7 +46,7 @@ set(${LIBRARY_TARGET_NAME}_SRC
 add_library(${LIBRARY_TARGET_NAME} SHARED ${${LIBRARY_TARGET_NAME}_SRC})
 
 if(${WITH_XBOT2})
-	
+
     include_directories(
     include/awesome_utils/
     include/xbot2_utils/
@@ -55,13 +55,12 @@ if(${WITH_XBOT2})
     ${EIGEN3_INCLUDE_DIR}/
     ${catkin_INCLUDE_DIRS}/
     ${xbot_msgs_INCLUDE_DIRS}/
-    ${xbot2_INCLUDE_DIRS}/
     ${CMAKE_BINARY_DIR}/generated/
     ${matlogger2_INCLUDE_DIRS}
     )
 
 else()
-	
+
     include_directories(
     include/awesome_utils/
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -79,13 +78,15 @@ if(${WITH_XBOT2})
 	target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE ${catkin_LIBRARIES}
                                                     Eigen3::Eigen
                                                     pinocchio::pinocchio
-                                                    matlogger2::matlogger2)
+                                                    matlogger2::matlogger2
+                                                    xbot2::xbot2
+                                                    xbot2::xbot2_ros_support)
 else()
 	target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE ${catkin_LIBRARIES}
                                                     Eigen3::Eigen
                                                     pinocchio::pinocchio
                                                     matlogger2::matlogger2
-                                                    xbot2::xbot2_ros_support)
+                                                    )
 endif()
                                                      
 target_compile_options(${LIBRARY_TARGET_NAME} PRIVATE -std=c++17)
