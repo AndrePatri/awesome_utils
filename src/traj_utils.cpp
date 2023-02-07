@@ -674,8 +674,7 @@ void TrajLoader::load_data_from_mat(std::string math_path)
     // (input always null at the last trajectory node)
     _tau.col(_tau.cols() - 1) = Eigen::VectorXd::Zero(_tau.rows());
 
-    _f_cont.conservativeResize(_f_cont.rows(), _f_cont.cols()+1); // appending a vector of zero torques for the last sample
-    // (input always null at the last trajectory node)
+    _f_cont.conservativeResize(_f_cont.rows(), _f_cont.cols()+1);
     _f_cont.col(_f_cont.cols() - 1) = Eigen::VectorXd::Zero(_f_cont.rows());
     
     bool dt_read_ok = _load_logger->readvar(_dt_name, _dt_opt, slices); // here fix _dt_opt (should change to MatrixXd)
