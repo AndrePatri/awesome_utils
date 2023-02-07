@@ -78,10 +78,10 @@ namespace ModelInterface
 
             void set_neutral();
             void set_random();
-            void set_q(VectorXd q);
-            void set_v(VectorXd v);
-            void set_a(VectorXd a);
-            void set_tau(VectorXd tau);
+            void set_q(VectorXd& q);
+            void set_v(VectorXd& v);
+            void set_a(VectorXd& a);
+            void set_tau(VectorXd& tau);
 
             void get_state(VectorXd& q, VectorXd& v, VectorXd& a,
                            VectorXd& tau);
@@ -100,21 +100,21 @@ namespace ModelInterface
 
             void get_p(VectorXd& p); // generalized momentum (B * v)
             void get_b(VectorXd& b); // bias vector (C * v)
-            void get_jac(std::string frame_name,
+            void get_jac(std::string& frame_name,
                          utils_defs::SpatialJac& J,
                          ReferenceFrame ref = ReferenceFrame::LOCAL_WORLD_ALIGNED);
-            void get_jac_dot(std::string frame_name,
+            void get_jac_dot(std::string& frame_name,
                          utils_defs::SpatialJacDot& J_dot,
                          ReferenceFrame ref = ReferenceFrame::LOCAL_WORLD_ALIGNED); // time derivative of Jacobian
 
-            void get_frame_pose(std::string frame_name,
+            void get_frame_pose(std::string& frame_name,
                                 utils_defs::PosVec3D& position, utils_defs::RotMat3D& rotation);
-            void get_frame_pose(std::string frame_name,
+            void get_frame_pose(std::string& frame_name,
                                 Affine3d& pose);
-            void get_frame_vel(std::string frame_name,
+            void get_frame_vel(std::string& frame_name,
                                utils_defs::Twist& vel,
                                ReferenceFrame ref = ReferenceFrame::LOCAL_WORLD_ALIGNED);
-            void get_frame_vel(std::string frame_name,
+            void get_frame_vel(std::string& frame_name,
                                utils_defs::LinVel& lin_vel, utils_defs::AngVel& omega,
                                ReferenceFrame ref = ReferenceFrame::LOCAL_WORLD_ALIGNED);
 
@@ -124,7 +124,7 @@ namespace ModelInterface
             int get_nv();
             int get_jnt_number();
 
-            bool frame_exists(std::string framename);
+            bool frame_exists(std::string& framename);
 
             std::string get_urdf_path();
 
@@ -175,10 +175,10 @@ namespace ModelInterface
             void p(); // joint space momentum of the system
             void b(); // bias forces (C * v)
 
-            void jacobian(std::string frame_name, Model::ReferenceFrame ref,
+            void jacobian(std::string& frame_name, Model::ReferenceFrame ref,
                           utils_defs::SpatialJac& J);
 
-            void jacobian_dot(std::string frame_name, Model::ReferenceFrame ref,
+            void jacobian_dot(std::string& frame_name, Model::ReferenceFrame ref,
                           utils_defs::SpatialJacDot& J_dot);
 
             void rnea(); // The Recursive Newton-Euler algorithm.
