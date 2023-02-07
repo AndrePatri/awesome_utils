@@ -63,7 +63,7 @@ NumDiff::NumDiff(int n_jnts, double dt, int order)
 
 }
 
-void NumDiff::add_sample(Eigen::VectorXd sample)
+void NumDiff::add_sample(Eigen::VectorXd& sample)
 {
   int sample_size = sample.size();
 
@@ -121,7 +121,7 @@ NumInt::NumInt(int n_jnts, double dt, double T_horizon)
 
 }
 
-void NumInt::add_sample(Eigen::VectorXd sample)
+void NumInt::add_sample(Eigen::VectorXd& sample)
 {
   int sample_size = sample.size();
 
@@ -177,7 +177,7 @@ NumIntRt::NumIntRt(int n_jnts, double dt)
 
 }
 
-void NumIntRt::add_sample(Eigen::VectorXd sample)
+void NumIntRt::add_sample(Eigen::VectorXd& sample)
 {
 
   _num_int.add_sample(sample);
@@ -244,7 +244,7 @@ MovAvrgFilt::MovAvrgFilt(int n_jnts, double dt, double cutoff_freq)
 
 }
 
-void MovAvrgFilt::add_sample(Eigen::VectorXd sample)
+void MovAvrgFilt::add_sample(Eigen::VectorXd& sample)
 {
 
   int sample_size = sample.size();
@@ -283,7 +283,6 @@ void MovAvrgFilt::add_sample(Eigen::VectorXd sample)
     _is_first_run = false;
 
   }
-
 
 }
 

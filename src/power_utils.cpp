@@ -123,7 +123,7 @@ RegEnergy::~RegEnergy()
     }
 }
 
-void RegEnergy::set_e0(double e0)
+void RegEnergy::set_e0(double& e0)
 {
     if(_is_first_update)
     {
@@ -284,14 +284,14 @@ void RegEnergy::get_e_terms(Eigen::VectorXd& ek_joule,
     ek_indct = _ek_indct;
 }
 
-double RegEnergy::get_p()
+void RegEnergy::get_p(double& p)
 {
-    return _pk_tot;
+    p = _pk_tot;
 }
 
-double RegEnergy::get_e()
+void RegEnergy::get_e(double& e)
 {
-    return _ek_tot;
+    e = _ek_tot;
 }
 
 void RegEnergy::set_log_buffsize(double size)

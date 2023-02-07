@@ -49,14 +49,14 @@ namespace PowerUtils{
                       bool dump_data2mat = false,
                       std::string dump_path = "/tmp");
 
-            void set_e0(double e0); // set initial energy level
+            void set_e0(double& e0); // set initial energy level
 
             void set_omega_r(Eigen::VectorXd omega_r); // set current rotor velocity externally (only callable if use_iq_meas == true)
 
             void update();
 
-            double get_p(); // getter for the total (joint-wise sum) energy flowgin towards the power bus
-            double get_e(); // getter for the total (joint-wise sum) power
+            void get_p(double& p); // getter for the total (joint-wise sum) energy flowgin towards the power bus
+            void get_e(double& e); // getter for the total (joint-wise sum) power
 
             void get(Eigen::VectorXd& ek);
 

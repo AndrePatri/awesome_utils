@@ -22,7 +22,7 @@ namespace SignProcUtils{
 
         NumDiff(int n_jnts, double dt, int order = 1);
 
-        void add_sample(Eigen::VectorXd sample);
+        void add_sample(Eigen::VectorXd& sample);
 
         void dot(Eigen::VectorXd& sample_dot); // get an estimate of derivative
         // of the current sample
@@ -58,7 +58,7 @@ namespace SignProcUtils{
 
         NumInt(int n_jnts, double dt, double T_horizon);
 
-        void add_sample(Eigen::VectorXd sample);
+        void add_sample(Eigen::VectorXd& sample);
 
         void get(Eigen::VectorXd& _int_sample); // get an estimate of integral
         // of the variable along the specified T_horizon (from 0 to T_horizon)
@@ -87,7 +87,7 @@ namespace SignProcUtils{
 
         NumIntRt(int n_jnts, double dt);
 
-        void add_sample(Eigen::VectorXd sample);
+        void add_sample(Eigen::VectorXd& sample);
 
         void get(Eigen::VectorXd& _int_sample); // get an estimate of integral
         // of the variable along the specified T_horizon (from 0 to T_horizon)
@@ -167,7 +167,7 @@ namespace SignProcUtils{
           MovAvrgFilt(int n_jnts, double dt, int window_size = 10);
           MovAvrgFilt(int n_jnts, double dt, double cutoff_freq = 15);
 
-          void add_sample(Eigen::VectorXd sample);
+          void add_sample(Eigen::VectorXd& sample);
 
           void get(Eigen::VectorXd& filt_sample);
 

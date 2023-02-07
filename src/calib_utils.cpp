@@ -124,7 +124,7 @@ void IqEstimator::get_iq_estimate(Eigen::VectorXd& iq_est)
 }
 
 void IqEstimator::get_iq_estimate(std::vector<float>& iq_est,
-                                  Eigen::VectorXd K_d0, Eigen::VectorXd K_d1)
+                                  Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1)
 {
     int err = 0;
     if(K_d0.size() != _n_jnts)
@@ -162,7 +162,7 @@ void IqEstimator::get_iq_estimate(std::vector<float>& iq_est,
 }
 
 void IqEstimator::get_iq_estimate(Eigen::VectorXd& iq_est,
-                                  Eigen::VectorXd K_d0, Eigen::VectorXd K_d1)
+                                  Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1)
 {
     int err = 0;
     if(K_d0.size() != _n_jnts)
@@ -208,7 +208,7 @@ void IqEstimator::update()
 
 }
 
-void IqEstimator::update(Eigen::VectorXd K_d0, Eigen::VectorXd K_d1)
+void IqEstimator::update(Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1)
 {
     int err = 0;
     if(K_d0.size() != _n_jnts)
@@ -277,7 +277,7 @@ void IqEstimator::compute_iq_estimates()
 
 }
 
-void IqEstimator::set_current_state(Eigen::VectorXd q_dot, Eigen::VectorXd q_ddot, Eigen::VectorXd tau)
+void IqEstimator::set_current_state(Eigen::VectorXd& q_dot, Eigen::VectorXd& q_ddot, Eigen::VectorXd& tau)
 {
   int err = 0;
   if(q_dot.size() != _n_jnts)
@@ -606,8 +606,8 @@ void IqCalib::solve_iq_cal_QP(int jnt_index)
     _Kd1(jnt_index) = opt_Kd(1);
 }
 
-void IqCalib::set_ig(Eigen::VectorXd ig_Kd0,
-                     Eigen::VectorXd ig_Kd1)
+void IqCalib::set_ig(Eigen::VectorXd& ig_Kd0,
+                     Eigen::VectorXd& ig_Kd1)
 {
     // check on ig dimensions
     int err = 0;
@@ -665,10 +665,10 @@ void IqCalib::get_current_optimal_Kd(Eigen::VectorXd& Kd0_opt,
 
 }
 
-void IqCalib::add_sample(Eigen::VectorXd q_dot,
-                         Eigen::VectorXd q_ddot,
-                         Eigen::VectorXd iq,
-                         Eigen::VectorXd tau)
+void IqCalib::add_sample(Eigen::VectorXd& q_dot,
+                         Eigen::VectorXd& q_ddot,
+                         Eigen::VectorXd& iq,
+                         Eigen::VectorXd& tau)
 {
 
     _q_dot = q_dot;

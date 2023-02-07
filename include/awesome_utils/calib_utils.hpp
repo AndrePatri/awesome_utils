@@ -139,16 +139,16 @@ namespace CalibUtils{
                     bool dump_data2mat = false,
                     std::string dump_path = "/tmp");
 
-        void set_current_state(Eigen::VectorXd q_dot, Eigen::VectorXd q_ddot, Eigen::VectorXd tau); // link side state
+        void set_current_state(Eigen::VectorXd& q_dot, Eigen::VectorXd& q_ddot, Eigen::VectorXd& tau); // link side state
 
         void get_iq_estimate(std::vector<float>& iq_est); // updates + gets estimate
         void get_iq_estimate(Eigen::VectorXd& iq_est); // updates + gets estimate
         void get_iq_estimate(std::vector<float>& iq_est,
-                             Eigen::VectorXd K_d0, Eigen::VectorXd K_d1); // updates + gets estimate
+                             Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1); // updates + gets estimate
         void get_iq_estimate(Eigen::VectorXd& iq_est,
-                             Eigen::VectorXd K_d0, Eigen::VectorXd K_d1); // updates + gets estimate
+                             Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1); // updates + gets estimate
 
-        void update(Eigen::VectorXd K_d0, Eigen::VectorXd K_d1); // only updates
+        void update(Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1); // only updates
         void update(); // only updates
 
         void get_iq(Eigen::VectorXd& iq_est); // gets the current iq
@@ -225,13 +225,13 @@ namespace CalibUtils{
                 bool verbose = false
                 );
 
-        void add_sample(Eigen::VectorXd q_dot,
-                   Eigen::VectorXd q_ddot,
-                   Eigen::VectorXd iq,
-                   Eigen::VectorXd tau); // q_dot, q_ddot, etc... are link side values
+        void add_sample(Eigen::VectorXd& q_dot,
+                   Eigen::VectorXd& q_ddot,
+                   Eigen::VectorXd& iq,
+                   Eigen::VectorXd& tau); // q_dot, q_ddot, etc... are link side values
 
-        void set_ig(Eigen::VectorXd ig_Kd0,
-                    Eigen::VectorXd ig_Kd1);
+        void set_ig(Eigen::VectorXd& ig_Kd0,
+                    Eigen::VectorXd& ig_Kd1);
 
         void get_current_optimal_Kd(Eigen::VectorXd& Kd0_opt,
                                Eigen::VectorXd& Kd1_opt);
