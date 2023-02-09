@@ -69,6 +69,9 @@ namespace PowerUtils{
                              Eigen::VectorXd& _ek_mech,
                              Eigen::VectorXd& _ek_indct);
 
+            void get_current_e_recov(Eigen::VectorXd& e_recov);
+            void get_current_e_recov(double& e_recov_tot);
+
             void enable_rec_energy_monitoring();
             void disable_rec_energy_monitoring();
             void reset_rec_energy();

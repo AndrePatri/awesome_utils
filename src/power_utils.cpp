@@ -294,6 +294,16 @@ void RegEnergy::compute_energy()
 
 }
 
+void RegEnergy::get_current_e_recov(Eigen::VectorXd& e_recov)
+{
+    e_recov = _e_recov;
+}
+
+void RegEnergy::get_current_e_recov(double& e_recov_tot)
+{
+    e_recov_tot = _e_recov_tot;
+}
+
 void RegEnergy::get(Eigen::VectorXd& ek)
 {
     ek = _ek;
