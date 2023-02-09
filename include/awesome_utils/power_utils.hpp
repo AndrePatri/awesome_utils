@@ -69,6 +69,10 @@ namespace PowerUtils{
                              Eigen::VectorXd& _ek_mech,
                              Eigen::VectorXd& _ek_indct);
 
+            void start_rec_energy_monitoring();
+            void stop_rec_energy_monitoring();
+            void reset_rec_energy();
+
             void set_log_buffsize(double size);
 
             void use_filt_iq_meas(bool filter_it = true);
@@ -81,7 +85,9 @@ namespace PowerUtils{
             bool _is_first_update = true,
                  _use_iq_meas = false,
                  _dump_data2mat = false,
-                 _use_filt_iq_meas = true;
+                 _use_filt_iq_meas = true,
+                 _start_rec_energy_monitor = false,
+                 _stop_rec_energy_monitor = false;
 
             std::string _dump_path = "\tmp";
 
@@ -91,6 +97,10 @@ namespace PowerUtils{
             double _filter_cutoff_freq = 15.0; // [Hz]
             double _e0 = 0.0; // initial energy level
             double _ek_tot, _pk_tot; // total energy towards bus
+            double _e_recov_tot = 0.0; // total amount of energy recovered
+
+            Eigen::VectorXd _aux_1p1_vect_power,
+                            _aux_1p1_vect_energy; // auxiliary vars
 
             Eigen::VectorXd _L_leak, _L_m, _R,
                             _L_q, _R_q,
@@ -103,7 +113,8 @@ namespace PowerUtils{
             Eigen::VectorXd _pk_joule, _pk_mech, _pk_indct_est;
             Eigen::VectorXd _ek_joule, _ek_mech, _ek_indct;
 
-            Eigen::VectorXd _ek, _pk; // joint-wise
+            Eigen::VectorXd _ek, _pk,
+                            _e_recov; // joint-wise
 
             IqRosGetter::Ptr _iq_meas;
             IqEstimator::Ptr _iq_est;
@@ -111,6 +122,9 @@ namespace PowerUtils{
             NumDiff _num_diff_iq;
 
             NumIntRt _num_int_joule, _num_int_mech;
+
+            std::vector<std::unique_ptr<NumIntRt>> _recov_energy_integrators; // one for each joint
+            // since we a joint could be in regeneration mode while others may not
 
             MovAvrgFilt _mov_filter;
 
@@ -121,6 +135,8 @@ namespace PowerUtils{
             void compute_power();
 
             void compute_energy();
+
+            void evaluate_recov_energy();
     };
 
 }

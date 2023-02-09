@@ -50,11 +50,15 @@ RegEnergy::RegEnergy(IqRosGetter::Ptr iq_meas,
 
     _L_q = _L_leak + 3/2 * _L_m;
 
+    _aux_1p1_vect_energy =  Eigen::VectorXd::Zero(1);
+    _aux_1p1_vect_power =  Eigen::VectorXd::Zero(1);
+
     _iq_0 = Eigen::VectorXd::Zero(_n_jnts);
     _iq_k = Eigen::VectorXd::Zero(_n_jnts);
 
     _ek = Eigen::VectorXd::Zero(_n_jnts);
     _pk = Eigen::VectorXd::Zero(_n_jnts);
+    _e_recov = Eigen::VectorXd::Zero(_n_jnts);
 
     _pk_joule = Eigen::VectorXd::Zero(_n_jnts);
     _pk_mech = Eigen::VectorXd::Zero(_n_jnts);
@@ -70,6 +74,12 @@ RegEnergy::RegEnergy(IqRosGetter::Ptr iq_meas,
 
     _num_int_joule = NumIntRt(_n_jnts, _dt);
     _num_int_mech = NumIntRt(_n_jnts, _dt);
+    _recov_energy_integrators = std::vector<std::unique_ptr<NumIntRt>>(_n_jnts);
+
+    for(int i = 0; i < _n_jnts; i++)
+    {
+        _recov_energy_integrators[i] = std::make_unique<NumIntRt>(1, _dt); // integrator for 1D variable
+    }
 
     _mov_filter = MovAvrgFilt(_n_jnts, _dt, _filter_cutoff_freq);
 
@@ -107,9 +117,11 @@ RegEnergy::RegEnergy(IqRosGetter::Ptr iq_meas,
 
         _logger->create("ek", _n_jnts, 1, _matlogger_buffer_size);
         _logger->create("pk", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("e_recov", _n_jnts, 1, _matlogger_buffer_size);
 
         _logger->create("ek_tot", 1, 1, _matlogger_buffer_size);
         _logger->create("pk_tot", 1, 1, _matlogger_buffer_size);
+        _logger->create("e_recov_tot", 1, 1, _matlogger_buffer_size);
 
     }
 
@@ -223,6 +235,8 @@ void RegEnergy::compute()
     compute_power(); // we compute all the terms of the power balance and then we integrate them
     // to get the energy
 
+    evaluate_recov_energy(); // we get the regenerated energy
+
     _num_int_joule.add_sample(_pk_joule);
     _num_int_joule.get(_ek_joule);
 
@@ -230,6 +244,31 @@ void RegEnergy::compute()
     _num_int_mech.get(_ek_mech);
 
     compute_energy();
+}
+
+void RegEnergy::evaluate_recov_energy()
+{
+    // we integrated the total power if it is positive (i.e. towards the power source --> regenerative) and
+    // only if we have triggered the evaluation of the recovered energy
+
+    for(int i = 0; i < _n_jnts; i++)
+    {
+
+        if(_start_rec_energy_monitor && !_stop_rec_energy_monitor && _pk(i)>= 0)
+        { // power from actuator i is flowing towards the power source
+
+            _aux_1p1_vect_energy(0) = _pk(i); // we use this auxiliary vars to be able to pass by reference
+            // a 1x1 eigen vector to the integration
+            _recov_energy_integrators[i]->add_sample(_aux_1p1_vect_energy);
+            _recov_energy_integrators[i]->get(_aux_1p1_vect_energy);
+
+            _e_recov(i) = _aux_1p1_vect_energy(0);
+        }
+
+    }
+
+    _e_recov_tot = _e_recov.sum();
+
 }
 
 void RegEnergy::compute_power()
@@ -316,9 +355,12 @@ void RegEnergy::add2log()
 
         _logger->add("ek", _ek);
         _logger->add("pk", _pk);
+        _logger->add("e_recov", _e_recov);
 
         _logger->add("ek_tot", _ek_tot);
         _logger->add("pk_tot", _pk_tot);
+        _logger->add("e_recov_tot", _e_recov_tot);
+
     }
 
 }
@@ -327,3 +369,29 @@ void RegEnergy::use_filt_iq_meas(bool filter_it)
 {
     _use_filt_iq_meas =  filter_it;
 }
+
+void RegEnergy::start_rec_energy_monitoring()
+{
+    _start_rec_energy_monitor = true;
+}
+
+void RegEnergy::stop_rec_energy_monitoring()
+{
+    _stop_rec_energy_monitor = true;
+}
+
+void RegEnergy::reset_rec_energy()
+{
+    _e_recov.setZero();
+
+    _e_recov_tot = 0.0;
+
+}
+
+
+
+
+
+
+
+
