@@ -69,8 +69,8 @@ namespace PowerUtils{
                              Eigen::VectorXd& _ek_mech,
                              Eigen::VectorXd& _ek_indct);
 
-            void start_rec_energy_monitoring();
-            void stop_rec_energy_monitoring();
+            void enable_rec_energy_monitoring();
+            void disable_rec_energy_monitoring();
             void reset_rec_energy();
 
             void set_log_buffsize(double size);

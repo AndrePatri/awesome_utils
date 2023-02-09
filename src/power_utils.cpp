@@ -370,12 +370,12 @@ void RegEnergy::use_filt_iq_meas(bool filter_it)
     _use_filt_iq_meas =  filter_it;
 }
 
-void RegEnergy::start_rec_energy_monitoring()
+void RegEnergy::enable_rec_energy_monitoring()
 {
     _start_rec_energy_monitor = true;
 }
 
-void RegEnergy::stop_rec_energy_monitoring()
+void RegEnergy::disable_rec_energy_monitoring()
 {
     _stop_rec_energy_monitor = true;
 }
