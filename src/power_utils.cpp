@@ -279,7 +279,7 @@ void RegEnergy::compute_power()
 
     _pk_indct_est = 3.0/2.0 * _L_q.array() * (_iq_k.array() * _iq_dot_est.array());
 
-    _pk = -_pk_joule - _pk_indct_est - _pk_mech;
+    _pk = - _pk_joule - _pk_indct_est - _pk_mech;
 
     _pk_tot = _pk.sum();
 }
