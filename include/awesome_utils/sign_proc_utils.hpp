@@ -64,6 +64,8 @@ namespace SignProcUtils{
         // of the variable along the specified T_horizon (from 0 to T_horizon)
         // (assuming constant dt)
 
+        void reset();
+
       private:
 
         Eigen::MatrixXd _window_data;
@@ -92,6 +94,9 @@ namespace SignProcUtils{
         void get(Eigen::VectorXd& _int_sample); // get an estimate of integral
         // of the variable along the specified T_horizon (from 0 to T_horizon)
         // (assuming constant dt)
+
+        void reset(); // resets the current value of the integral to 0 and
+        // also removes all the previously added samples
 
       private:
 
