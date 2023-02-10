@@ -396,6 +396,11 @@ void RegEnergy::reset_rec_energy()
 
     _e_recov_tot = 0.0;
 
+    for(int i = 0; i < _n_jnts; i++)
+    {
+        _recov_energy_integrators[i]->reset(); // we reset each integrator
+    }
+
 }
 
 

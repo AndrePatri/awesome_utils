@@ -158,6 +158,13 @@ void NumInt::get(Eigen::VectorXd& sample_integral)
     }
 }
 
+void NumInt::reset()
+{
+
+    _window_data.setZero();
+
+}
+
 //************* NumIntRt *************//
 
 NumIntRt::NumIntRt()
@@ -205,6 +212,15 @@ void NumIntRt::get(Eigen::VectorXd& sample_integral)
     sample_integral = _int_k;
 
     _int_km1 = _int_k;
+
+}
+
+void NumIntRt::reset()
+{
+    _int_k.setZero();
+    _int_km1.setZero();
+
+    _num_int.reset(); // resets the window data
 
 }
 
