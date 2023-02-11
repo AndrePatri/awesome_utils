@@ -383,11 +383,15 @@ void RegEnergy::use_filt_iq_meas(bool filter_it)
 void RegEnergy::enable_rec_energy_monitoring()
 {
     _start_rec_energy_monitor = true;
+    _stop_rec_energy_monitor = false;
+
 }
 
 void RegEnergy::disable_rec_energy_monitoring()
 {
+    _start_rec_energy_monitor = false;
     _stop_rec_energy_monitor = true;
+
 }
 
 void RegEnergy::reset_rec_energy()
