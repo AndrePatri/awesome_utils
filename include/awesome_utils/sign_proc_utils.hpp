@@ -227,7 +227,7 @@ namespace SignProcUtils{
             SignWithMem(double signal_3sigma,
                         double tanh_coeff);
 
-            int sign(double value);
+            int sign(double& value);
 
         private:
 
@@ -246,7 +246,7 @@ namespace SignProcUtils{
             // function
 
             void sign_with_memory();
-            double approx_sign(double value);
+            double approx_sign(double& value);
 
     };
 
@@ -301,7 +301,7 @@ namespace SignProcUtils{
                            int alpha,
                            bool use_threshold = false);
 
-            double sign(double value);
+            double sign(double& value);
 
         private:
 
@@ -320,7 +320,7 @@ namespace SignProcUtils{
 
             double _value = 0.0;
 
-            double smooooth_sign(double value);
+            double smooooth_sign(double& value);
     };
 
 

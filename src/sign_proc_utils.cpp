@@ -335,7 +335,7 @@ SignWithMem::SignWithMem(double signal_3sigma,
 
 }
 
-double SignWithMem::approx_sign(double value)
+double SignWithMem::approx_sign(double& value)
 {
     double approx_sign = tanh(_tanh_coeff * value);
 
@@ -364,7 +364,7 @@ void SignWithMem::sign_with_memory()
     _previous_sign = _sign;
 }
 
-int SignWithMem::sign(double value)
+int SignWithMem::sign(double& value)
 {
     _value = value; // assign value
 
@@ -424,7 +424,7 @@ SmoooothSign::SmoooothSign(double signal_3sigma,
 
 }
 
-double SmoooothSign::smooooth_sign(double value)
+double SmoooothSign::smooooth_sign(double& value)
 {
     if (_use_threshold && abs(value) <= _threshold)
 
@@ -437,7 +437,7 @@ double SmoooothSign::smooooth_sign(double value)
 
 }
 
-double SmoooothSign::sign(double value)
+double SmoooothSign::sign(double& value)
 {
 
     return SmoooothSign::smooooth_sign(value);
