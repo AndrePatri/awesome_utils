@@ -137,16 +137,14 @@ void PeisekahTrans::compute_peisekah_vect_val(const double& phase, const Eigen::
     { 
         if (column_wise_strt)
         {
-            compute_peisekah_val(phase, start_point(k, 0), end_point(k, 0), _current_sample(k));
+            compute_peisekah_val(phase, start_point(k, 0), end_point(k, 0), val(k));
         }
         else
         {
-            compute_peisekah_val(phase, start_point(0, k), end_point(0, k), _current_sample(k));
+            compute_peisekah_val(phase, start_point(0, k), end_point(0, k), val(k));
         }
         
     }
-
-    val = _current_sample;
 }
 
 void PeisekahTrans::compute_traj()
