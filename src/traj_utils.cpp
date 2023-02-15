@@ -96,7 +96,7 @@ void PeisekahTrans::rate_adapter()
 
 }
 
-void PeisekahTrans::compute_peisekah_val(double& phase, double& start_point, double& end_point,
+void PeisekahTrans::compute_peisekah_val(const double& phase, const double& start_point, const double& end_point,
                                             double& val)
 {   
 
@@ -108,8 +108,8 @@ void PeisekahTrans::compute_peisekah_val(double& phase, double& start_point, dou
 
 }
 
-void PeisekahTrans::compute_peisekah_vect_val(double& phase, Eigen::MatrixXd& start_point,  Eigen::MatrixXd& end_point,
-                                                         Eigen::VectorXd& val)
+void PeisekahTrans::compute_peisekah_vect_val(const double& phase, const Eigen::MatrixXd& start_point, const Eigen::MatrixXd& end_point,
+                                                Eigen::VectorXd& val)
 {   
     int n_dim_start =  start_point.rows() >= start_point.cols() ? start_point.rows(): start_point.cols();
     bool column_wise_strt =  start_point.rows() >= start_point.cols() ? true: false;
