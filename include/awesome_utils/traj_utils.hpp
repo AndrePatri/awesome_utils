@@ -24,21 +24,25 @@ namespace TrajUtils{
             
             Eigen::VectorXd eval_at(int node);
 
-            double compute_peisekah_val(double phase, double start_point, double end_point);
-            Eigen::VectorXd compute_peisekah_vect_val(double phase, Eigen::MatrixXd start_point,  Eigen::MatrixXd end_point);
+            void compute_peisekah_val(double& phase, double& start_point, double& end_point,
+                                        double& val);
+            void compute_peisekah_vect_val(double& phase, Eigen::MatrixXd& start_point,  Eigen::MatrixXd& end_point,
+                                           Eigen::VectorXd& val);
 
             double get_exec_time();
             double get_traj_dt();
             double get_n_nodes();
             double get_n_dim();
-            Eigen::MatrixXd get_traj();
+            void get_traj(Eigen::MatrixXd& traj);
 
         private:
 
             Eigen::VectorXd _start_point, _end_point;
             Eigen::MatrixXd _traj;
+            Eigen::VectorXd _current_sample;
 
             double _exec_time, _dt;
+            double _common_part_traj; // preallocation
             int _n_nodes, _n_dim;
 
             void check_input_dim();

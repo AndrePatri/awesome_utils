@@ -21,6 +21,8 @@ PeisekahTrans::PeisekahTrans(Eigen::VectorXd start_point, Eigen::VectorXd end_po
 
     check_input_dim();
 
+    _current_sample = Eigen::VectorXd::Zero(_n_dim); // preallocation
+
     compute_traj();
 
 }
@@ -94,19 +96,20 @@ void PeisekahTrans::rate_adapter()
 
 }
 
-double PeisekahTrans::compute_peisekah_val(double phase, double start_point, double end_point)
+void PeisekahTrans::compute_peisekah_val(double& phase, double& start_point, double& end_point,
+                                            double& val)
 {   
 
-    double common_part_traj = (126.0 * pow(phase, 5) - 420.0 * pow(phase, 6) + 
+    _common_part_traj = (126.0 * pow(phase, 5) - 420.0 * pow(phase, 6) +
                             540.0 * pow(phase, 7) - 315.0 * pow(phase, 8) + 
                             70.0 * pow(phase, 9));
 
-    auto value = start_point + (end_point - start_point) *  common_part_traj;
-
-    return value;
+    val = start_point + (end_point - start_point) *  _common_part_traj;
 
 }
-Eigen::VectorXd PeisekahTrans::compute_peisekah_vect_val(double phase, Eigen::MatrixXd start_point,  Eigen::MatrixXd end_point)
+
+void PeisekahTrans::compute_peisekah_vect_val(double& phase, Eigen::MatrixXd& start_point,  Eigen::MatrixXd& end_point,
+                                                         Eigen::VectorXd& val)
 {   
     int n_dim_start =  start_point.rows() >= start_point.cols() ? start_point.rows(): start_point.cols();
     bool column_wise_strt =  start_point.rows() >= start_point.cols() ? true: false;
@@ -130,24 +133,20 @@ Eigen::VectorXd PeisekahTrans::compute_peisekah_vect_val(double phase, Eigen::Ma
         throw std::invalid_argument(exception);
     }
 
-
-
-    Eigen::VectorXd peisekah_sample(n_dim_start);
-
     for (int k = 0; k < n_dim_start; k++)
     { 
         if (column_wise_strt)
         {
-            peisekah_sample(k) = compute_peisekah_val(phase, start_point(k, 0), end_point(k, 0));
+            compute_peisekah_val(phase, start_point(k, 0), end_point(k, 0), _current_sample(k));
         }
         else
         {
-            peisekah_sample(k) = compute_peisekah_val(phase, start_point(0, k), end_point(0, k));
+            compute_peisekah_val(phase, start_point(0, k), end_point(0, k), _current_sample(k));
         }
         
     }
 
-    return peisekah_sample;
+    val = _current_sample;
 }
 
 void PeisekahTrans::compute_traj()
@@ -164,7 +163,7 @@ void PeisekahTrans::compute_traj()
 
             double phase = (double) i/(_n_nodes - 1);
             
-            _traj(k, i) = compute_peisekah_val(phase, _start_point(k), _end_point(k)); 
+             compute_peisekah_val(phase, _start_point(k), _end_point(k), _traj(k, i));
 
         }
 
@@ -172,10 +171,10 @@ void PeisekahTrans::compute_traj()
 
 }
 
-Eigen::MatrixXd PeisekahTrans::get_traj()
+void PeisekahTrans::get_traj(Eigen::MatrixXd& traj)
 {
 
-    return _traj;
+    traj = _traj;
     
 }
 
