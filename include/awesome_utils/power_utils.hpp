@@ -44,6 +44,7 @@ namespace PowerUtils{
                       IqEstimator::Ptr iq_est,
                       Eigen::VectorXd R,
                       Eigen::VectorXd L_leak, Eigen::VectorXd L_m,
+                      double bus_p_leak, // constant (assumed so) leak power due to bus losses
                       double dt,
                       bool use_iq_meas = false,
                       bool dump_data2mat = false,
@@ -96,6 +97,8 @@ namespace PowerUtils{
 
             double _matlogger_buffer_size = 1e5;
 
+            double _bus_p_leak = 0.0;
+
             double _dt; // [s]
             double _filter_cutoff_freq = 15.0; // [Hz]
             double _e0 = 0.0; // initial energy level
@@ -119,12 +122,15 @@ namespace PowerUtils{
             Eigen::VectorXd _ek, _pk,
                             _e_recov; // joint-wise
 
+            Eigen::VectorXd _dummy_eigen_scalar; // aux variable
+
             IqRosGetter::Ptr _iq_meas;
             IqEstimator::Ptr _iq_est;
 
             NumDiff _num_diff_iq;
 
-            NumIntRt _num_int_joule, _num_int_mech;
+            NumIntRt _num_int_joule, _num_int_mech,
+                    _num_int_tot_pow, _num_int_tot_pow_reg;
 
             std::vector<std::unique_ptr<NumIntRt>> _recov_energy_integrators; // one for each joint
             // since we a joint could be in regeneration mode while others may not

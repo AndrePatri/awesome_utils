@@ -8,6 +8,7 @@ RegEnergy::RegEnergy(IqRosGetter::Ptr iq_meas,
                     IqEstimator::Ptr iq_est,
                     Eigen::VectorXd R,
                     Eigen::VectorXd L_leak, Eigen::VectorXd L_m,
+                    double bus_p_leak,
                     double dt,
                     bool use_iq_meas,
                     bool dump_data2mat,
@@ -16,6 +17,7 @@ RegEnergy::RegEnergy(IqRosGetter::Ptr iq_meas,
      _iq_est{iq_est},
      _R{R},
      _L_leak{L_leak}, _L_m{L_m},
+     _bus_p_leak{bus_p_leak},
      _dt{dt},
      _use_iq_meas{use_iq_meas},
      _dump_data2mat{dump_data2mat},
@@ -70,10 +72,15 @@ RegEnergy::RegEnergy(IqRosGetter::Ptr iq_meas,
 
     _omega_r = Eigen::VectorXd::Zero(_n_jnts);
 
+    _dummy_eigen_scalar = Eigen::VectorXd::Zero(1);
+
     _num_diff_iq = NumDiff(_n_jnts, _dt);
 
     _num_int_joule = NumIntRt(_n_jnts, _dt);
     _num_int_mech = NumIntRt(_n_jnts, _dt);
+    _num_int_tot_pow = NumIntRt(1, _dt);
+    _num_int_tot_pow_reg = NumIntRt(1, _dt);
+
     _recov_energy_integrators = std::vector<std::unique_ptr<NumIntRt>>(_n_jnts);
 
     for(int i = 0; i < _n_jnts; i++)
@@ -103,6 +110,7 @@ RegEnergy::RegEnergy(IqRosGetter::Ptr iq_meas,
         _logger->add("L_q", _L_q);
         _logger->add("R_q", _R_q);
         _logger->add("Kt", _Kt);
+        _logger->add("bus_p_leak", _bus_p_leak);
 
         _logger->create("iq_k", _n_jnts, 1, _matlogger_buffer_size);
         _logger->create("iq_dot_est", _n_jnts, 1, _matlogger_buffer_size);
@@ -253,7 +261,7 @@ void RegEnergy::evaluate_recov_energy()
 
     for(int i = 0; i < _n_jnts; i++)
     {
-
+        // without considering the power source losses (only actuator side)
         if(_start_rec_energy_monitor && !_stop_rec_energy_monitor && _pk(i)>= 0)
         { // power from actuator i is flowing towards the power source
 
@@ -267,7 +275,14 @@ void RegEnergy::evaluate_recov_energy()
 
     }
 
-    _e_recov_tot = _e_recov.sum();
+    if(_start_rec_energy_monitor && !_stop_rec_energy_monitor && _pk_tot >= 0)
+    {
+        _dummy_eigen_scalar(0) = _pk_tot;
+        _num_int_tot_pow_reg.add_sample(_dummy_eigen_scalar);
+        _num_int_tot_pow_reg.get(_dummy_eigen_scalar);
+        _e_recov_tot = _dummy_eigen_scalar(0);
+
+    }
 
 }
 
@@ -281,7 +296,7 @@ void RegEnergy::compute_power()
 
     _pk = - _pk_joule - _pk_indct_est - _pk_mech;
 
-    _pk_tot = _pk.sum();
+    _pk_tot = _pk.sum() - _bus_p_leak;
 }
 
 void RegEnergy::compute_energy()
@@ -290,8 +305,10 @@ void RegEnergy::compute_energy()
 
     _ek = _e0 - _ek_joule.array() -_ek_mech.array() - _ek_indct.array(); // using array to allow sum with a scalar (e0)
 
-    _ek_tot = _ek.sum();
-
+    _dummy_eigen_scalar(0) = _pk_tot;
+    _num_int_tot_pow.add_sample(_dummy_eigen_scalar);
+    _num_int_tot_pow.get(_dummy_eigen_scalar);
+    _ek_tot = _dummy_eigen_scalar(0);
 }
 
 void RegEnergy::get_current_e_recov(Eigen::VectorXd& e_recov)
@@ -402,8 +419,10 @@ void RegEnergy::reset_rec_energy()
 
     for(int i = 0; i < _n_jnts; i++)
     {
-        _recov_energy_integrators[i]->reset(); // we reset each integrator
+        _recov_energy_integrators[i]->reset(); // we reset each jont integrator
     }
+
+    _num_int_tot_pow_reg.reset(); // reset integrator for total rec energy
 
 }
 
