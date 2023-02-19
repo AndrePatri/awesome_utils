@@ -174,12 +174,12 @@ void RegEnergy::set_omega_r(Eigen::VectorXd omega_r)
     }
 
     if(_use_iq_meas)
-    {
+    { // we don't get omega_r from the estimator, but we require the user to set it externally
         _omega_r = omega_r;
 
     }else{ // we do nothing
 
-        std::cout << utils_defs::Colors::kYellow << "RegEnergy::set_omega_r(): omega_r won't be set since use_iq_meas==true" << utils_defs::Colors::kEndl << std::endl;
+        std::cout << utils_defs::Colors::kYellow << "RegEnergy::set_omega_r(): omega_r cannot be set externally when use_iq_meas==false. Update the state of the iq estimator instead." << utils_defs::Colors::kEndl << std::endl;
     }
 
 }
@@ -228,6 +228,9 @@ void RegEnergy::update()
             _iq_meas->get_last_iq_out(_iq_k);
 
         }
+
+        // if _use_iq_meas, set_omega_r() has to be called
+        // externally from the user before the update()
 
     }
 
