@@ -158,7 +158,7 @@ void RegEnergy::set_e0(double& e0)
     }
 }
 
-void RegEnergy::set_omega_r(Eigen::VectorXd omega_r)
+void RegEnergy::set_omega_r(Eigen::VectorXd& omega_r)
 {
 
     int err = 0;
