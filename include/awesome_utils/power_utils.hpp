@@ -52,7 +52,7 @@ namespace PowerUtils{
 
             void set_e0(double& e0); // set initial energy level
 
-            void set_omega_r(Eigen::VectorXd omega_r); // set current rotor velocity externally (only callable if use_iq_meas == true)
+            void set_omega_r(Eigen::VectorXd& omega_r); // set current rotor velocity externally (only callable if use_iq_meas == true)
 
             void update();
 
