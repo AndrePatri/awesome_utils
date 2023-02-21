@@ -108,7 +108,7 @@ void PeisekahTrans::compute_peisekah_val(const double& phase, const double& star
 
 }
 
-void PeisekahTrans::compute_peisekah_vect_val(const double& phase, const Eigen::MatrixXd& start_point, const Eigen::MatrixXd& end_point,
+void PeisekahTrans::compute_peisekah_vect_val(const double& phase, const Eigen::VectorXd& start_point, const Eigen::VectorXd& end_point,
                                                 Eigen::VectorXd& val)
 {   
     int n_dim_start =  start_point.rows() >= start_point.cols() ? start_point.rows(): start_point.cols();

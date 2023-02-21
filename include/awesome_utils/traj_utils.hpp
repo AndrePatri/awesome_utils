@@ -26,7 +26,7 @@ namespace TrajUtils{
 
             void compute_peisekah_val(const double& phase, const double& start_point, const double& end_point,
                                         double& val);
-            void compute_peisekah_vect_val(const double& phase, const Eigen::MatrixXd& start_point, const Eigen::MatrixXd& end_point,
+            void compute_peisekah_vect_val(const double& phase, const Eigen::VectorXd& start_point, const Eigen::VectorXd& end_point,
                                            Eigen::VectorXd& val);
 
             double get_exec_time();
