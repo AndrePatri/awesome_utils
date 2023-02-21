@@ -111,11 +111,8 @@ void PeisekahTrans::compute_peisekah_val(const double& phase, const double& star
 void PeisekahTrans::compute_peisekah_vect_val(const double& phase, const Eigen::VectorXd& start_point, const Eigen::VectorXd& end_point,
                                                 Eigen::VectorXd& val)
 {   
-    int n_dim_start =  start_point.rows() >= start_point.cols() ? start_point.rows(): start_point.cols();
-    bool column_wise_strt =  start_point.rows() >= start_point.cols() ? true: false;
-
-    int n_dim_trgt =  end_point.rows() >= end_point.cols() ? end_point.rows(): end_point.cols();
-    bool column_wise_trgt =  end_point.rows() >= end_point.cols() ? true: false;
+    int n_dim_start =  start_point.size();
+    int n_dim_trgt =  end_point.size();
 
     if (n_dim_start != n_dim_trgt)
     {
@@ -126,23 +123,10 @@ void PeisekahTrans::compute_peisekah_vect_val(const double& phase, const Eigen::
         throw std::invalid_argument(exception);
     }
 
-    if (!(column_wise_strt && column_wise_trgt))
-    {
-        std::string exception = std::string("compute_peisekah_vect_val: input points have to be both column-major or row-major!");
-
-        throw std::invalid_argument(exception);
-    }
-
     for (int k = 0; k < n_dim_start; k++)
     { 
-        if (column_wise_strt)
-        {
-            compute_peisekah_val(phase, start_point(k, 0), end_point(k, 0), val(k));
-        }
-        else
-        {
-            compute_peisekah_val(phase, start_point(0, k), end_point(0, k), val(k));
-        }
+
+            compute_peisekah_val(phase, start_point(k), end_point(k), val(k));
         
     }
 }
