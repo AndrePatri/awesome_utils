@@ -402,7 +402,8 @@ TrajLoader::TrajLoader(std::string data_path, bool column_major, double resample
                     TrajLinInterp(_sample_times, _tau, interp_dir));   
     opt_traj.emplace(_f_cont_name,
                     TrajLinInterp(_sample_times, _f_cont, interp_dir));  
-    
+    opt_traj.emplace(_iq_name,
+                    TrajLinInterp(_sample_times, _iq, interp_dir));
 }
 
 Eigen::MatrixXd TrajLoader::read_data_from_csv(std::string data_path)
@@ -463,17 +464,20 @@ Eigen::VectorXd TrajLoader::get_sample_times()
 }
 
 void TrajLoader::get_loaded_traj(Eigen::MatrixXd& q_p, Eigen::MatrixXd& q_p_dot, Eigen::MatrixXd& tau,
-                                Eigen::MatrixXd& dt_opt, Eigen::MatrixXd& f_cont)
+                                Eigen::MatrixXd& dt_opt, Eigen::MatrixXd& f_cont,
+                                Eigen::MatrixXd& iq)
 {
     q_p = _q_p;
     q_p_dot = _q_p_dot;
     tau = _tau;
     dt_opt = _dt_opt;
     f_cont = _f_cont;
+    iq = _iq;
+
 }
 
 void TrajLoader::resample(double res_dt, Eigen::MatrixXd& q_p_res, Eigen::MatrixXd& q_p_dot_res,
-                        Eigen::MatrixXd& tau_res, Eigen::MatrixXd& f_cont_res)
+                        Eigen::MatrixXd& tau_res, Eigen::MatrixXd& f_cont_res, Eigen::MatrixXd& iq_res)
 {
 
     Eigen::VectorXd times = compute_res_times(res_dt);
@@ -486,6 +490,8 @@ void TrajLoader::resample(double res_dt, Eigen::MatrixXd& q_p_res, Eigen::Matrix
 
     tau_res =  opt_traj[_efforts_name].eval_at(times.head(n_res_nodes - 1)); // tau is resampled excluding the last instant of time
 
+    iq_res =  opt_traj[_iq_name].eval_at(times.head(n_res_nodes - 1)); // tau is resampled excluding the last instant of time
+
     tau_res.conservativeResize(tau_res.rows(), tau_res.cols() + 1);
     tau_res.col(tau_res.cols() - 1) = Eigen::VectorXd::Zero(_n_jnts); // to be able to potentially send the whole trajectory concurrently
     // // a dummy null control input is added on the last sample time
@@ -495,6 +501,9 @@ void TrajLoader::resample(double res_dt, Eigen::MatrixXd& q_p_res, Eigen::Matrix
     f_cont_res.conservativeResize(f_cont_res.rows(), f_cont_res.cols() + 1);
     f_cont_res.col(f_cont_res.cols() - 1) = Eigen::VectorXd::Zero(_n_jnts); // to be able to potentially send the whole trajectory concurrently
     // // a dummy null control input is added on the last sample time
+
+    iq_res.conservativeResize(iq_res.rows(), iq_res.cols() + 1);
+    iq_res.col(iq_res.cols() - 1) = Eigen::VectorXd::Zero(_n_jnts);
 
     // updating number of nodes
     _n_nodes = get_n_samples(q_p_res);
@@ -577,7 +586,7 @@ void TrajLoader::check_loaded_data_dims()
     }
 
     if ( !( (get_n_samples(_q_p) == get_n_samples(_q_p_dot)) && (get_n_samples(_q_p_dot) == (get_n_samples(_tau))) 
-        && (get_n_samples(_tau) == (get_n_samples(_f_cont)))) )
+        && (get_n_samples(_tau) == (get_n_samples(_f_cont))) && (get_n_samples(_f_cont) == (get_n_samples(_iq))) ) )
     { // check cols (torque matrix)
 
         throw std::invalid_argument(std::string("check_loaded_data_dims: ") +
@@ -585,7 +594,8 @@ void TrajLoader::check_loaded_data_dims()
                                     std::string("q_p samples: ") + std::to_string(get_n_samples(_q_p)) + std::string("\n") + 
                                     std::string("q_p_dot samples: ") + std::to_string(get_n_samples(_q_p_dot)) + std::string("\n") +
                                     std::string("tau samples: ") + std::to_string(get_n_samples(_tau)) + std::string("\n") + 
-                                    std::string("f contact samples: ") + std::to_string(get_n_samples(_f_cont)) + std::string("\n"));
+                                    std::string("f contact samples: ") + std::to_string(get_n_samples(_f_cont)) + std::string("\n")+
+                                    std::string("iq samples: ") + std::to_string(get_n_samples(_iq)) + std::string("\n"));
 
     }
 
@@ -650,6 +660,7 @@ void TrajLoader::load_data_from_mat(std::string math_path)
     bool q_p_dot_read_ok = _load_logger->readvar(_q_p_dot_name, _q_p_dot, slices);
     bool tau_read_ok = _load_logger->readvar(_efforts_name, _tau, slices);
     bool f_cont_read_ok = _load_logger->readvar(_f_cont_name, _f_cont, slices);
+    bool iq_read_ok = _load_logger->readvar(_iq_name, _iq, slices);
 
     _tau.conservativeResize(_tau.rows(), _tau.cols()+1); // appending a vector of zero torques for the last sample
     // (input always null at the last trajectory node)
@@ -657,6 +668,9 @@ void TrajLoader::load_data_from_mat(std::string math_path)
 
     _f_cont.conservativeResize(_f_cont.rows(), _f_cont.cols()+1);
     _f_cont.col(_f_cont.cols() - 1) = Eigen::VectorXd::Zero(_f_cont.rows());
+
+    _iq.conservativeResize(_iq.rows(), _iq.cols()+1);
+    _iq.col(0) = Eigen::VectorXd::Zero(_iq.rows());
     
     bool dt_read_ok = _load_logger->readvar(_dt_name, _dt_opt, slices); // here fix _dt_opt (should change to MatrixXd)
 
@@ -679,6 +693,10 @@ void TrajLoader::load_data_from_mat(std::string math_path)
     if (!dt_read_ok)
     { // reading failed    
         throw std::runtime_error(std::string("Failed to find dt_opt from mat database at ") + math_path);
+    }
+    if (!iq_read_ok)
+    { // reading failed
+        throw std::runtime_error(std::string("Failed to find iq from mat database at ") + math_path);
     }
 
     _load_logger.reset();

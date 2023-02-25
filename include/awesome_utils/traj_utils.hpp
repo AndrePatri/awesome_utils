@@ -99,10 +99,10 @@ namespace TrajUtils{
             Eigen::VectorXd compute_res_times(double dt_res);
             double get_exec_time();
 
-            void get_loaded_traj(Eigen::MatrixXd& q_p, Eigen::MatrixXd& q_p_dot, Eigen::MatrixXd& tau, Eigen::MatrixXd& dt_opt, Eigen::MatrixXd& f_cont_res);
+            void get_loaded_traj(Eigen::MatrixXd& q_p, Eigen::MatrixXd& q_p_dot, Eigen::MatrixXd& tau, Eigen::MatrixXd& dt_opt, Eigen::MatrixXd& f_cont_res, Eigen::MatrixXd& iq);
             
             void resample(double res_dt, Eigen::MatrixXd& q_p_res, Eigen::MatrixXd& q_p_dot_res,
-                        Eigen::MatrixXd& tau_res, Eigen::MatrixXd& f_cont_res);
+                        Eigen::MatrixXd& tau_res, Eigen::MatrixXd& f_cont_res, Eigen::MatrixXd& iq_res);
 
             void get_opt_dt(double& dt);
 
@@ -118,11 +118,13 @@ namespace TrajUtils{
             std::string _efforts_name = "tau";
             std::string _f_cont_name = "f_contact";
             std::string _dt_name = "dt_opt";
+            std::string _iq_name = "i_q";
 
             Eigen::MatrixXd _q_p;
             Eigen::MatrixXd _q_p_dot;
             Eigen::MatrixXd _tau;
             Eigen::MatrixXd _f_cont;
+            Eigen::MatrixXd _iq;
 
             Eigen::MatrixXd _dt_opt;
             Eigen::VectorXd _sample_times;
