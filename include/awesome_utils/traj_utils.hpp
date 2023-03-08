@@ -26,9 +26,15 @@ namespace TrajUtils{
 
             void compute_peisekah_val(const double& phase, const double& start_point, const double& end_point,
                                         double& val);
+
+            void compute_peisekah_val_dot(const double& phase, const double& start_point, const double& end_point, const double& t_exec,
+                                                 double& val_dot);
+
             void compute_peisekah_vect_val(const double& phase, const Eigen::VectorXd& start_point, const Eigen::VectorXd& end_point,
                                            Eigen::VectorXd& val);
 
+            void compute_peisekah_vect_val_dot(const double& phase, const Eigen::VectorXd& start_point, const Eigen::VectorXd& end_point, const double& t_exec,
+                                                    Eigen::VectorXd& val_dot);
             double get_exec_time();
             double get_traj_dt();
             double get_n_nodes();
@@ -42,7 +48,7 @@ namespace TrajUtils{
             Eigen::VectorXd _current_sample;
 
             double _exec_time, _dt;
-            double _common_part_traj; // preallocation
+            double _common_part_traj, _common_part_traj_dot; // preallocation
             int _n_nodes, _n_dim;
 
             void check_input_dim();
@@ -146,6 +152,21 @@ namespace TrajUtils{
             void load_data_from_csv(std::string data_path);
 
             void load_data_from_mat(std::string math_path);
+    };
+
+    class SweepCos
+    {
+        public:
+
+            SweepCos();
+
+            void eval_at(double time);
+
+        private:
+
+            double omega0, omegaf, T_omega,
+                   q_lb, q_ub;
+
     };
 }
 

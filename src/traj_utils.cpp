@@ -112,11 +112,11 @@ void PeisekahTrans::compute_peisekah_val_dot(const double& phase, const double& 
                                             double& val_dot)
 {
 
-    _common_part_traj = (5 * 126.0 * pow(phase, 4) - 6 * 420.0 * pow(phase, 5) +
+    _common_part_traj_dot = (5 * 126.0 * pow(phase, 4) - 6 * 420.0 * pow(phase, 5) +
                          7 * 540.0 * pow(phase, 6) - 8 * 315.0 * pow(phase, 7) +
                          9 * 70.0 * pow(phase, 8));
 
-    val_dot = (end_point - start_point) *  _common_part_traj * 1/t_exec;
+    val_dot = (end_point - start_point) *  _common_part_traj_dot * 1/t_exec;
 
 }
 
