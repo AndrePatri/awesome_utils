@@ -108,6 +108,18 @@ void PeisekahTrans::compute_peisekah_val(const double& phase, const double& star
 
 }
 
+void PeisekahTrans::compute_peisekah_val_dot(const double& phase, const double& start_point, const double& end_point, const double& t_exec,
+                                            double& val_dot)
+{
+
+    _common_part_traj = (5 * 126.0 * pow(phase, 4) - 6 * 420.0 * pow(phase, 5) +
+                         7 * 540.0 * pow(phase, 6) - 8 * 315.0 * pow(phase, 7) +
+                         9 * 70.0 * pow(phase, 8));
+
+    val_dot = (end_point - start_point) *  _common_part_traj * 1/t_exec;
+
+}
+
 void PeisekahTrans::compute_peisekah_vect_val(const double& phase, const Eigen::VectorXd& start_point, const Eigen::VectorXd& end_point,
                                                 Eigen::VectorXd& val)
 {   
@@ -128,6 +140,29 @@ void PeisekahTrans::compute_peisekah_vect_val(const double& phase, const Eigen::
 
             compute_peisekah_val(phase, start_point(k), end_point(k), val(k));
         
+    }
+}
+
+void PeisekahTrans::compute_peisekah_vect_val_dot(const double& phase, const Eigen::VectorXd& start_point, const Eigen::VectorXd& end_point, const double& t_exec,
+                                                Eigen::VectorXd& val_dot)
+{
+    int n_dim_start =  start_point.size();
+    int n_dim_trgt =  end_point.size();
+
+    if (n_dim_start != n_dim_trgt)
+    {
+        std::string exception = std::string("compute_peisekah_vect_val_dot: dimension mismatch in the provided points: ") +
+                                std::string("start point dim: ") + std::to_string(n_dim_start) + std::string(", ") +
+                                std::string("final point dim: ") + std::to_string(n_dim_trgt) + std::string(".") ;
+
+        throw std::invalid_argument(exception);
+    }
+
+    for (int k = 0; k < n_dim_start; k++)
+    {
+
+            compute_peisekah_val_dot(phase, start_point(k), end_point(k), t_exec, val_dot(k));
+
     }
 }
 
