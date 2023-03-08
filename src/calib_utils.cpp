@@ -90,6 +90,8 @@ void IqEstimator::get_iq_estimate(std::vector<float>& iq_est)
     if (err != 0)
     {
         std::string exception = std::string("IqEstimator::get_iq_estimate(): dimension mismatch of input data \n");
+
+        throw std::invalid_argument(exception);
     }
 
     compute_iq_estimates();
@@ -115,6 +117,8 @@ void IqEstimator::get_iq_estimate(Eigen::VectorXd& iq_est)
     if (err != 0)
     {
         std::string exception = std::string("IqEstimator::get_iq_estimate(): dimension mismatch of input data \n");
+
+        throw std::invalid_argument(exception);
     }
 
     compute_iq_estimates();
