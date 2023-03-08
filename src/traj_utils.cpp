@@ -788,13 +788,44 @@ SweepCos::SweepCos(double& omega0, double& omegaf, double& T_omega,
 
 void SweepCos::eval_at(double& time, double& val, double& val_dot)
 {
-    _phase_omega = time <= _T_omega ? time/_T_omega : 1.0;
 
-    _peisekah_utils.compute_peisekah_val(_phase_omega, _omega0, _omegaf, _omega_k);
-    _peisekah_utils.compute_peisekah_val_dot(_phase_omega, _omega0, _omegaf, _T_omega, _omega_dot_k);
+//    _time = (time - _time_ref);
 
-    val = _q_bar + (_q_ub - _q_lb) / 2.0 * std::cos( _omega_k * time);
+//    _phase_omega = _time / _T_omega;
 
-    val_dot = - (_q_ub - _q_lb) / 2.0 * std::sin( _omega_k * time) * (_omega_k + time * _omega_dot_k);
+//    if(_phase_omega >= 1)
+//    {
+//        _ramp_up = !_ramp_up;
 
+//        _time_ref = time;
+//    }
+
+//    if(_ramp_up)
+//    {
+//        _peisekah_utils.compute_peisekah_val(_phase_omega, _omega0, _omegaf, _omega_k);
+//        _peisekah_utils.compute_peisekah_val_dot(_phase_omega, _omega0, _omegaf, _T_omega, _omega_dot_k);
+//    }
+//    if(!_ramp_up)
+//    {
+//        _peisekah_utils.compute_peisekah_val(_phase_omega, _omegaf, _omega0, _omega_k);
+//        _peisekah_utils.compute_peisekah_val_dot(_phase_omega, _omegaf, _omega0, _T_omega, _omega_dot_k);
+//    }
+
+    _time = time;
+    _omega_k = (_omega0 + _omegaf) / 2.0 - (_omegaf - _omega0)/ 2.0 * cos(M_PI * 1/_T_omega * _time);
+    _omega_dot_k = (_omegaf - _omega0)/ 2.0 * sin(M_PI * 1/_T_omega * _time) * M_PI * 1/_T_omega;
+
+    val = _q_bar + (_q_ub - _q_lb) / 2.0 * std::cos( _omega_k * _time);
+
+    val_dot = - (_q_ub - _q_lb) / 2.0 * std::sin( _omega_k * _time) * (_omega_k + _time * _omega_dot_k);
+
+}
+
+void SweepCos::get_stuff(double& phase_omega, bool ramp_up, double& omega_k, double& time, double& time_ref)
+{
+    phase_omega = _phase_omega;
+    ramp_up = _ramp_up;
+    omega_k = _omega_k;
+    time = _time;
+    time_ref = _time_ref;
 }

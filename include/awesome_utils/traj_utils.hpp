@@ -166,10 +166,15 @@ namespace TrajUtils{
 
             void eval_at(double& time, double& val, double& val_dot);
 
+            void get_stuff(double& phase_omega, bool _ramp_up, double& omega_k, double& time, double& time_ref);
+
         private:
 
+            bool _ramp_up = true, _not_revered_yet = true;
+
             double _omega0 = 0.0, _omegaf = 0.0, _T_omega = 0.0, _phase_omega = 0.0,
-                   _q_lb = 0.0, _q_ub = 0.0, _q_bar = 0.0;
+                   _q_lb = 0.0, _q_ub = 0.0, _q_bar = 0.0,
+                   _time_ref = 0.0, _time = 0.0;
 
             double _omega_k = 0.0, _omega_dot_k = 0.0;
 
