@@ -2,6 +2,7 @@
 #define PLUGIN_UTILS_H
 
 #include <math.h> 
+#include <cmath>
 
 #include <Eigen/Dense>
 #include <Eigen/Core>
@@ -160,12 +161,19 @@ namespace TrajUtils{
 
             SweepCos();
 
-            void eval_at(double time);
+            SweepCos(double& omega0, double& omegaf, double& T_omega,
+                     double& q_lb, double& q_ub);
+
+            void eval_at(double& time, double& val, double& val_dot);
 
         private:
 
-            double omega0, omegaf, T_omega,
-                   q_lb, q_ub;
+            double _omega0 = 0.0, _omegaf = 0.0, _T_omega = 0.0, _phase_omega = 0.0,
+                   _q_lb = 0.0, _q_ub = 0.0, _q_bar = 0.0;
+
+            double _omega_k = 0.0, _omega_dot_k = 0.0;
+
+            PeisekahTrans _peisekah_utils;
 
     };
 }

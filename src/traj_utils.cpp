@@ -771,3 +771,30 @@ Eigen::VectorXd TrajLoader::compute_res_times(double dt_res)
     return times_res;
     
 }
+
+//***************************** SweepCos *****************************//
+
+SweepCos::SweepCos()
+{
+
+}
+
+SweepCos::SweepCos(double& omega0, double& omegaf, double& T_omega,
+                   double& q_lb, double& q_ub)
+    :_omega0{omega0}, _omegaf{omegaf}, _T_omega{T_omega}, _q_lb{q_lb}, _q_ub{q_ub}
+{
+    _q_bar = (_q_ub + _q_lb) / 2.0;
+}
+
+void SweepCos::eval_at(double& time, double& val, double& val_dot)
+{
+    _phase_omega = time <= _T_omega ? time/_T_omega : 1.0;
+
+    _peisekah_utils.compute_peisekah_val(_phase_omega, _omega0, _omegaf, _omega_k);
+    _peisekah_utils.compute_peisekah_val_dot(_phase_omega, _omega0, _omegaf, _T_omega, _omega_dot_k);
+
+    val = _q_bar + (_q_ub - _q_lb) / 2.0 * std::cos( _omega_k * time);
+
+    val_dot = - (_q_ub - _q_lb) / 2.0 * std::sin( _omega_k * time) * (_omega_k + time * _omega_dot_k);
+
+}
