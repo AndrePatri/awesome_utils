@@ -128,7 +128,8 @@ void IqEstimator::get_iq_estimate(Eigen::VectorXd& iq_est)
 }
 
 void IqEstimator::get_iq_estimate(std::vector<float>& iq_est,
-                                  Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1)
+                                  Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1,
+                                  Eigen::VectorXd& rot_MoI, Eigen::VectorXd& K_t)
 {
     int err = 0;
     if(K_d0.size() != _n_jnts)
@@ -139,12 +140,22 @@ void IqEstimator::get_iq_estimate(std::vector<float>& iq_est,
     {
         err = err + 1;
     }
+    if(rot_MoI.size() != _n_jnts)
+    {
+        err = err + 1;
+    }
+    if(K_t.size() != _n_jnts)
+    {
+        err = err + 1;
+    }
 
     if (err != 0)
     {
         std::string exception = std::string("IqEstimator::compute_iq_estimates(): dimension mismatch of input data -> \n") +
                                 std::string("K_d0 length: ") + std::to_string(K_d0.size()) + std::string("\n") +
                                 std::string("K_d1 length: ") + std::to_string(K_d1.size()) + std::string("\n") +
+                                std::string("rot_MoI length: ") + std::to_string(rot_MoI.size()) + std::string("\n") +
+                                std::string("K_t length: ") + std::to_string(K_t.size()) + std::string("\n") +
                                 std::string("which do not match the required length of: ") + std::to_string(_n_jnts);
 
         throw std::invalid_argument(exception);
@@ -153,6 +164,8 @@ void IqEstimator::get_iq_estimate(std::vector<float>& iq_est,
     // update K_d0 and K_d1 with the provided values
     _K_d0 = K_d0;
     _K_d1 = K_d1;
+    _rot_MoI = rot_MoI;
+    _K_t = K_t;
 
     compute_iq_estimates(); // compute iq estimate with the runtime set gains
 
@@ -166,7 +179,8 @@ void IqEstimator::get_iq_estimate(std::vector<float>& iq_est,
 }
 
 void IqEstimator::get_iq_estimate(Eigen::VectorXd& iq_est,
-                                  Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1)
+                                  Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1,
+                                  Eigen::VectorXd& rot_MoI, Eigen::VectorXd& K_t)
 {
     int err = 0;
     if(K_d0.size() != _n_jnts)
@@ -177,20 +191,32 @@ void IqEstimator::get_iq_estimate(Eigen::VectorXd& iq_est,
     {
         err = err + 1;
     }
+    if(rot_MoI.size() != _n_jnts)
+    {
+        err = err + 1;
+    }
+    if(K_t.size() != _n_jnts)
+    {
+        err = err + 1;
+    }
 
     if (err != 0)
     {
         std::string exception = std::string("IqEstimator::compute_iq_estimates(): dimension mismatch of input data -> \n") +
                                 std::string("K_d0 length: ") + std::to_string(K_d0.size()) + std::string("\n") +
                                 std::string("K_d1 length: ") + std::to_string(K_d1.size()) + std::string("\n") +
+                                std::string("rot_MoI length: ") + std::to_string(rot_MoI.size()) + std::string("\n") +
+                                std::string("K_t length: ") + std::to_string(K_t.size()) + std::string("\n") +
                                 std::string("which do not match the required length of: ") + std::to_string(_n_jnts);
 
-        throw std::invalid_argument(exception);
+        throw std:invalid_argument:(exception);
     }
 
     // update K_d0 and K_d1 with the provided values
     _K_d0 = K_d0;
     _K_d1 = K_d1;
+    _rot_MoI = rot_MoI;
+    _K_t = K_t;
 
     compute_iq_estimates(); // compute iq estimate with the runtime set gains
 
@@ -212,7 +238,8 @@ void IqEstimator::update()
 
 }
 
-void IqEstimator::update(Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1)
+void IqEstimator::update(Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1,
+                         Eigen::VectorXd& rot_MoI, Eigen::VectorXd& K_t)
 {
     int err = 0;
     if(K_d0.size() != _n_jnts)
@@ -223,12 +250,22 @@ void IqEstimator::update(Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1)
     {
         err = err + 1;
     }
+    if(rot_MoI.size() != _n_jnts)
+    {
+        err = err + 1;
+    }
+    if(K_t.size() != _n_jnts)
+    {
+        err = err + 1;
+    }
 
     if (err != 0)
     {
         std::string exception = std::string("IqEstimator::compute_iq_estimates(): dimension mismatch of input data -> \n") +
                                 std::string("K_d0 length: ") + std::to_string(K_d0.size()) + std::string("\n") +
                                 std::string("K_d1 length: ") + std::to_string(K_d1.size()) + std::string("\n") +
+                                std::string("rot_MoI length: ") + std::to_string(rot_MoI.size()) + std::string("\n") +
+                                std::string("K_t length: ") + std::to_string(K_t.size()) + std::string("\n") +
                                 std::string("which do not match the required length of: ") + std::to_string(_n_jnts);
 
         throw std::invalid_argument(exception);
@@ -237,6 +274,8 @@ void IqEstimator::update(Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1)
     // update K_d0 and K_d1 with the provided values
     _K_d0 = K_d0;
     _K_d1 = K_d1;
+    _rot_MoI = rot_MoI;
+    _K_t = K_t;
 
     compute_iq_estimates(); // compute iq estimate with the runtime set gains
 

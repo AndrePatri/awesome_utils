@@ -144,11 +144,14 @@ namespace CalibUtils{
         void get_iq_estimate(std::vector<float>& iq_est); // updates + gets estimate
         void get_iq_estimate(Eigen::VectorXd& iq_est); // updates + gets estimate
         void get_iq_estimate(std::vector<float>& iq_est,
-                             Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1); // updates + gets estimate
+                             Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1,
+                             Eigen::VectorXd& rot_MoI, Eigen::VectorXd& K_t); // updates + gets estimate
         void get_iq_estimate(Eigen::VectorXd& iq_est,
-                             Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1); // updates + gets estimate
+                             Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1,
+                             Eigen::VectorXd& rot_MoI, Eigen::VectorXd& K_t); // updates + gets estimate
 
-        void update(Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1); // only updates
+        void update(Eigen::VectorXd& K_d0, Eigen::VectorXd& K_d1,
+                    Eigen::VectorXd& rot_MoI, Eigen::VectorXd& K_t); // only updates
         void update(); // only updates
 
         void get_iq(Eigen::VectorXd& iq_est); // gets the current iq
