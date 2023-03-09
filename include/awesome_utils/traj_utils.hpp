@@ -13,6 +13,8 @@
 
 #include <matlogger2/matlogger2.h>
 
+#include "sign_proc_utils.hpp"
+
 namespace TrajUtils{
 
     class PeisekahTrans
@@ -157,16 +159,18 @@ namespace TrajUtils{
 
     class SweepCos
     {
+
         public:
 
             SweepCos();
 
             SweepCos(double& omega0, double& omegaf, double& T_omega,
-                     double& q_lb, double& q_ub);
+                     double& q_lb, double& q_ub,
+                     double& dt);
 
             void eval_at(double& time, double& val, double& val_dot);
 
-            void get_stuff(double& phase_omega, bool _ramp_up, double& omega_k, double& time, double& time_ref);
+            void get_stuff(double& phase_omega, double& _ramp_up, double& omega_k, double& time, double& time_ref);
 
         private:
 
@@ -174,9 +178,15 @@ namespace TrajUtils{
 
             double _omega0 = 0.0, _omegaf = 0.0, _T_omega = 0.0, _phase_omega = 0.0,
                    _q_lb = 0.0, _q_ub = 0.0, _q_bar = 0.0,
-                   _time_ref = 0.0, _time = 0.0;
+                   _time_ref = 0.0, _time = 0.0, _ramp_time = 0.0,
+                   _omega_int = 0.0,
+                   _dt = -1.0;
 
             double _omega_k = 0.0, _omega_dot_k = 0.0;
+
+            SignProcUtils::NumIntRt _num_int_omega;
+
+            Eigen::VectorXd _aux_vect;
 
             PeisekahTrans _peisekah_utils;
 

@@ -780,16 +780,21 @@ SweepCos::SweepCos()
 }
 
 SweepCos::SweepCos(double& omega0, double& omegaf, double& T_omega,
-                   double& q_lb, double& q_ub)
-    :_omega0{omega0}, _omegaf{omegaf}, _T_omega{T_omega}, _q_lb{q_lb}, _q_ub{q_ub}
+                   double& q_lb, double& q_ub, double& dt)
+    :_omega0{omega0}, _omegaf{omegaf}, _T_omega{T_omega}, _q_lb{q_lb}, _q_ub{q_ub}, _dt{dt}
 {
     _q_bar = (_q_ub + _q_lb) / 2.0;
+
+    _omega_k = _omega0;
+
+    _num_int_omega = SignProcUtils::NumIntRt(1, _dt);
+
+    _aux_vect = Eigen::VectorXd::Zero(1);
 }
 
 void SweepCos::eval_at(double& time, double& val, double& val_dot)
 {
 
-    _time = (time - _time_ref);
 
 //    _phase_omega = _time / _T_omega;
 
@@ -813,35 +818,49 @@ void SweepCos::eval_at(double& time, double& val, double& val_dot)
 
 //    _time = time;
 
-    if(_time >= _T_omega)
-    {
-         _time_ref = time;
-         _ramp_up = !_ramp_up;
-    }
-//    _omega_k = (_omega0 + _omegaf) / 2.0 - (_omegaf - _omega0)/ 2.0 * cos(M_PI * 1/_T_omega * _time);
-//    _omega_dot_k = (_omegaf - _omega0)/ 2.0 * sin(M_PI * 1/_T_omega * _time) * M_PI * 1/_T_omega;
+    //    _omega_k = (_omega0 + _omegaf) / 2.0 - (_omegaf - _omega0)/ 2.0 * cos(M_PI * 1/_T_omega * _time);
+    //    _omega_dot_k = (_omegaf - _omega0)/ 2.0 * sin(M_PI * 1/_T_omega * _time) * M_PI * 1/_T_omega;
+
+
+    _ramp_time = time - _time_ref;
 
     if(_ramp_up)
     {
-        _omega_k = _omega0 + (_omegaf - _omega0)/_T_omega * _time;
+        _omega_k = _omega_k + (_omegaf - _omega0)/_T_omega * _dt;
         _omega_dot_k = (_omegaf - _omega0)/_T_omega;
+
     }
     if(!_ramp_up)
     {
-        _omega_k = _omegaf + (_omega0 - _omegaf)/_T_omega * _time;
+        _omega_k = _omega_k - (_omegaf - _omega0)/_T_omega * _dt;
         _omega_dot_k = - (_omegaf - _omega0)/_T_omega;
+
     }
 
-    val = _q_bar + (_q_ub - _q_lb) / 2.0 * std::cos( _omega_k * time);
+    _aux_vect(0) = _omega_k;
+    _num_int_omega.add_sample(_aux_vect);
+    _num_int_omega.get(_aux_vect);
+    _omega_int = _aux_vect(0);
+
+    val = _q_bar + (_q_ub - _q_lb) / 2.0 * std::cos(_omega_int);
 
     val_dot = - (_q_ub - _q_lb) / 2.0 * std::sin( _omega_k * time) * (_omega_k + time * _omega_dot_k);
 
+    _time = time;
+
+    if(_ramp_time >= _T_omega - 0.001)
+    {
+        _time_ref = time;
+
+        _ramp_up = !_ramp_up;
+    }
+
 }
 
-void SweepCos::get_stuff(double& phase_omega, bool ramp_up, double& omega_k, double& time, double& time_ref)
+void SweepCos::get_stuff(double& phase_omega, double& ramp_up, double& omega_k, double& time, double& time_ref)
 {
     phase_omega = _phase_omega;
-    ramp_up = _ramp_up;
+    ramp_up = (double)_ramp_up;
     omega_k = _omega_k;
     time = _time;
     time_ref = _time_ref;
