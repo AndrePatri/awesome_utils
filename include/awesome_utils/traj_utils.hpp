@@ -159,7 +159,14 @@ namespace TrajUtils{
 
     class SweepCos
     {
-
+        /// \brief Implements a simple sweep cosinusoidal trajectory:
+        ///
+        /// sweep(t) = q_bar + (q_ub - q_lb)/2.0 * cos(phi(t)) = q_bar + (q_ub - q_lb)/2.0 * cos(int_0^{t}{omega}\,dt)
+        ///
+        /// sweep_dot(t) = - (q_ub - q_lb)/2.0 * sin(phi(t)) * phi_dot = - (q_ub - q_lb)/2.0 * sin(int_0^{t}{omega}\,dt) * omega
+        ///
+        /// sweep_ddot(t) = - (q_ub - q_lb)/2.0 * (cos(phi(t)) * phi_dot^2 + sin(phi(t)) * phi_ddot)
+        ///
         public:
 
             SweepCos();
@@ -168,9 +175,9 @@ namespace TrajUtils{
                      double& q_lb, double& q_ub,
                      double& dt);
 
-            void eval_at(double& time, double& val, double& val_dot);
+            void eval_at(double& time, double& val, double& val_dot, double& val_ddot);
 
-            void get_stuff(double& phase_omega, double& _ramp_up, double& omega_k, double& time, double& time_ref);
+            void get_stuff(double& phase_omega, double& _ramp_up, double& omega_k, double& time_ref);
 
         private:
 
@@ -178,11 +185,11 @@ namespace TrajUtils{
 
             double _omega0 = 0.0, _omegaf = 0.0, _T_omega = 0.0, _phase_omega = 0.0,
                    _q_lb = 0.0, _q_ub = 0.0, _q_bar = 0.0,
-                   _time_ref = 0.0, _time = 0.0, _ramp_time = 0.0,
-                   _omega_int = 0.0,
+                   _time_ref = 0.0, _ramp_time = 0.0,
+
                    _dt = -1.0;
 
-            double _omega_k = 0.0, _omega_dot_k = 0.0;
+            double _omega_k_int = 0.0, _omega_k = 0.0, _omega_dot_k = 0.0,  _omega_ddot_k = 0.0;
 
             SignProcUtils::NumIntRt _num_int_omega;
 

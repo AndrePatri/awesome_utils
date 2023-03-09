@@ -792,7 +792,7 @@ SweepCos::SweepCos(double& omega0, double& omegaf, double& T_omega,
     _aux_vect = Eigen::VectorXd::Zero(1);
 }
 
-void SweepCos::eval_at(double& time, double& val, double& val_dot)
+void SweepCos::eval_at(double& time, double& val, double& val_dot, double& val_ddot)
 {
 
 
@@ -822,12 +822,14 @@ void SweepCos::eval_at(double& time, double& val, double& val_dot)
     {
         _omega_k = _omega_k + (_omegaf - _omega0)/_T_omega * _dt;
         _omega_dot_k = (_omegaf - _omega0)/_T_omega;
+        _omega_ddot_k = 0.0;
 
     }
     if(!_ramp_up)
     {
         _omega_k = _omega_k - (_omegaf - _omega0)/_T_omega * _dt;
         _omega_dot_k = - (_omegaf - _omega0)/_T_omega;
+        _omega_ddot_k = 0.0;
 
     }
 
@@ -835,13 +837,13 @@ void SweepCos::eval_at(double& time, double& val, double& val_dot)
     _aux_vect(0) = _omega_k;
     _num_int_omega.add_sample(_aux_vect);
     _num_int_omega.get(_aux_vect);
-    _omega_int = _aux_vect(0);
+    _omega_k_int = _aux_vect(0);
 
-    val = _q_bar + (_q_ub - _q_lb) / 2.0 * std::cos(_omega_int);
+    val = _q_bar + (_q_ub - _q_lb) / 2.0 * std::cos(_omega_k_int);
 
-    val_dot = - (_q_ub - _q_lb) / 2.0 * std::sin(_omega_int) * _omega_k;
+    val_dot = - (_q_ub - _q_lb) / 2.0 * std::sin(_omega_k_int) * _omega_k;
 
-    _time = time;
+    val_ddot = - (_q_ub - _q_lb) / 2.0 * (std::cos(_omega_k_int) * std::pow(_omega_k, 2) + std::sin(_omega_k_int) * _omega_ddot_k);
 
     if(_ramp_time >= _T_omega - 0.001)
     {
@@ -852,11 +854,10 @@ void SweepCos::eval_at(double& time, double& val, double& val_dot)
 
 }
 
-void SweepCos::get_stuff(double& phase_omega, double& ramp_up, double& omega_k, double& time, double& time_ref)
+void SweepCos::get_stuff(double& phase_omega, double& ramp_up, double& omega_k, double& time_ref)
 {
     phase_omega = _phase_omega;
     ramp_up = (double)_ramp_up;
     omega_k = _omega_k;
-    time = _time;
     time_ref = _time_ref;
 }
