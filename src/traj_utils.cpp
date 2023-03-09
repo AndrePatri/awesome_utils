@@ -816,12 +816,6 @@ void SweepCos::eval_at(double& time, double& val, double& val_dot)
 //        _peisekah_utils.compute_peisekah_val_dot(_phase_omega, _omegaf, _omega0, _T_omega, _omega_dot_k);
 //    }
 
-//    _time = time;
-
-    //    _omega_k = (_omega0 + _omegaf) / 2.0 - (_omegaf - _omega0)/ 2.0 * cos(M_PI * 1/_T_omega * _time);
-    //    _omega_dot_k = (_omegaf - _omega0)/ 2.0 * sin(M_PI * 1/_T_omega * _time) * M_PI * 1/_T_omega;
-
-
     _ramp_time = time - _time_ref;
 
     if(_ramp_up)
@@ -837,6 +831,7 @@ void SweepCos::eval_at(double& time, double& val, double& val_dot)
 
     }
 
+    // integrating omega_k t obtain sinusoid phase
     _aux_vect(0) = _omega_k;
     _num_int_omega.add_sample(_aux_vect);
     _num_int_omega.get(_aux_vect);
@@ -844,7 +839,7 @@ void SweepCos::eval_at(double& time, double& val, double& val_dot)
 
     val = _q_bar + (_q_ub - _q_lb) / 2.0 * std::cos(_omega_int);
 
-    val_dot = - (_q_ub - _q_lb) / 2.0 * std::sin( _omega_k * time) * (_omega_k + time * _omega_dot_k);
+    val_dot = - (_q_ub - _q_lb) / 2.0 * std::sin(_omega_int) * _omega_k;
 
     _time = time;
 
