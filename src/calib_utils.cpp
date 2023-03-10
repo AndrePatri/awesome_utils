@@ -1408,6 +1408,30 @@ void RotDynCal::get_tau_friction(Eigen::VectorXd& tau_friction)
 
 }
 
+void RotDynCal::get_tau_motor(Eigen::VectorXd& tau_mot)
+{
+
+    tau_mot = Eigen::VectorXd::Zero(_n_jnts);
+
+    for (int i = 0; i < _n_jnts; i++)
+    {
+        tau_mot(i) = _K_t(i) * _iq(i);
+    }
+
+}
+
+void RotDynCal::get_tau_inertial(Eigen::VectorXd& tau_inertial)
+{
+
+    tau_inertial = Eigen::VectorXd::Zero(_n_jnts);
+
+    for (int i = 0; i < _n_jnts; i++)
+    {
+        tau_inertial(i) = - _rot_MoI(i) * _q_ddot(i);
+    }
+
+}
+
 void RotDynCal::get_alpha(Eigen::VectorXd& alpha_d0, Eigen::VectorXd& alpha_d1)
 {
 

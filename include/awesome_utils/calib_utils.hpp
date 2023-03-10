@@ -395,8 +395,8 @@ namespace CalibUtils{
         void get_tau_friction(Eigen::VectorXd& tau_friction);
         void get_alpha(Eigen::VectorXd& alpha_d0,
                                Eigen::VectorXd& alpha_d1);
-//        void get_tau_motor(Eigen::VectorXd& tau_mot);
-//        void get_tau_inertial(Eigen::VectorXd& tau_inertial);
+        void get_tau_motor(Eigen::VectorXd& tau_mot);
+        void get_tau_inertial(Eigen::VectorXd& tau_inertial);
 
         void get_sol_millis(Eigen::VectorXd& millis);
 
