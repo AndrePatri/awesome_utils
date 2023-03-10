@@ -109,9 +109,10 @@ namespace Xbot2Utils{
 
         IqOutRosGetter() = default;
 
-        IqOutRosGetter(double dt,
-                    bool verbose = false,
-                    double mov_avrg_cutoff_freq = 15.0);
+        IqOutRosGetter(std::vector<std::string> jnt_names,
+                       double dt,
+                       double mov_avrg_cutoff_freq = 15.0,
+                       bool verbose = false);
 
         void on_aux_signal_received(const xbot_msgs::CustomState& aux_sig);
 
@@ -125,17 +126,14 @@ namespace Xbot2Utils{
 
         void get_time_reference(double& t_ref);
 
-        void set_jnt_names(std::vector<std::string> jnt_names);
-
         bool is_iq_out_topic_active();
 
         void get_jnt_names(std::vector<std::string>& jnt_names);
 
       private:
 
-        bool _is_first_aux_sig = true,
+        bool _jnt_mapping_done = false,
              _vars_were_initialized = false,
-             _were_jnt_names_set = false, _set_jnt_names_from_ros = true,
              _verbose = false;
 
         double _time_ref = 0.0;
@@ -144,16 +142,21 @@ namespace Xbot2Utils{
 
         double _mov_avrg_cutoff_freq = 15.0;
 
-        std::string _iq_sig_basename = "iq_out_fb";
+        std::string _iq_out_sig_basename = "iq_out_fb";
+
+        std::string _exception;
 
         int _aux_types_encode_number = 0; // global counter used to assign incremental values to aux signal types
 
-        int _n_active_jnts = 0;
+        int _n_jnts_req = -1, _n_jnts_aux_sig = -1;
 
         std::vector<int> _indices; // for holding the joint mapping
 
         std::map<std::string, int> _aux_msg_type_map;
-        std::vector<std::string> _jnt_names; // auxiliary vector where the joint names (as visible in the js message) are saved.
+        std::vector<std::string> _jnt_names;
+
+        std::vector<double> msg_value_remapped; // output vector for msg values
+        std::vector<int> msg_type_remapped; // output vector for msg types
 
         Eigen::VectorXd _iq_out_fb, _timestamps;
 
@@ -162,7 +165,7 @@ namespace Xbot2Utils{
         void init_vars();
 
         template <typename T, typename t_v >
-        int find_index(std::vector<T> input_v, t_v value);
+        int find_index(t_v value, std::vector<T> input_v);
 
         template <typename T>
         std::vector<int> map_indices(std::vector<T> input_v1, std::vector<T> input_v2);
