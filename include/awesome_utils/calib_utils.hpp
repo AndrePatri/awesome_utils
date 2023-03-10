@@ -1,7 +1,7 @@
 #ifndef CALIB_UTILS_H
 #define CALIB_UTILS_H
 
-#include <math.h> 
+#include <math.h>
 
 #include <Eigen/Dense>
 #include <Eigen/Core>
@@ -15,11 +15,13 @@
 #include <memory>
 
 #include "sign_proc_utils.hpp"
+#include "typedefs.hpp"
 
 #include <matlogger2/matlogger2.h>
 
 using namespace SignProcUtils;
 using namespace XBot;
+using namespace utils_defs;
 
 namespace CalibUtils{
 
@@ -342,14 +344,26 @@ namespace CalibUtils{
         RotDynCal();
 
         RotDynCal(int window_size,
-                Eigen::VectorXd K_t,
-                Eigen::VectorXd rot_MoI,
                 Eigen::VectorXd red_ratio,
+                Eigen::VectorXd ig_Kt,
+                Eigen::VectorXd ig_rot_MoI,
                 Eigen::VectorXd ig_Kd0,
                 Eigen::VectorXd ig_Kd1,
+                double lambda = 2.0,
                 int alpha = 10,
                 double q_dot_3sigma = 0.001,
-                double lambda = 2.0,
+                bool verbose = false
+                );
+
+        RotDynCal(int window_size,
+                Eigen::VectorXd red_ratio,
+                Eigen::VectorXd ig_Kt,
+                Eigen::VectorXd ig_rot_MoI,
+                Eigen::VectorXd ig_Kd0,
+                Eigen::VectorXd ig_Kd1,
+                Eigen::VectorXd lambda,
+                int alpha = 10,
+                double q_dot_3sigma = 0.001,
                 bool verbose = false
                 );
 
@@ -358,15 +372,31 @@ namespace CalibUtils{
                    Eigen::VectorXd& iq,
                    Eigen::VectorXd& tau); // q_dot, q_ddot, etc... are link side values
 
-        void set_ig(Eigen::VectorXd& ig_Kd0,
-                    Eigen::VectorXd& ig_Kd1);
+        void set_ig_Kd0(Eigen::VectorXd& ig_Kd0);
+        void set_ig_Kd1(Eigen::VectorXd& ig_Kd1);
+        void set_ig_Kt(Eigen::VectorXd& ig_Kt);
+        void set_ig_MoI(Eigen::VectorXd& ig_rot_MoI);
 
-        void get_current_optimal_Kd(Eigen::VectorXd& Kd0_opt,
-                               Eigen::VectorXd& Kd1_opt);
+        void set_lambda(Eigen::VectorXd& lambda); // sets regularization
 
-        void get_current_tau_total(Eigen::VectorXd& tau_total);
-        void get_current_tau_friction(Eigen::VectorXd& tau_friction);
-        void get_current_alpha(Eigen::VectorXd& alpha_d0, Eigen::VectorXd& alpha_d1);
+        void set_solution_mask(std::vector<bool>& mask); // mask to select which
+        // rotor dynamics paramter/s to calibrate. Inactive paramters are assigned
+        // a big regularization value around the ig and hence assume values arbitrarily
+        // close to ig. To select which value the paramter should converge to,
+        // first set the associated ig.
+
+        void solve();
+
+        void get_opt_Kd0(Eigen::VectorXd& Kd0_opt);
+        void get_opt_Kd1(Eigen::VectorXd& Kd1_opt);
+        void get_opt_Kt(Eigen::VectorXd& Kt);
+        void get_opt_rot_MoI(Eigen::VectorXd& rot_MoI);
+
+        void get_tau_friction(Eigen::VectorXd& tau_friction);
+        void get_alpha(Eigen::VectorXd& alpha_d0,
+                               Eigen::VectorXd& alpha_d1);
+//        void get_tau_motor(Eigen::VectorXd& tau_mot);
+//        void get_tau_inertial(Eigen::VectorXd& tau_inertial);
 
         void get_sol_millis(Eigen::VectorXd& millis);
 
@@ -380,7 +410,7 @@ namespace CalibUtils{
         int _n_jnts = - 1; // dimension of the input signal ( = number of joints
                            // on which calibration is run)
 
-        int _n_opt_vars = 2;
+        int _n_opt_vars = 4; // we optimize for [Kt, rot_MoI, Kd0, Kd1]
 
         int _alpha = 5; // handtuned coefficient used to approximate the
                             // ideal sign() function with a C^{inf} hyperbolic tangent function.
@@ -388,25 +418,27 @@ namespace CalibUtils{
         double _q_dot_3sigma = 0.001; // max amplitute of the noise contained in the velocity signal
         // (basically equal to 3 * sigma, where sigma is the standard deviation of the noise)
 
-        double _lambda = 2.0; // regularization gain for the least square problem
+        double _very_high_regularization = 1e6;
+
+        Eigen::VectorXd _lambda; // regularization gains for the least square problem
 
         bool _use_thresholded_sign = true;
+
+        std::vector<bool> _sol_mask;
 
         std::chrono::time_point<std::chrono::high_resolution_clock> _sol_start, _sol_stop;
 
         Eigen::VectorXd _sol_time; // current solution time of the regression problem,
         // (one solution time for each joint)
 
-        Eigen::VectorXd _alpha_d0, _alpha_d1; // we choose to model the tau_friction
-                                              // (choice dictated by the observations
-                                              // on the measured mismatch between tau_total and tau)
-                                              // as
-                                              // tau_friction = Kd0 * sign(q_dot) + Kd1 * q_dot
-                                              // which is a friction torque made of a static component (Kd0 * sign(q_dot))
-                                              // and a dynamic component ( Kd1 * q_dot)
+        Eigen::VectorXd _sol; // calibration solution (for a single joint)
+
+        Eigen::VectorXd _alpha_kt, _alpha_inertial, _alpha_d0, _alpha_d1, _alpha_tlink;
 
         Eigen::MatrixXd _I_lambda; // regularization identity matrix for
         // the least square calibration problem
+        Eigen::MatrixXd _Lambda_reg;
+
         Eigen::VectorXd _b_lambda; // regularization vector(normally a vector of 0s)
 
         Eigen::MatrixXd _Alpha; // least square problem TOTAL matrix (for all joints)
@@ -414,32 +446,33 @@ namespace CalibUtils{
                                 // _Alpha is obtained stacking up [_alpha_d0, _alpha_d1]
         Eigen::MatrixXd _A; // least square problem actual matrix (single joint + regularization)
 
-        Eigen::VectorXd _tau_friction; // tau_friction is equal to the model mismatch
-                                        // between tau_total and tau(measured torque). Ideally, these two quantities
-                                        // coincide
+        Eigen::VectorXd _tau_mot; // motor torque on the rotor produced by the magn. field
+        Eigen::VectorXd _tau_inertial; // inertial torque on the rotor
+        Eigen::VectorXd _tau_friction; // estimated friction torque, seen at the rotor
+        Eigen::VectorXd _tau_lm; // measured tau at the link, reported on the rotor
+
         Eigen::VectorXd _b; // least square problem actual meas. vector (single joint + regularization)
 
-        Eigen::VectorXd _tau_total; // total torque on the rotor (reported to
-                                    // the link-side) which is computed (with measurements) as
-                                    // tau_total = 1/red_ratio * (rot_MoI * q_ddot / red_ratio - K_t * iq)
 
-        Eigen::VectorXd _Kd0, _Kd1; // current optimical iq model calibration coefficient
+        Eigen::VectorXd _K_t,
+                        _rot_MoI,
+                        _Kd0, _Kd1; // current optimical iq model calibration coefficient
+                                    // K_t -> torque constant of the motor
+                                    // rot_MoI -> axial moment of inertia of the rotor
                                     // Kd0 -> static friction component
                                     // Kd1 -> dynamic friction component
-        Eigen::VectorXd _lb_Kd, _ub_Kd; // upper and lower bound for the coefficients of the friction torque model
-        Eigen::VectorXd _ig_Kd,
-                        _ig_Kd0, _ig_Kd1; // initial guess for the optimal params to be used in the QP
-        // (the QP is regularized not around 0 but around _ig_Kd)
+
+        Eigen::VectorXd _lb, _ub, _ig; // upper and lower bound for the coefficients of the friction torque model
+        // and full i.g. for the QP
+
+        Eigen::VectorXd _ig_Kd0, _ig_Kd1, _ig_Kt, _ig_rot_MoI; // initial guess for the optimal params to be used in the QP
 
         Eigen::VectorXd _q_dot, _q_ddot, _iq, _tau; // measurements necessary for the computation
                                                     // of the calibration coefficients
 
-        Eigen::VectorXd _K_t,
-                        _rot_MoI,
-                        _red_ratio; // actuator paramters (supposed to be perfectly known in
-                                    // advance)
+        Eigen::VectorXd _red_ratio; // reduction ratio (0 < red_ratio <= 1)
 
-        SmoooothSign _smooth_sign;
+        SmoooothSign _smooth_sign; // used to approximate the sign function (used by the Coulomb-like friction estimation)
 
         void shift_data(Eigen::VectorXd& data,
                         bool towards_back = true); // shift vector data towards the
@@ -453,9 +486,16 @@ namespace CalibUtils{
 
         void compute_alphad0();
         void compute_alphad1();
+        void compute_alpha_kt();
+        void compute_alpha_inertial();
+        void compute_alpha_tlink();
+
         void assemble_Alpha();
 
-        void compute_tau_friction();
+        void apply_solution_mask(int jnt_index);
+
+        bool check_dims();
+        void init_vars();
 
     };
 
