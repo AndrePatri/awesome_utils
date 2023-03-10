@@ -209,7 +209,7 @@ void IqEstimator::get_iq_estimate(Eigen::VectorXd& iq_est,
                                 std::string("K_t length: ") + std::to_string(K_t.size()) + std::string("\n") +
                                 std::string("which do not match the required length of: ") + std::to_string(_n_jnts);
 
-        throw std:invalid_argument:(exception);
+        throw std::invalid_argument(exception);
     }
 
     // update K_d0 and K_d1 with the provided values

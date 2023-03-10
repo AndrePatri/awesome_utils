@@ -81,6 +81,7 @@ if(${WITH_XBOT2})
                                                     matlogger2::matlogger2
                                                     xbot2::xbot2
                                                     xbot2::xbot2_ros_support)
+
 else()
 	target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE ${catkin_LIBRARIES}
                                                     Eigen3::Eigen

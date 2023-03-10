@@ -38,6 +38,16 @@ add_executable(TestContactEst test_contact_est.cpp)
 target_link_libraries(TestContactEst ${TestLibs})
 add_test(NAME TestContactEst COMMAND TestContactEst)
 
+if(${WITH_XBOT2})
+
+    find_package(xbot2 REQUIRED)
+    add_executable(TestIqOutRosGetter test_iq_out_ros_getter.cpp)
+    target_link_libraries(TestIqOutRosGetter ${TestLibs} xbot2::xbot2 xbot2::xbot2_ros_support)
+    add_test(NAME TestIqOutRosGetter COMMAND TestIqOutRosGetter)
+
+endif()
+
+
 #add_executable(TestCartImp test_cart_imp_utils.cpp)
 #target_link_libraries(TestCartImp ${TestLibs})
 #add_test(NAME TestCartImp COMMAND TestCartImp)
