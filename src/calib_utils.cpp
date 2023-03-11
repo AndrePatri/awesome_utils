@@ -1021,9 +1021,9 @@ void RotDynCal::add_sample(Eigen::VectorXd& q_dot,
     // adding new data
     compute_alphad0();
     compute_alphad1();
-    compute_alpha_kt();
     compute_alpha_inertial();
     compute_alpha_tlink();
+    compute_alpha_kt();
 
     assemble_Alpha();
 
@@ -1368,7 +1368,7 @@ void RotDynCal::compute_alpha_kt()
 {
     for (int i = 0; i < _n_jnts; i++)
     {
-        _tau_mot(i * _window_size) = _iq(i);
+        _alpha_kt(i * _window_size) = _iq(i);
     }
 }
 
@@ -1376,7 +1376,7 @@ void RotDynCal::compute_alpha_inertial()
 {
     for (int i = 0; i < _n_jnts; i++)
     {
-        _tau_inertial(i * _window_size) = - _q_ddot(i);
+        _alpha_inertial(i * _window_size) = - _q_ddot(i);
     }
 }
 
@@ -1384,7 +1384,7 @@ void RotDynCal::compute_alpha_tlink()
 {
     for (int i = 0; i < _n_jnts; i++)
     {
-        _tau_lm(i * _window_size) = _tau(i) * _red_ratio(i);
+        _alpha_tlink(i * _window_size) = _tau(i) * _red_ratio(i);
     }
 }
 
