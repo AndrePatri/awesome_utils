@@ -958,6 +958,7 @@ void RotDynCal::init_vars()
     _Lambda_reg = _I_lambda;
     _b_lambda = Eigen::VectorXd::Zero(_I_lambda.rows());
     _lambda = Eigen::VectorXd::Zero(_I_lambda.rows());
+    _lambda_des = _lambda;
 
     _A = Eigen::MatrixXd::Zero(_window_size + _I_lambda.rows(), _n_opt_vars);
     _b = Eigen::VectorXd::Zero(_window_size + _I_lambda.rows());
@@ -1110,15 +1111,19 @@ void RotDynCal::shift_data(Eigen::MatrixXd& data,
 
 void RotDynCal::apply_solution_mask(int jnt_index)
 {
-
     for(int i = 0; i < _sol_mask.size(); i ++)
     {
         if(!_sol_mask[i])
-        {
+        { // we don't want to estimate this parameter for joint "jnt_index" --> we set an high reg.
+          // around the last provided setpoint
+
             _lambda(i) = _very_high_regularization;
         }
+        if(_sol_mask[i])
+        { // we use the last lambda setpoint
+            _lambda(i) = _lambda_des(i);
+        }
     }
-
 }
 
 void RotDynCal::solve_iq_cal_QP(int jnt_index)
@@ -1160,17 +1165,17 @@ void RotDynCal::solve_iq_cal_QP(int jnt_index)
 void RotDynCal::set_lambda(Eigen::VectorXd& lambda)
 {
 
-    if(lambda.size() != _lambda.size())
+    if(lambda.size() != _lambda_des.size())
     {
         std::string warning = std::string("RotDynCal::set_lambda(): dimension mismatch -> \n") +
                                 std::string("provided lambda size: ") + std::to_string(lambda.size()) + std::string("\n") +
-                                std::string("which do not match the required length of: ") + std::to_string(_lambda.size());
+                                std::string("which do not match the required length of: ") + std::to_string(_lambda_des.size());
 
         std::cout << Colors::kYellow << warning <<  Colors::kEndl << std::endl;
     }
     else
     {
-        _lambda = lambda;
+        _lambda_des = lambda;
     }
 
 }

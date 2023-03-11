@@ -420,7 +420,7 @@ namespace CalibUtils{
 
         double _very_high_regularization = 1e6;
 
-        Eigen::VectorXd _lambda; // regularization gains for the least square problem
+        Eigen::VectorXd _lambda, _lambda_des; // regularization gains for the least square problem
 
         bool _use_thresholded_sign = true;
 
@@ -439,7 +439,7 @@ namespace CalibUtils{
         // the least square calibration problem
         Eigen::MatrixXd _Lambda_reg;
 
-        Eigen::VectorXd _b_lambda; // regularization vector(normally a vector of 0s)
+        Eigen::VectorXd _b_lambda; // regularization vector
 
         Eigen::MatrixXd _Alpha; // least square problem TOTAL matrix (for all joints)
                                 // _Alpha_i * _Kd_i = _tau_friction_i, where i is the i-th joint
