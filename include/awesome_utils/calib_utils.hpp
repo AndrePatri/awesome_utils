@@ -393,8 +393,11 @@ namespace CalibUtils{
         void get_opt_rot_MoI(Eigen::VectorXd& rot_MoI);
 
         void get_tau_friction(Eigen::VectorXd& tau_friction);
-        void get_alpha(Eigen::VectorXd& alpha_d0,
+        void get_alpha_d(Eigen::VectorXd& alpha_d0,
                                Eigen::VectorXd& alpha_d1);
+        void get_alpha_inertial(Eigen::VectorXd& alpha_inertial);
+        void get_alpha_kt(Eigen::VectorXd& alpha_kt);
+
         void get_tau_motor(Eigen::VectorXd& tau_mot);
         void get_tau_inertial(Eigen::VectorXd& tau_inertial);
 

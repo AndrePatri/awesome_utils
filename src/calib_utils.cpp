@@ -1437,7 +1437,7 @@ void RotDynCal::get_tau_inertial(Eigen::VectorXd& tau_inertial)
 
 }
 
-void RotDynCal::get_alpha(Eigen::VectorXd& alpha_d0, Eigen::VectorXd& alpha_d1)
+void RotDynCal::get_alpha_d(Eigen::VectorXd& alpha_d0, Eigen::VectorXd& alpha_d1)
 {
 
     // just in case the user provides uninitialized vector
@@ -1452,4 +1452,24 @@ void RotDynCal::get_alpha(Eigen::VectorXd& alpha_d0, Eigen::VectorXd& alpha_d1)
         alpha_d1(i) = _alpha_d1(i * _window_size);
     }
 
+}
+
+void RotDynCal::get_alpha_inertial(Eigen::VectorXd& alpha_inertial)
+{
+    alpha_inertial = Eigen::VectorXd::Zero(_n_jnts);
+
+    for (int i = 0; i < _n_jnts; i++)
+    {
+        alpha_inertial(i) = _alpha_inertial(i * _window_size);
+    }
+}
+
+void RotDynCal::get_alpha_kt(Eigen::VectorXd& alpha_kt)
+{
+    alpha_kt = Eigen::VectorXd::Zero(_n_jnts);
+
+    for (int i = 0; i < _n_jnts; i++)
+    {
+        alpha_kt(i) = _alpha_kt(i * _window_size);
+    }
 }
