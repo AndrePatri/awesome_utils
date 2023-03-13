@@ -1524,5 +1524,5 @@ void RotDynCal::get_ig_MoI(Eigen::VectorXd& ig_rot_MoI)
 {
     ig_rot_MoI = Eigen::VectorXd::Zero(_n_jnts);
 
-    _ig_rot_MoI = ig_rot_MoI;
+    ig_rot_MoI = _ig_rot_MoI;
 }
