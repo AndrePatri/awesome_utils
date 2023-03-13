@@ -377,13 +377,14 @@ namespace CalibUtils{
         void set_ig_Kt(Eigen::VectorXd& ig_Kt);
         void set_ig_MoI(Eigen::VectorXd& ig_rot_MoI);
 
-        void set_lambda(Eigen::VectorXd& lambda); // sets regularization
+        void set_lambda(Eigen::VectorXd& lambda); // sets regularization [Kt, Kd0, Kd1, rot_MoI]
 
         void set_solution_mask(std::vector<bool>& mask); // mask to select which
         // rotor dynamics paramter/s to calibrate. Inactive paramters are assigned
         // a big regularization value around the ig and hence assume values arbitrarily
-        // close to ig. To select which value the paramter should converge to,
+        // close to ig. To select which value the paraemter should converge to,
         // first set the associated ig.
+        // ordering: [Kt, Kd0, Kd1, rot_MoI]
 
         void solve();
 

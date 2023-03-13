@@ -1156,9 +1156,9 @@ void RotDynCal::solve_iq_cal_QP(int jnt_index)
     _sol_time(jnt_index) = duration_cast<milliseconds>(_sol_stop - _sol_start).count();
 
     _K_t(jnt_index) = _sol(0);
-    _rot_MoI(jnt_index) = _sol(1);
-    _Kd0(jnt_index) = _sol(2);
-    _Kd1(jnt_index) = _sol(3);
+    _Kd0(jnt_index) = _sol(1);
+    _Kd1(jnt_index) = _sol(2);
+    _rot_MoI(jnt_index) = _sol(3);
 
 }
 
@@ -1302,7 +1302,7 @@ void RotDynCal::solve()
 {
     for (int i = 0; i < _n_jnts; i++)
     {
-        _ig << _ig_Kt(i), _ig_rot_MoI(i), _ig_Kd0(i), _ig_Kd1(i); // assigning to the ig vector the
+        _ig << _ig_Kt(i), _ig_Kd0(i), _ig_Kd1(i), _ig_rot_MoI(i); // assigning to the ig vector the
         // latest set i.g. values (either from the user of the defaults)
 
         solve_iq_cal_QP(i);
@@ -1395,9 +1395,11 @@ void RotDynCal::compute_alpha_tlink()
 
 void RotDynCal::assemble_Alpha()
 {
-    _Alpha.block(0, 0, _Alpha.rows(), 1) = _alpha_d0;
-    _Alpha.block(0, 1, _Alpha.rows(), 1) = _alpha_d1;
-    _Alpha.block(0, 2, _Alpha.rows(), 1) = _alpha_kt;
+    // ordering: [Kt, Kd0, Kd1, rot_MoI]
+
+    _Alpha.block(0, 0, _Alpha.rows(), 1) = _alpha_kt;
+    _Alpha.block(0, 1, _Alpha.rows(), 1) = _alpha_d0;
+    _Alpha.block(0, 2, _Alpha.rows(), 1) = _alpha_d1;
     _Alpha.block(0, 3, _Alpha.rows(), 1) = _alpha_inertial;
 }
 
