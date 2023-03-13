@@ -336,6 +336,29 @@ namespace CalibUtils{
 
     };
 
+    /// \brief Class to calibrate the rotor-side dynamics of a BLDC actuator, employing a
+    /// simple Couloumb-like friction model.
+    /// The rotor-side eq. of motion is
+    /// Kt * iq - [Kd0 * sign(q_dot_l) + Kd1 * q_dot_l] * eta - I_r * q_ddot_l / eta = - tau_l * eta
+    ///
+    /// where
+    ///
+    /// Kt is torque constant of the motor (to be estimated)
+    /// iq is the quadrature current (measured)
+    /// Kd0 is the static friction coeff. (to be estimated)
+    /// Kd1 is the dynamic friction coeff. (to be estimated)
+    /// eta is the reduction ratio of the actuator (0 < eta <= 1; e.g. 1/50)
+    /// I_r is the rotational inertia of the motor along it's axis of rotation (to be estimated)
+    /// tau_l is the link-side torque (measured)
+    /// q_dot_l is the link-side velocity (measured)
+    /// q_ddot_r is the rotor acceleration
+    ///
+    /// Given measurements of iq, q_dot_l, tau_l and an estimate/measuremtn of q_ddot_l, we can
+    /// set up a simple regression prb over an horizon of data and estimate Kt, Kd0, Kd1, I_r or a subset
+    /// of this set of paramters.
+    /// By running the optimization in real-time with fresh new data at each solution sample we perform a
+    /// Moving Horizon Estimation (MHE) of the rotor dynamics.
+    ///
     class RotDynCal
     {
 
@@ -503,7 +526,7 @@ namespace CalibUtils{
                         bool towards_back = true); // shift vector data towards the
                                                    // back of the data qeue
 
-        void solve_iq_cal_QP(int jnt_index); // solve the calibration QP for a single joint
+        void solve_mhe(int jnt_index); // solve the calibration QP for a single joint
 
         void compute_alphad0();
         void compute_alphad1();

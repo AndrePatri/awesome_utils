@@ -1129,7 +1129,7 @@ void RotDynCal::apply_solution_mask(int jnt_index)
     }
 }
 
-void RotDynCal::solve_iq_cal_QP(int jnt_index)
+void RotDynCal::solve_mhe(int jnt_index)
 {
 
     apply_solution_mask(jnt_index); // modifies _lambda, so that inactive parameters will be promoted to converge
@@ -1324,7 +1324,7 @@ void RotDynCal::solve()
         _ig << _ig_Kt(i), _ig_Kd0(i), _ig_Kd1(i), _ig_rot_MoI(i); // assigning to the ig vector the
         // latest set i.g. values (either from the user of the defaults)
 
-        solve_iq_cal_QP(i);
+        solve_mhe(i);
     }
 }
 
@@ -1376,7 +1376,7 @@ void RotDynCal::compute_alphad0()
 
     for (int i = 0; i < _n_jnts; i++)
     {
-        _alpha_d0(i * _window_size) =  - _smooth_sign.sign(_q_dot(i));
+        _alpha_d0(i * _window_size) =  - _smooth_sign.sign(_q_dot(i)) * _red_ratio(i);
     }
 }
 
@@ -1384,7 +1384,7 @@ void RotDynCal::compute_alphad1()
 {
     for (int i = 0; i < _n_jnts; i++)
     {
-        _alpha_d1(i * _window_size) = - _q_dot(i);
+        _alpha_d1(i * _window_size) = - _q_dot(i) * _red_ratio(i);
     }
 }
 
@@ -1400,7 +1400,7 @@ void RotDynCal::compute_alpha_inertial()
 {
     for (int i = 0; i < _n_jnts; i++)
     {
-        _alpha_inertial(i * _window_size) = - _q_ddot(i);
+        _alpha_inertial(i * _window_size) = - _q_ddot(i) / _red_ratio(i);
     }
 }
 
