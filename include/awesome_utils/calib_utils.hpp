@@ -403,6 +403,11 @@ namespace CalibUtils{
 
         void get_sol_millis(Eigen::VectorXd& millis);
 
+        void get_cal_mask(std::vector<bool>& cal_mask);
+
+        void get_lambda(Eigen::VectorXd& lambda);
+        void get_lambda_des(Eigen::VectorXd& lambda_des);
+
       private:
 
         bool _verbose = false; // whether to print info messages

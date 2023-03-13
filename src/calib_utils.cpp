@@ -1473,3 +1473,25 @@ void RotDynCal::get_alpha_kt(Eigen::VectorXd& alpha_kt)
         alpha_kt(i) = _alpha_kt(i * _window_size);
     }
 }
+
+void RotDynCal::get_cal_mask(std::vector<bool>& cal_mask)
+{
+    cal_mask = std::vector<bool>(_sol_mask.size());
+
+    cal_mask = _sol_mask;
+
+}
+
+void RotDynCal::get_lambda(Eigen::VectorXd& lambda)
+{
+    lambda = Eigen::VectorXd::Zero(_lambda.size());
+
+    lambda = _lambda;
+}
+
+void RotDynCal::get_lambda_des(Eigen::VectorXd& lambda_des)
+{
+    lambda_des = Eigen::VectorXd::Zero(_lambda.size());
+
+    lambda_des = _lambda_des;
+}
