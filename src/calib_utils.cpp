@@ -1497,3 +1497,32 @@ void RotDynCal::get_lambda_des(Eigen::VectorXd& lambda_des)
 
     lambda_des = _lambda_des;
 }
+
+void RotDynCal::get_ig_Kd0(Eigen::VectorXd& ig_Kd0)
+{
+    ig_Kd0 = Eigen::VectorXd::Zero(_n_jnts);
+
+    ig_Kd0 = _ig_Kd0;
+
+}
+
+void RotDynCal::get_ig_Kd1(Eigen::VectorXd& ig_Kd1)
+{
+    ig_Kd1 = Eigen::VectorXd::Zero(_n_jnts);
+
+    ig_Kd1 = _ig_Kd1;
+}
+
+void RotDynCal::get_ig_Kt(Eigen::VectorXd& ig_Kt)
+{
+    ig_Kt = Eigen::VectorXd::Zero(_n_jnts);
+
+    ig_Kt = _ig_Kt;
+}
+
+void RotDynCal::get_ig_MoI(Eigen::VectorXd& ig_rot_MoI)
+{
+    ig_rot_MoI = Eigen::VectorXd::Zero(_n_jnts);
+
+    _ig_rot_MoI = ig_rot_MoI;
+}

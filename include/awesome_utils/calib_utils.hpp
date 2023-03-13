@@ -409,6 +409,11 @@ namespace CalibUtils{
         void get_lambda(Eigen::VectorXd& lambda);
         void get_lambda_des(Eigen::VectorXd& lambda_des);
 
+        void get_ig_Kd0(Eigen::VectorXd& ig_Kd0);
+        void get_ig_Kd1(Eigen::VectorXd& ig_Kd1);
+        void get_ig_Kt(Eigen::VectorXd& ig_Kt);
+        void get_ig_MoI(Eigen::VectorXd& ig_rot_MoI);
+
       private:
 
         bool _verbose = false; // whether to print info messages
