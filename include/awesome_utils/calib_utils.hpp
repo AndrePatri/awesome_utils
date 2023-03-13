@@ -379,6 +379,8 @@ namespace CalibUtils{
 
         void set_lambda(Eigen::VectorXd& lambda); // sets regularization [Kt, Kd0, Kd1, rot_MoI]
 
+        void set_lambda_high(Eigen::VectorXd& lambda); // high regularization aroung ig for inactive parameters
+
         void set_solution_mask(std::vector<bool>& mask); // mask to select which
         // rotor dynamics paramter/s to calibrate. Inactive paramters are assigned
         // a big regularization value around the ig and hence assume values arbitrarily
@@ -408,6 +410,7 @@ namespace CalibUtils{
 
         void get_lambda(Eigen::VectorXd& lambda);
         void get_lambda_des(Eigen::VectorXd& lambda_des);
+        void get_lambda_high(Eigen::VectorXd& lambda_high);
 
         void get_ig_Kd0(Eigen::VectorXd& ig_Kd0);
         void get_ig_Kd1(Eigen::VectorXd& ig_Kd1);
@@ -432,9 +435,13 @@ namespace CalibUtils{
         double _q_dot_3sigma = 0.001; // max amplitute of the noise contained in the velocity signal
         // (basically equal to 3 * sigma, where sigma is the standard deviation of the noise)
 
-        double _very_high_regularization = 1e6;
+        double _very_high_regularization_kt = 1e6;
+        double _very_high_regularization_rot_MoI = 1e10;
+        double _very_high_regularization_kd0 = 1e6;
+        double _very_high_regularization_kd1 = 1e6;
 
-        Eigen::VectorXd _lambda, _lambda_des; // regularization gains for the least square problem
+        Eigen::VectorXd _lambda_high,
+                        _lambda, _lambda_des; // regularization gains for the least square problem
 
         bool _use_thresholded_sign = true;
 
