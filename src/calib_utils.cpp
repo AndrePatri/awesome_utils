@@ -960,6 +960,7 @@ void RotDynCal::init_vars()
     _lambda = Eigen::VectorXd::Zero(_I_lambda.rows());
     _lambda_des = _lambda;
 
+    _lambda_high = Eigen::VectorXd::Zero(_I_lambda.rows());
     _lambda_high << _very_high_regularization_kt, _very_high_regularization_kd0, _very_high_regularization_kd1, _very_high_regularization_rot_MoI;
 
     _A = Eigen::MatrixXd::Zero(_window_size + _I_lambda.rows(), _n_opt_vars);
