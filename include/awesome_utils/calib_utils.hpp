@@ -518,12 +518,7 @@ namespace CalibUtils{
 
         SmoooothSign _smooth_sign; // used to approximate the sign function (used by the Coulomb-like friction estimation)
 
-        void shift_data(Eigen::VectorXd& data,
-                        bool towards_back = true); // shift vector data towards the
-                                                   // back of the data qeue
-        void shift_data(Eigen::MatrixXd& data,
-                        bool rowwise = true,
-                        bool towards_back = true); // shift vector data towards the
+        void shift_data(); // shift vector data towards the
                                                    // back of the data qeue
 
         void solve_mhe(int jnt_index); // solve the calibration QP for a single joint

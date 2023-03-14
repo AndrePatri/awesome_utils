@@ -1016,11 +1016,7 @@ void RotDynCal::add_sample(Eigen::VectorXd& q_dot,
     _tau = tau;
 
     // shift old data one sample behind
-    shift_data(_alpha_d0);
-    shift_data(_alpha_d1);
-    shift_data(_alpha_kt);
-    shift_data(_alpha_inertial);
-    shift_data(_alpha_tlink);
+    shift_data();
 
     // adding new data
     compute_alphad0();
@@ -1033,83 +1029,44 @@ void RotDynCal::add_sample(Eigen::VectorXd& q_dot,
 
 }
 
-void RotDynCal::shift_data(Eigen::VectorXd& data,
-                         bool towards_back)
+void RotDynCal::shift_data()
 {
-    // shifting data towards the back of the qeue
-    // (starting from the penultimate sample) of EACH JOINT
-    // (recall data from each joint is attached AFTER the data of the previous one)
+    // shifting data
+    //              jnt0           jnt1            jnt(n-1)
+    // data: |_______________|________________| ------------ |
+    //        .             .
+    //        |             |
+    //     latest        oldest
+    //     sample        sample
+    //
+    // data are shifted towards the back starting from the penultimate sample
+//    // up to the latest one
 
-    int last_sample_index = _window_size - 1; // index of last sample WITHIN each
-    // joint
+//    for (int jnt = 0; jnt < _n_jnts; jnt++)
+//    { // shifting data for each joint
 
-    for (int jnt = 0; jnt < _n_jnts; jnt++)
-    { // shifting data for each joint
-        if (towards_back)
-        {
-            int last_sample_index = _window_size - 1;
+//        for (int i = (_window_size - 1) - 1; i >= 0; i--)
+//        {
+//            _alpha_d0(i + 1 + _window_size * jnt) = _alpha_d0(i + _window_size * jnt);
+//            _alpha_d1(i + 1 + _window_size * jnt) = _alpha_d1(i + _window_size * jnt);
+//            _alpha_kt(i + 1 + _window_size * jnt) = _alpha_kt(i + _window_size * jnt);
+//            _alpha_inertial(i + 1 + _window_size * jnt) = _alpha_inertial(i + _window_size * jnt);
+//            _alpha_tlink(i + 1 + _window_size * jnt) = _alpha_tlink(i + _window_size * jnt);
+//        }
 
-            for (int i = last_sample_index - 1; i >= 0; i--)
-            {
-                data(i + 1 + _window_size * jnt) = data(i + _window_size * jnt);
-            }
+//    }
+
+        for (int jnt = 0; jnt < _n_jnts; jnt++)
+        { // shifting data for each joint
+
+            _alpha_d0.segment(_window_size * jnt + 1, _window_size - 1) = _alpha_d0.segment(_window_size * jnt, _window_size - 1);
+            _alpha_d1.segment(_window_size * jnt + 1, _window_size - 1) = _alpha_d1.segment(_window_size * jnt, _window_size - 1);
+            _alpha_kt.segment(_window_size * jnt + 1, _window_size - 1) = _alpha_kt.segment(_window_size * jnt, _window_size - 1);
+            _alpha_inertial.segment(_window_size * jnt + 1, _window_size - 1) = _alpha_inertial.segment(_window_size * jnt, _window_size - 1);
+            _alpha_tlink.segment(_window_size * jnt + 1, _window_size - 1) = _alpha_tlink.segment(_window_size * jnt, _window_size - 1);
+
         }
-        else
-        {
-            for (int i = 1; i <= last_sample_index; i++)
-            {
-                data(i - 1 + _window_size * jnt) = data(i + _window_size * jnt);
-            }
-        }
-    }
 
-}
-
-void RotDynCal::shift_data(Eigen::MatrixXd& data,
-                         bool rowwise,
-                         bool towards_back)
-{
-
-    // shifting data towards the back of the qeue
-    // (starting from the penultimate sample)
-    // by default, shift rows towards bottom
-
-    int last_sample_index = _window_size - 1;
-
-    for (int jnt = 0; jnt < _n_jnts; jnt++)
-    { // shifting data for each joint
-
-        if (towards_back)
-        {
-            for (int i = last_sample_index - 1; i >= 0; i--)
-            {
-
-                if (rowwise)
-                {
-                    data.block(i + 1 + _window_size * jnt, 0, 1, data.cols()) = data.block(i + _window_size * jnt, 0, 1, data.cols());
-                }
-                else
-                {
-                    data.block(0, i + 1 + _window_size * jnt, data.rows(), 1) = data.block(0, i + _window_size * jnt, data.rows(), 1);
-                }
-            }
-        }
-        else
-        {
-            for (int i = 1; i <= last_sample_index; i++)
-            {
-
-                if (rowwise)
-                {
-                    data.block(i - 1 + _window_size * jnt, 0, 1, data.cols()) = data.block(i + _window_size * jnt, 0, 1, data.cols());
-                }
-                else
-                {
-                    data.block(0, i - 1 + _window_size * jnt, data.rows(), 1) = data.block(0, i + _window_size * jnt, data.rows(), 1);
-                }
-            }
-        }
-    }
 }
 
 void RotDynCal::apply_solution_mask(int jnt_index)
@@ -1416,10 +1373,19 @@ void RotDynCal::assemble_Alpha()
 {
     // ordering: [Kt, Kd0, Kd1, rot_MoI]
 
-    _Alpha.block(0, 0, _Alpha.rows(), 1) = _alpha_kt;
-    _Alpha.block(0, 1, _Alpha.rows(), 1) = _alpha_d0;
-    _Alpha.block(0, 2, _Alpha.rows(), 1) = _alpha_d1;
-    _Alpha.block(0, 3, _Alpha.rows(), 1) = _alpha_inertial;
+    _Alpha.block(0, 0, _Alpha.rows(), 1).noalias() = _alpha_kt;
+    _Alpha.block(0, 1, _Alpha.rows(), 1).noalias() = _alpha_d0;
+    _Alpha.block(0, 2, _Alpha.rows(), 1).noalias() = _alpha_d1;
+    _Alpha.block(0, 3, _Alpha.rows(), 1).noalias() = _alpha_inertial;
+
+//    for(int sample = 0; sample < _window_size * _n_jnts; sample++)
+//    {
+//        _Alpha(sample, 0) = _alpha_kt(sample);
+//        _Alpha(sample, 1) = _alpha_d0(sample);
+//        _Alpha(sample, 2) = _alpha_d1(sample);
+//        _Alpha(sample, 3) = _alpha_inertial(sample);
+//    }
+
 }
 
 void RotDynCal::get_tau_friction(Eigen::VectorXd& tau_friction)
