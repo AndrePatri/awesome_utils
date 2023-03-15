@@ -270,9 +270,9 @@ void IqOutRosGetter::init_vars()
 
     _mov_avrg_filter = MovAvrgFilt(_n_jnts_req, _dt, _mov_avrg_cutoff_freq);
 
-    msg_value_remapped = std::vector<double>(_n_jnts_req, -1.0);
+    _msg_value_remapped = std::vector<double>(_n_jnts_req, -1.0);
 
-    msg_type_remapped =  std::vector<int>(_n_jnts_req, -1.0);
+    _msg_type_remapped =  std::vector<int>(_n_jnts_req, -1.0);
 }
 
 void IqOutRosGetter::get_last_iq_out(Eigen::VectorXd& iq_out_fb)
@@ -472,15 +472,17 @@ std::tuple<std::vector<int>, std::vector<double>> IqOutRosGetter::aux_mapper(con
         throw std::invalid_argument(_exception);
     }
 
-    for (int i = 0; i < _n_jnts_aux_sig; i++) // loop through all joints in the aux signal
+    for (int i = 0; i < _n_jnts_req; i++) // we loop through all jnt_names requested by the user
+        // in the same order they were provided.
     {
-        if (aux_sig.type[i].find(_iq_out_sig_basename) != std::string::npos)
-        { // check that we are reading an iq out aux type message
+        if (aux_sig.type[_indices[i]].find(_iq_out_sig_basename) != std::string::npos)
+        { // check that we are reading an iq out aux type message (we might have other aux signal
+          // types mixed together)
 
-            int encoded_type = get_aux_type_code(aux_sig.type[i]); // we retrieve the unique ID associated
+            int encoded_type = get_aux_type_code(aux_sig.type[_indices[i]]); // we retrieve the unique ID associated
             // to this aux message type
-            msg_type_remapped[_indices[i]] = encoded_type;
-            msg_value_remapped[_indices[i]] = aux_sig.value[i];
+            _msg_type_remapped[i] = encoded_type;
+            _msg_value_remapped[i] = aux_sig.value[_indices[i]];
 
             _timestamps[_indices[i]] = aux_sig.header.stamp.toSec() - _time_ref;// getting timestamp
 
@@ -488,7 +490,7 @@ std::tuple<std::vector<int>, std::vector<double>> IqOutRosGetter::aux_mapper(con
 
     }
 
-    return make_tuple(msg_type_remapped, msg_value_remapped);
+    return std::make_tuple(_msg_type_remapped, _msg_value_remapped);
 }
 
 void IqOutRosGetter::on_aux_signal_received(const xbot_msgs::CustomState& aux_sig)

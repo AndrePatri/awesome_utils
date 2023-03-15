@@ -142,7 +142,8 @@ namespace Xbot2Utils{
 
         double _mov_avrg_cutoff_freq = 15.0;
 
-        std::string _iq_out_sig_basename = "iq_out_fb";
+        std::string _iq_out_sig_basename = "iq_out_fb"; // name associated with the
+        // iq measurement
 
         std::string _exception;
 
@@ -155,8 +156,8 @@ namespace Xbot2Utils{
         std::map<std::string, int> _aux_msg_type_map;
         std::vector<std::string> _jnt_names;
 
-        std::vector<double> msg_value_remapped; // output vector for msg values
-        std::vector<int> msg_type_remapped; // output vector for msg types
+        std::vector<double> _msg_value_remapped; // output vector for msg values
+        std::vector<int> _msg_type_remapped; // output vector for msg types
 
         Eigen::VectorXd _iq_out_fb, _timestamps;
 
