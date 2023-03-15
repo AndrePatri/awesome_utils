@@ -484,7 +484,7 @@ std::tuple<std::vector<int>, std::vector<double>> IqOutRosGetter::aux_mapper(con
             _msg_type_remapped[i] = encoded_type;
             _msg_value_remapped[i] = aux_sig.value[_indices[i]];
 
-            _timestamps[_indices[i]] = aux_sig.header.stamp.toSec() - _time_ref;// getting timestamp
+            _timestamps[i] = aux_sig.header.stamp.toSec() - _time_ref;// getting timestamp
 
         }
 
