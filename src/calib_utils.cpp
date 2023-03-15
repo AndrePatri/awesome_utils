@@ -732,7 +732,6 @@ void IqCalib::add_sample(Eigen::VectorXd& q_dot,
 
 }
 
-
 void IqCalib::compute_alphad0()
 {
 
@@ -1027,6 +1026,13 @@ void RotDynCal::add_sample(Eigen::VectorXd& q_dot,
 
     assemble_Alpha();
 
+    for (int i = 0; i < _n_jnts; i++)
+    {
+        apply_solution_mask(i); // modifies _lambda, so that inactive parameters will be promoted to converge
+        // to the provided initial guesses (which in this case are to be interpreted as nominal values)
+
+    }
+
 }
 
 void RotDynCal::shift_data()
@@ -1089,20 +1095,17 @@ void RotDynCal::apply_solution_mask(int jnt_index)
 void RotDynCal::solve_mhe(int jnt_index)
 {
 
-    apply_solution_mask(jnt_index); // modifies _lambda, so that inactive parameters will be promoted to converge
-    // to the provided initial guesses (which in this case are to be interpreted as nominal values)
-
     // extracting data of joint jnt_index
     _A.block(0, 0, _window_size, _A.cols()) = _Alpha.block(_window_size * jnt_index, 0, _window_size, _Alpha.cols());
 
     for(int i = 0; i < _I_lambda.cols(); i ++)
     {
-        _Lambda_reg(i, i) = std::sqrt(_lambda(i));
+        _Lambda_reg(i, i) = std::sqrt(_lambda(i)); // _lambda might have been updated by the user
     }
     _A.block(_window_size, 0, _I_lambda.rows(), _I_lambda.cols()) = _Lambda_reg; // adding regularization
 
     _b.segment(0, _window_size) = - _alpha_tlink.segment(_window_size * jnt_index, _window_size);
-    _b_lambda = _ig; // the regularization is done around _ig
+    _b_lambda = _ig; // the regularization is done around _ig (possible updated by the user)
 
     _b.segment(_window_size, _I_lambda.rows()) = _lambda.array().sqrt() * _b_lambda.array();
 
