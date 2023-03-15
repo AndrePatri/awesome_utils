@@ -440,12 +440,19 @@ namespace CalibUtils{
         void get_ig_Kt(Eigen::VectorXd& ig_Kt);
         void get_ig_MoI(Eigen::VectorXd& ig_rot_MoI);
 
+        void reset_window();
+        void is_window_full();
+
       private:
 
         bool _verbose = false; // whether to print info messages
 
         int _window_size = 300; // number of samples which will be retained
                                 // and used to solve the calibration problem
+
+        int _window_fill_counter = 0; // counts how many fresh samples have been added
+        // to the window data (1 <= _window_fill_counter <= _windows_size)
+        bool _is_window_full = false; // whether the window is full or not
 
         int _n_jnts = - 1; // dimension of the input signal ( = number of joints
                            // on which calibration is run)
