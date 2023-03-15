@@ -1008,6 +1008,11 @@ void RotDynCal::add_sample(Eigen::VectorXd& q_dot,
                          Eigen::VectorXd& tau)
 {
 
+    if(_window_fill_counter < _window_size)
+    { // we increment the fill counter
+        _window_fill_counter++;
+    }
+
     // assigning state
     _q_dot = q_dot;
     _q_ddot = q_ddot;
@@ -1520,4 +1525,15 @@ void RotDynCal::get_lambda_high(Eigen::VectorXd& lambda_high)
     lambda_high = Eigen::VectorXd::Zero(_n_jnts);
 
     lambda_high = _lambda_high;
+}
+
+
+void RotDynCal::reset_window()
+{
+    _window_fill_counter = 0;
+}
+
+bool RotDynCal::is_window_full()
+{
+    return _window_fill_counter == _window_size;
 }

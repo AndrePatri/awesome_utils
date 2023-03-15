@@ -441,7 +441,7 @@ namespace CalibUtils{
         void get_ig_MoI(Eigen::VectorXd& ig_rot_MoI);
 
         void reset_window();
-        void is_window_full();
+        bool is_window_full();
 
       private:
 
