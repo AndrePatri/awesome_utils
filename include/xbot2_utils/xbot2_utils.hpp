@@ -11,6 +11,10 @@
 #include <xbot_msgs/CustomState.h>
 #include <xbot_msgs/JointState.h>
 
+#if defined(EC_XBOT2_CLIENT_FOUND)
+    #include <ec_xbot2/joint_ec.h>
+#endif
+
 #include <map>
 #include <vector>
 #include <memory>
@@ -114,7 +118,11 @@ namespace Xbot2Utils{
                        double mov_avrg_cutoff_freq = 15.0,
                        bool verbose = false);
 
-        void on_aux_signal_received(const xbot_msgs::CustomState& aux_sig);
+        void on_aux_signal_received_ros(const xbot_msgs::CustomState& aux_sig);
+
+        #if defined(EC_XBOT2_CLIENT_FOUND)
+        void on_aux_signal_received(const XBot::Hal::JointEcAux& aux_sig);
+        #endif
 
         void on_js_signal_received(const xbot_msgs::JointState& js_sig);
 
@@ -173,7 +181,11 @@ namespace Xbot2Utils{
 
         int get_aux_type_code(std::string msg_type);
 
-        std::tuple<std::vector<int>, std::vector<double>> aux_mapper(const xbot_msgs::CustomState& aux_sig);
+        std::tuple<std::vector<int>, std::vector<double>> aux_mapper_ros(const xbot_msgs::CustomState& aux_sig);
+
+        #if defined(EC_XBOT2_CLIENT_FOUND)
+        std::tuple<std::vector<int>, std::vector<double>> aux_mapper(const XBot::Hal::JointEcAux& aux_sig);
+        #endif
 
     };
 

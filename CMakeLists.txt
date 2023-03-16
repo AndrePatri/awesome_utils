@@ -19,6 +19,15 @@ if(${WITH_XBOT2})
     set(XBOT2_UTILS_TRGT src/xbot2_utils.cpp)
     find_package(xbot_msgs REQUIRED)
     find_package(xbot2 REQUIRED)
+    set(EC_CLIENT_SKIP_ECAT_MASTER TRUE) #hack
+    find_package(ec_xbot2_client QUIET)
+
+    if(ec_xbot2_client_FOUND)
+
+      add_definitions(-DEC_XBOT2_CLIENT_FOUND) # to be used by xbot2_utils executable
+
+    endif()
+
 endif()
 
 set(LIBRARY_TARGET_NAME awesome_utils) # set library name

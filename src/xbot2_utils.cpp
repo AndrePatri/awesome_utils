@@ -400,7 +400,103 @@ std::vector<int> IqOutRosGetter::map_indices(std::vector<T> input_v1, std::vecto
     return indices_map;
 }
 
-std::tuple<std::vector<int>, std::vector<double>> IqOutRosGetter::aux_mapper(const xbot_msgs::CustomState& aux_sig)
+#if defined(EC_XBOT2_CLIENT_FOUND)
+std::tuple<std::vector<int>, std::vector<double>> IqOutRosGetter::aux_mapper(const XBot::Hal::JointEcAux& aux_sig)
+{
+
+    /**
+    Loops through the chains and their joints and, based on the received message, assigns the IDs associated with each message type.
+
+    @param msg Input message
+    @return A vector of signal IDs with dimension (number of chains)*(number of joints)
+    */
+
+
+    if (!_jnt_mapping_done)
+    { // this runs only the first time an aux message is received
+
+        _n_jnts_aux_sig = aux_sig.name.size(); // number of joints in the aux signal
+        // assumed to be constant throughout execution
+
+        if(_n_jnts_req > _n_jnts_aux_sig)
+        {
+            _exception = std::string("IqOutRosGetter::aux_mapper: requested vector of joint names has dimension ") +
+                         std::to_string(_n_jnts_req) +
+                         std::string(" > ") +
+                         std::to_string(_n_jnts_aux_sig) +
+                         std::string("but it should be <=.\n");
+
+            throw std::invalid_argument(_exception);
+        }
+
+        _indices = map_indices(_jnt_names, aux_sig.name); // mapping from the user-set jnt names to the read aux_sig.name
+        // here we assume aux_sig.name to be constant thoroughout the execution
+
+        if(std::find(_indices.begin(), _indices.end(), -1) != _indices.end())
+        { // one or more of the provided joint names were not found in the aux signal
+
+            std::string concatenated1 = "[";
+            std::for_each(_jnt_names.begin(), _jnt_names.end(), [&](const std::string& s) {
+                concatenated1 = concatenated1 + s + std::string(", ") ;
+            });
+            concatenated1 = concatenated1 + std::string("]");
+
+            std::string concatenated2 = "[";
+            std::for_each(aux_sig.name.begin(), aux_sig.name.end(), [&](const std::string& s) {
+                concatenated2 = concatenated2 + s + std::string(", ") ;
+            });
+            concatenated2 = concatenated2 + std::string("]");
+
+            _exception = std::string("IqOutRosGetter::map_indices: could not find") +
+                         concatenated1 +
+                         std::string(" in ") +
+                         concatenated2 +
+                         std::string(" .\n");
+
+            throw std::invalid_argument(_exception);
+
+        }
+
+//        _time_ref = aux_sig.stamp.toSec(); // this time will be used as a reference
+
+        _jnt_mapping_done = true; // mapping done
+
+    }
+
+    if(aux_sig.name.size() != _n_jnts_aux_sig)
+    {
+        _exception = std::string("IqOutRosGetter::aux_mapper: joint number in aux signal changed from ") +
+                     std::to_string(_n_jnts_aux_sig) +
+                     std::string(" to ") +
+                     std::to_string(aux_sig.name.size());
+
+        throw std::invalid_argument(_exception);
+    }
+
+    for (int i = 0; i < _n_jnts_req; i++) // we loop through all jnt_names requested by the user
+        // in the same order they were provided.
+    {
+        if (aux_sig.aux_type[_indices[i]].find(_iq_out_sig_basename) != std::string::npos)
+        { // check that we are reading an iq out aux type message (we might have other aux signal
+          // types mixed together)
+
+            int encoded_type = get_aux_type_code(aux_sig.aux_type[_indices[i]]); // we retrieve the unique ID associated
+            // to this aux message type
+            _msg_type_remapped[i] = encoded_type;
+            _msg_value_remapped[i] = aux_sig.aux_value[_indices[i]];
+
+//            _timestamps[i] = aux_sig.header.stamp.toSec() - _time_ref;// getting timestamp
+
+        }
+
+    }
+
+    return std::make_tuple(_msg_type_remapped, _msg_value_remapped);
+}
+
+#endif
+
+std::tuple<std::vector<int>, std::vector<double>> IqOutRosGetter::aux_mapper_ros(const xbot_msgs::CustomState& aux_sig)
 {
 
     /**
@@ -493,7 +589,32 @@ std::tuple<std::vector<int>, std::vector<double>> IqOutRosGetter::aux_mapper(con
     return std::make_tuple(_msg_type_remapped, _msg_value_remapped);
 }
 
-void IqOutRosGetter::on_aux_signal_received(const xbot_msgs::CustomState& aux_sig)
+void IqOutRosGetter::on_aux_signal_received_ros(const xbot_msgs::CustomState& aux_sig)
+{
+
+    if (_verbose)
+    {
+        fprintf( stderr, "\n aux message received \n");
+    }
+
+    auto remapped_aux_tuple = aux_mapper_ros(aux_sig); // de-multiplexing aux types
+    // (an aux signal may contain different aux types with random ordering).
+    // at each sample, the message contains. for each joint, the aux signal values and the associated
+    // aux type name.
+
+    std::vector<double> ordered_vals = std::get<1>(remapped_aux_tuple); // we get
+    // the second element of the tuple, i.e. the aux values which, after the remapping,
+    // are guaranteed to be ordered as the _jnt_names provided by the user
+
+    double* ptr = &ordered_vals[0]; // we get the pointer to the first value of the array
+
+    _iq_out_fb = Eigen::Map<Eigen::VectorXd>(ptr, ordered_vals.size()); // and map it to an Eigen type vector
+
+}
+
+#if defined(EC_XBOT2_CLIENT_FOUND)
+
+void IqOutRosGetter::on_aux_signal_received(const XBot::Hal::JointEcAux& aux_sig)
 {
 
     if (_verbose)
@@ -515,3 +636,5 @@ void IqOutRosGetter::on_aux_signal_received(const xbot_msgs::CustomState& aux_si
     _iq_out_fb = Eigen::Map<Eigen::VectorXd>(ptr, ordered_vals.size()); // and map it to an Eigen type vector
 
 }
+
+#endif
