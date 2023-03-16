@@ -1053,20 +1053,6 @@ void RotDynCal::shift_data()
     // data are shifted towards the back starting from the penultimate sample
 //    // up to the latest one
 
-//    for (int jnt = 0; jnt < _n_jnts; jnt++)
-//    { // shifting data for each joint
-
-//        for (int i = (_window_size - 1) - 1; i >= 0; i--)
-//        {
-//            _alpha_d0(i + 1 + _window_size * jnt) = _alpha_d0(i + _window_size * jnt);
-//            _alpha_d1(i + 1 + _window_size * jnt) = _alpha_d1(i + _window_size * jnt);
-//            _alpha_kt(i + 1 + _window_size * jnt) = _alpha_kt(i + _window_size * jnt);
-//            _alpha_inertial(i + 1 + _window_size * jnt) = _alpha_inertial(i + _window_size * jnt);
-//            _alpha_tlink(i + 1 + _window_size * jnt) = _alpha_tlink(i + _window_size * jnt);
-//        }
-
-//    }
-
         for (int jnt = 0; jnt < _n_jnts; jnt++)
         { // shifting data for each joint
 
@@ -1273,7 +1259,7 @@ void RotDynCal::set_ig_MoI(Eigen::VectorXd& ig_rot_MoI)
     }
     else
     {
-        std::string warning = std::string("RotDynCal::set_ig_Kt(): dimension mismatch -> \n") +
+        std::string warning = std::string("RotDynCal::set_ig_MoI(): dimension mismatch -> \n") +
                                 std::string("ig_rot_MoI length: ") + std::to_string(_ig_rot_MoI.size()) + std::string("\n") +
                                 std::string("which do not match the required length of: ") + std::to_string(_n_jnts);
 
@@ -1385,14 +1371,6 @@ void RotDynCal::assemble_Alpha()
     _Alpha.block(0, 1, _Alpha.rows(), 1).noalias() = _alpha_d0;
     _Alpha.block(0, 2, _Alpha.rows(), 1).noalias() = _alpha_d1;
     _Alpha.block(0, 3, _Alpha.rows(), 1).noalias() = _alpha_inertial;
-
-//    for(int sample = 0; sample < _window_size * _n_jnts; sample++)
-//    {
-//        _Alpha(sample, 0) = _alpha_kt(sample);
-//        _Alpha(sample, 1) = _alpha_d0(sample);
-//        _Alpha(sample, 2) = _alpha_d1(sample);
-//        _Alpha(sample, 3) = _alpha_inertial(sample);
-//    }
 
 }
 
