@@ -846,15 +846,13 @@ RotDynCal::RotDynCal(int window_size,
     _verbose{verbose}
 {
 
-    // the linear regression problem (for a single joint) is written as
-    // A * X = - alpha_
-    // where A is obtained as [alpha_d0, alpha_d1]
-    // and tau_friction_measured is the "measurement" of the fictitious additional
-    // friction torque
-    // The (unconstrained) optimization problem to be solved is
-    // min_{Kd} ||(A * Kd - tau_friction_measured)||^2
-    // which is solved by Kd_opt = A_+ * tau_friction_measured
-    // This least squared problem can be easily solved employing the builtin
+    // The linear regression problem (for a single joint) is written as
+    // unconstrained minimization problem
+    // min_{x} ||(A * x - b)||^2
+    // where A and b also hold a suitable regularization term around the ig,
+    // which can be updated at runtime by the user (for example using the previous solution
+    // to promote convergence).
+    // This least squared problem can be easily solved employing the built-in
     // utilities of Eigen library (@ https://eigen.tuxfamily.org/dox/group__TutorialLinearAlgebra.html)
 
     _n_jnts = red_ratio.size();
@@ -891,15 +889,13 @@ RotDynCal::RotDynCal(int window_size,
     _verbose{verbose}
 {
 
-    // the linear regression problem (for a single joint) is written as
-    // A * Kd = tau_friction_measured
-    // where A is obtained as [alpha_d0, alpha_d1]
-    // and tau_friction_measured is the "measurement" of the fictitious additional
-    // friction torque
-    // The (unconstrained) optimization problem to be solved is
-    // min_{Kd} ||(A * Kd - tau_friction_measured)||^2
-    // which is solved by Kd_opt = A_+ * tau_friction_measured
-    // This least squared problem can be easily solved employing the builtin
+    // The linear regression problem (for a single joint) is written as
+    // unconstrained minimization problem
+    // min_{x} ||(A * x - b)||^2
+    // where A and b also hold a suitable regularization term around the ig,
+    // which can be updated at runtime by the user (for example using the previous solution
+    // to promote convergence).
+    // This least squared problem can be easily solved employing the built-in
     // utilities of Eigen library (@ https://eigen.tuxfamily.org/dox/group__TutorialLinearAlgebra.html)
 
     _n_jnts = red_ratio.size();
