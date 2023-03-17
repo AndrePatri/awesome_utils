@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(awesome_utils VERSION 1.0.0 LANGUAGES CXX)
 
-option(WITH_XBOT2 "Compile and install xbot2-dependent comonents" FALSE)
+option(WITH_XBOT2 "Compile and install xbot2-dependent components" TRUE)
 option(WITH_PYTHON "Compile and install python bindings" TRUE)
 option(WITH_DOCS "Compile documentation" FALSE)
 option(BUILD_TESTS "Compile ${PROJECT_NAME} tests" FALSE)
@@ -15,7 +15,7 @@ find_package(pinocchio REQUIRED)
 find_package(matlogger2 REQUIRED)
 
 if(${WITH_XBOT2})
-    message(STATUS "The xbot2-dependent components will be built")
+    message(STATUS "XBot2-dependent components will be built")
     set(XBOT2_UTILS_TRGT src/xbot2_utils.cpp)
     find_package(xbot_msgs REQUIRED)
     find_package(xbot2 REQUIRED)
@@ -25,6 +25,8 @@ if(${WITH_XBOT2})
     if(ec_xbot2_client_FOUND)
 
       add_definitions(-DEC_XBOT2_CLIENT_FOUND) # to be used by xbot2_utils executable
+      # this option will expose methods which employ messages defined by xbot2_client
+      # and read directly from XBot2 internal topics, for minimum latency.
 
     endif()
 
