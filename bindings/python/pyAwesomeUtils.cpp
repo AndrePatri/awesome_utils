@@ -1,18 +1,29 @@
+#if defined(WITH_MODEL_INTERFACE)
 #include "include/awesome_utils/model_interface.hpp"
-
-#include "include/awesome_utils/calib_utils.hpp"
-#include "include/awesome_utils/sign_proc_utils.hpp"
-
 #include "include/awesome_utils/contact_est_utils.hpp"
+#endif
+
+#include "include/awesome_utils/sign_proc_utils.hpp"
+#include "include/awesome_utils/traj_utils.hpp"
+#include "include/awesome_utils/calib_utils.hpp"
+
+#if defined(WITH_XBOT2)
+#include "include/awesome_utils/power_utils.hpp"
+#endif
 
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>
 #include <pybind11/stl.h>
 
 namespace py = pybind11;
-using namespace ModelInterface;
+
+//************* Signal processing utilities bindings *************//
+
+#if defined(WITH_MODEL_INTERFACE)
 
 //************* Model interface bindings *************//
+
+using namespace ModelInterface;
 
 auto construct_model_interface = [](std::string urdf_path, bool add_floating_jnt)
 {
@@ -158,7 +169,20 @@ auto get_J_dot = [](Model& self,
 
 };
 
+#endif
+
+#if defined(WITH_XBOT2)
+
+//************* Power utils bindings *************//
+
+#endif
+
 PYBIND11_MODULE(awesome_pyutils, m) {
+
+    // signal processing utilities
+
+    // model interface
+    #if defined(WITH_MODEL_INTERFACE)
 
     py::enum_<Model::ReferenceFrame>(m, "ReferenceFrame", py::arithmetic())
                 .value("WORLD", Model::ReferenceFrame::WORLD)
@@ -196,6 +220,13 @@ PYBIND11_MODULE(awesome_pyutils, m) {
             .def("update", &Model::update)
 
             ;
+    #endif
+
+    // power utilities
+    #if defined(WITH_XBOT2)
+
+
+    #endif
 
 }
 

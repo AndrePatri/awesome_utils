@@ -8,7 +8,13 @@ if(${pybind11_FOUND})
     message(STATUS "Python bindings will be compiled")
     include_directories(${CMAKE_CURRENT_SOURCE_DIR})
     pybind11_add_module(awesome_pyutils pyAwesomeUtils.cpp)
-    target_link_libraries(awesome_pyutils PUBLIC awesome_utils)
+    set(PYBIND_LIB_LINKS awesome_utils)
+    if(${WITH_XBOT2})
+        list(APPEND PYBIND_LIB_LINKS
+            xbot2::xbot2 xbot2::xbot2_ros_support)
+    endif()
+
+    target_link_libraries(awesome_pyutils PUBLIC ${PYBIND_LIB_LINKS})
 
     # get python install path
     execute_process(

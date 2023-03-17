@@ -30,27 +30,20 @@ set(TestLibs awesome_utils ${GTEST_BOTH_LIBRARIES} -lm -lpthread)
 include_directories(${GTEST_INCLUDE_DIRS})
 link_directories(${GTEST_LIB_DIRS})
 
-add_executable(TestModelInterface test_model_interface.cpp)
-target_link_libraries(TestModelInterface ${TestLibs})
-add_test(NAME TestModelInterface COMMAND TestModelInterface)
+if(${WITH_MODEL_INTERFACE})
+    add_executable(TestModelInterface test_model_interface.cpp)
+    target_link_libraries(TestModelInterface ${TestLibs})
+    add_test(NAME TestModelInterface COMMAND TestModelInterface)
 
-add_executable(TestContactEst test_contact_est.cpp)
-target_link_libraries(TestContactEst ${TestLibs})
-add_test(NAME TestContactEst COMMAND TestContactEst)
+    add_executable(TestContactEst test_contact_est.cpp)
+    target_link_libraries(TestContactEst ${TestLibs})
+    add_test(NAME TestContactEst COMMAND TestContactEst)
 
-if(${WITH_XBOT2})
-
-    find_package(xbot2 REQUIRED)
-    add_executable(TestIqOutRosGetter test_iq_out_ros_getter.cpp)
-    target_link_libraries(TestIqOutRosGetter ${TestLibs} xbot2::xbot2 xbot2::xbot2_ros_support)
-    add_test(NAME TestIqOutRosGetter COMMAND TestIqOutRosGetter)
+    #add_executable(TestCartImp test_cart_imp_utils.cpp)
+    #target_link_libraries(TestCartImp ${TestLibs})
+    #add_test(NAME TestCartImp COMMAND TestCartImp)
 
 endif()
-
-
-#add_executable(TestCartImp test_cart_imp_utils.cpp)
-#target_link_libraries(TestCartImp ${TestLibs})
-#add_test(NAME TestCartImp COMMAND TestCartImp)
 
 install(FILES ${CMAKE_DEF_CONFIG_GENDIR}/${CMAKE_DEF_CONFIG_FNAME}.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
