@@ -40,7 +40,7 @@ namespace PowerUtils{
 
             ~RegEnergy();
 
-            RegEnergy(IqRosGetter::Ptr iq_meas,
+            RegEnergy(IqOutRosGetter::Ptr iq_meas,
                       IqEstimator::Ptr iq_est,
                       Eigen::VectorXd R,
                       Eigen::VectorXd L_leak, Eigen::VectorXd L_m,
