@@ -100,8 +100,8 @@ if(${WITH_XBOT2})# we add xbot2-dependent components
     list(APPEND ${LIBRARY_TARGET_NAME}_INCLUDE_DIRECTORIES
         include/xbot2_utils/ ${xbot_msgs_INCLUDE_DIRS}/)
 
-    list(APPEND ${LIBRARY_TARGET_NAME}_INTERFACE_DIRECTORIES
-        include/xbot2_utils/ ${xbot_msgs_INCLUDE_DIRS}/)
+#    list(APPEND ${LIBRARY_TARGET_NAME}_INTERFACE_DIRECTORIES
+#        include/xbot2_utils/ ${xbot_msgs_INCLUDE_DIRS}/)
 
     list(APPEND ${LIBRARY_TARGET_NAME}_LIB_LINKS
         xbot2::xbot2 xbot2::xbot2_ros_support)
@@ -116,8 +116,8 @@ if(${WITH_MODEL_INTERFACE}) # we add the model interface and all dependet-compon
     list(APPEND ${LIBRARY_TARGET_NAME}_INCLUDE_DIRECTORIES
         ${pinocchio_INCLUDE_DIRS})
 
-    list(APPEND ${LIBRARY_TARGET_NAME}_INTERFACE_DIRECTORIES
-        include/xbot2_utils/ ${pinocchio_INCLUDE_DIRS}/)
+#    list(APPEND ${LIBRARY_TARGET_NAME}_INTERFACE_DIRECTORIES
+#        include/xbot2_utils/ ${pinocchio_INCLUDE_DIRS}/)
 
     list(APPEND ${LIBRARY_TARGET_NAME}_LIB_LINKS
         pinocchio::pinocchio)
