@@ -83,6 +83,10 @@ set(${LIBRARY_TARGET_NAME}_INCLUDE_DIRECTORIES
     ${matlogger2_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIR}/)
 
+set(${LIBRARY_TARGET_NAME}_INTERFACE_DIRECTORIES
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+    "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+
 set(${LIBRARY_TARGET_NAME}_LIB_LINKS
     Eigen3::Eigen
     pinocchio::pinocchio
@@ -94,6 +98,9 @@ if(${WITH_XBOT2})# we add xbot2-dependent components
         ${XBOT2_UTILS_TRGT} ${POWER_TRGT})
 
     list(APPEND ${LIBRARY_TARGET_NAME}_INCLUDE_DIRECTORIES
+        include/xbot2_utils/ ${xbot_msgs_INCLUDE_DIRS}/)
+
+    list(APPEND ${LIBRARY_TARGET_NAME}_INTERFACE_DIRECTORIES
         include/xbot2_utils/ ${xbot_msgs_INCLUDE_DIRS}/)
 
     list(APPEND ${LIBRARY_TARGET_NAME}_LIB_LINKS
@@ -109,11 +116,15 @@ if(${WITH_MODEL_INTERFACE}) # we add the model interface and all dependet-compon
     list(APPEND ${LIBRARY_TARGET_NAME}_INCLUDE_DIRECTORIES
         ${pinocchio_INCLUDE_DIRS})
 
+    list(APPEND ${LIBRARY_TARGET_NAME}_INTERFACE_DIRECTORIES
+        include/xbot2_utils/ ${pinocchio_INCLUDE_DIRS}/)
+
     list(APPEND ${LIBRARY_TARGET_NAME}_LIB_LINKS
         pinocchio::pinocchio)
 
 endif()
 
+message(STATUS "*********${pinocchio_INCLUDE_DIRS}/")
 add_library(${LIBRARY_TARGET_NAME} SHARED ${${LIBRARY_TARGET_NAME}_SRC})
 
 target_include_directories(${LIBRARY_TARGET_NAME} PRIVATE ${${LIBRARY_TARGET_NAME}_INCLUDE_DIRECTORIES})
@@ -132,13 +143,7 @@ endif()
 
 target_compile_definitions(${LIBRARY_TARGET_NAME} PRIVATE -DAWESOMEUTILS_LIB_EXT="${LIB_EXT}")
 
-#target_include_directories(${LIBRARY_TARGET_NAME} INTERFACE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-#                                                            "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>"
-#                                                            ${EIGEN3_INCLUDE_DIR}
-#                                                            ${xbot_msgs_INCLUDE_DIRS}
-#                                                            ${pinocchio_INCLUDE_DIRS}
-#                                                            ${matlogger2_INCLUDE_DIRS}
-#)
+target_include_directories(${LIBRARY_TARGET_NAME} INTERFACE ${${LIBRARY_TARGET_NAME}_INTERFACE_DIRECTORIES})
 
 include_directories(${${LIBRARY_TARGET_NAME}_INCLUDE_DIRECTORIES}) # exposes include dirs also to downstream packages (i.e. py bindings and tests)
 
