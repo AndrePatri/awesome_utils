@@ -28,7 +28,7 @@ namespace Xbot2Utils{
     using namespace XBot;
 
     class IqRosGetter
-    {
+    { // **** DEPRECATED ****//
 
       public:
 
