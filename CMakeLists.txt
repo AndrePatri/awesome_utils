@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(awesome_utils VERSION 1.0.0 LANGUAGES CXX)
 
-option(WITH_XBOT2 "Compile and install xbot2-dependent components" TRUE)
+option(WITH_XBOT2 "Compile and install xbot2-dependent components" FALSE)
 if(${WITH_XBOT2})
     message(STATUS "XBot2-dependent components will be built")
     add_definitions(-DWITH_XBOT2) # can be used by preprocessor macros
