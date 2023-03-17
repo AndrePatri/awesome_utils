@@ -847,7 +847,7 @@ RotDynCal::RotDynCal(int window_size,
 {
 
     // the linear regression problem (for a single joint) is written as
-    // A * Kd = tau_friction_measured
+    // A * X = - alpha_
     // where A is obtained as [alpha_d0, alpha_d1]
     // and tau_friction_measured is the "measurement" of the fictitious additional
     // friction torque
@@ -1043,15 +1043,16 @@ void RotDynCal::add_sample(Eigen::VectorXd& q_dot,
 void RotDynCal::shift_data()
 {
     // shifting data
-    //              jnt0           jnt1            jnt(n-1)
-    // data: |_______________|________________| ------------ |
+    //              jnt0           jnt1                     jnt(n-1)
+    // data: |_______________|________________|-------|________________|
     //        .             .
     //        |             |
     //     latest        oldest
     //     sample        sample
-    //
+    //      for           for
+    //      jnt0          jnt0
     // data are shifted towards the back starting from the penultimate sample
-//    // up to the latest one
+    // up to the latest one
 
 //    for (int jnt = 0; jnt < _n_jnts; jnt++)
 //    { // shifting data for each joint
