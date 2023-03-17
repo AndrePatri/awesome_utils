@@ -3,6 +3,7 @@
 using namespace Xbot2Utils;
 
 //************* IqRosGetter *************//
+//************* DEPRECATED *************//
 
 IqRosGetter::IqRosGetter(double dt,
                          bool verbose,
