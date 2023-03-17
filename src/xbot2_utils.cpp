@@ -490,6 +490,12 @@ std::tuple<std::vector<int>, std::vector<double>> IqOutRosGetter::aux_mapper(con
 
         }
 
+        if (_verbose)
+        {
+            fprintf( stderr, "\n Signal type: %s\n", aux_sig.aux_type[_indices[i]].c_str());
+            fprintf( stderr, "\n Signal value: %f\n", aux_sig.aux_value[_indices[i]]);
+        }
+
     }
 
     return std::make_tuple(_msg_type_remapped, _msg_value_remapped);
@@ -585,6 +591,12 @@ std::tuple<std::vector<int>, std::vector<double>> IqOutRosGetter::aux_mapper_ros
 
         }
 
+        if (_verbose)
+        {
+            fprintf( stderr, "\n Signal type: %s\n", aux_sig.type[_indices[i]].c_str());
+            fprintf( stderr, "\n Signal value: %f\n", aux_sig.value[_indices[i]]);
+        }
+
     }
 
     return std::make_tuple(_msg_type_remapped, _msg_value_remapped);
@@ -595,7 +607,7 @@ void IqOutRosGetter::on_aux_signal_received_ros(const xbot_msgs::CustomState& au
 
     if (_verbose)
     {
-        fprintf( stderr, "\n aux message received \n");
+        fprintf( stderr, "\n aux message received (from ros) \n");
     }
 
     auto remapped_aux_tuple = aux_mapper_ros(aux_sig); // de-multiplexing aux types
@@ -620,7 +632,7 @@ void IqOutRosGetter::on_aux_signal_received(const XBot::Hal::JointEcAux& aux_sig
 
     if (_verbose)
     {
-        fprintf( stderr, "\n aux message received \n");
+        fprintf( stderr, "\n aux message received (from internal topics)\n");
     }
 
     auto remapped_aux_tuple = aux_mapper(aux_sig); // de-multiplexing aux types
