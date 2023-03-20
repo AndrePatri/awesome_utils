@@ -181,10 +181,10 @@ namespace Xbot2Utils{
 
         int get_aux_type_code(std::string msg_type);
 
-        std::tuple<std::vector<int>, std::vector<double>> aux_mapper_ros(const xbot_msgs::CustomState& aux_sig);
+        void aux_mapper_ros(const xbot_msgs::CustomState& aux_sig);
 
         #if defined(EC_XBOT2_CLIENT_FOUND)
-        std::tuple<std::vector<int>, std::vector<double>> aux_mapper(const XBot::Hal::JointEcAux& aux_sig);
+        void aux_mapper(const XBot::Hal::JointEcAux& aux_sig);
         #endif
 
     };

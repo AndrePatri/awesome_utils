@@ -402,7 +402,7 @@ std::vector<int> IqOutRosGetter::map_indices(std::vector<T> input_v1, std::vecto
 }
 
 #if defined(EC_XBOT2_CLIENT_FOUND)
-std::tuple<std::vector<int>, std::vector<double>> IqOutRosGetter::aux_mapper(const XBot::Hal::JointEcAux& aux_sig)
+void IqOutRosGetter::aux_mapper(const XBot::Hal::JointEcAux& aux_sig)
 {
 
     /**
@@ -498,12 +498,11 @@ std::tuple<std::vector<int>, std::vector<double>> IqOutRosGetter::aux_mapper(con
 
     }
 
-    return std::make_tuple(_msg_type_remapped, _msg_value_remapped);
 }
 
 #endif
 
-std::tuple<std::vector<int>, std::vector<double>> IqOutRosGetter::aux_mapper_ros(const xbot_msgs::CustomState& aux_sig)
+void IqOutRosGetter::aux_mapper_ros(const xbot_msgs::CustomState& aux_sig)
 {
 
     /**
@@ -599,7 +598,6 @@ std::tuple<std::vector<int>, std::vector<double>> IqOutRosGetter::aux_mapper_ros
 
     }
 
-    return std::make_tuple(_msg_type_remapped, _msg_value_remapped);
 }
 
 void IqOutRosGetter::on_aux_signal_received_ros(const xbot_msgs::CustomState& aux_sig)
@@ -610,18 +608,14 @@ void IqOutRosGetter::on_aux_signal_received_ros(const xbot_msgs::CustomState& au
         fprintf( stderr, "\n aux message received (from ros) \n");
     }
 
-    auto remapped_aux_tuple = aux_mapper_ros(aux_sig); // de-multiplexing aux types
+    aux_mapper_ros(aux_sig); // de-multiplexing aux types
     // (an aux signal may contain different aux types with random ordering).
     // at each sample, the message contains. for each joint, the aux signal values and the associated
     // aux type name.
 
-    std::vector<double> ordered_vals = std::get<1>(remapped_aux_tuple); // we get
-    // the second element of the tuple, i.e. the aux values which, after the remapping,
-    // are guaranteed to be ordered as the _jnt_names provided by the user
+    double* ptr = &_msg_value_remapped[0]; // we get the pointer to the first value of the array
 
-    double* ptr = &ordered_vals[0]; // we get the pointer to the first value of the array
-
-    _iq_out_fb = Eigen::Map<Eigen::VectorXd>(ptr, ordered_vals.size()); // and map it to an Eigen type vector
+    _iq_out_fb = Eigen::Map<Eigen::VectorXd>(ptr, _msg_value_remapped.size()); // and map it to an Eigen vector
 
 }
 
@@ -635,18 +629,14 @@ void IqOutRosGetter::on_aux_signal_received(const XBot::Hal::JointEcAux& aux_sig
         fprintf( stderr, "\n aux message received (from internal topics)\n");
     }
 
-    auto remapped_aux_tuple = aux_mapper(aux_sig); // de-multiplexing aux types
+    aux_mapper(aux_sig); // de-multiplexing aux types
     // (an aux signal may contain different aux types with random ordering).
     // at each sample, the message contains. for each joint, the aux signal values and the associated
     // aux type name.
 
-    std::vector<double> ordered_vals = std::get<1>(remapped_aux_tuple); // we get
-    // the second element of the tuple, i.e. the aux values which, after the remapping,
-    // are guaranteed to be ordered as the _jnt_names provided by the user
+    double* ptr = &_msg_value_remapped[0]; // we get the pointer to the first value of the array
 
-    double* ptr = &ordered_vals[0]; // we get the pointer to the first value of the array
-
-    _iq_out_fb = Eigen::Map<Eigen::VectorXd>(ptr, ordered_vals.size()); // and map it to an Eigen type vector
+    _iq_out_fb = Eigen::Map<Eigen::VectorXd>(ptr, _msg_value_remapped.size()); // and map it to an Eigen type vector
 
 }
 
