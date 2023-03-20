@@ -308,7 +308,7 @@ void IqOutRosGetter::get_jnt_names(std::vector<std::string>& jnt_names)
 
 }
 
-bool IqOutRosGetter::is_iq_out_topic_active()
+bool IqOutRosGetter::is_joint_mapping_done()
 {
 
     if(_jnt_mapping_done)
@@ -404,14 +404,6 @@ std::vector<int> IqOutRosGetter::map_indices(std::vector<T> input_v1, std::vecto
 #if defined(EC_XBOT2_CLIENT_FOUND)
 void IqOutRosGetter::aux_mapper(const XBot::Hal::JointEcAux& aux_sig)
 {
-
-    /**
-    Loops through the chains and their joints and, based on the received message, assigns the IDs associated with each message type.
-
-    @param msg Input message
-    @return A vector of signal IDs with dimension (number of chains)*(number of joints)
-    */
-
 
     if (!_jnt_mapping_done)
     { // this runs only the first time an aux message is received

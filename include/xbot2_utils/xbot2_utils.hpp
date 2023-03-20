@@ -118,25 +118,27 @@ namespace Xbot2Utils{
                        double mov_avrg_cutoff_freq = 15.0,
                        bool verbose = false);
 
-        void on_aux_signal_received_ros(const xbot_msgs::CustomState& aux_sig);
+        void on_aux_signal_received_ros(const xbot_msgs::CustomState& aux_sig); // gets iq measurements from
+        // the ROS interface (high latencies are expected)
 
         #if defined(EC_XBOT2_CLIENT_FOUND)
-        void on_aux_signal_received(const XBot::Hal::JointEcAux& aux_sig);
+        void on_aux_signal_received(const XBot::Hal::JointEcAux& aux_sig); // uses internal xbot2 topics
+        // for minimum latency
         #endif
 
-        void on_js_signal_received(const xbot_msgs::JointState& js_sig);
+        void get_last_iq_out(Eigen::VectorXd& iq_out_fb); // get latest read iq measurement
 
-        void get_last_iq_out(Eigen::VectorXd& iq_out_fb);
+        void get_last_iq_out_filt(Eigen::VectorXd& iq_out_fb_filt); // gets latest (filtered) iq measurement
 
-        void get_last_iq_out_filt(Eigen::VectorXd& iq_out_fb_filt);
+        void get_last_iq_out_stamps(Eigen::VectorXd& timestamps); // gets timestamps of latest iq measurement
 
-        void get_last_iq_out_stamps(Eigen::VectorXd& timestamps);
+        void get_time_reference(double& t_ref); // gets the time reference w.r.t. the timestamps are returned
 
-        void get_time_reference(double& t_ref);
+        bool is_joint_mapping_done(); // check whether the mapping between the aux signal and the user-set
+        // desired joints was performed (which is true after the first aux signal was received)
 
-        bool is_iq_out_topic_active();
-
-        void get_jnt_names(std::vector<std::string>& jnt_names);
+        void get_jnt_names(std::vector<std::string>& jnt_names); // returns the joints names given by the user upon
+        // class initialization
 
       private:
 
@@ -159,17 +161,19 @@ namespace Xbot2Utils{
 
         int _n_jnts_req = -1, _n_jnts_aux_sig = -1;
 
-        std::vector<int> _indices; // for holding the joint mapping
+        std::vector<int> _indices; // for holding the joint mapping between the user-provided joint names and
+        // the ones present in the aux signal
 
-        std::map<std::string, int> _aux_msg_type_map;
-        std::vector<std::string> _jnt_names;
+        std::map<std::string, int> _aux_msg_type_map; // map between the message type name and its unique ID
+        std::vector<std::string> _jnt_names; // desired joints, to be provided by the user upon initialization
 
-        std::vector<double> _msg_value_remapped; // output vector for msg values
-        std::vector<int> _msg_type_remapped; // output vector for msg types
+        std::vector<double> _msg_value_remapped; // holds the reordered message values
+        std::vector<int> _msg_type_remapped; // for each message value, holds the ID associated with the value
 
-        Eigen::VectorXd _iq_out_fb, _timestamps;
+        Eigen::VectorXd _iq_out_fb; // vector of ordered (as _jnt_names) iq measurements
+        Eigen::VectorXd _timestamps; // vector of ordered (as _jnt_names) iq timestamps
 
-        MovAvrgFilt _mov_avrg_filter;
+        MovAvrgFilt _mov_avrg_filter; // internal filter for the measurements
 
         void init_vars();
 
