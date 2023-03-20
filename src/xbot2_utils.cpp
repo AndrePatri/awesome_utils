@@ -450,7 +450,7 @@ void IqOutRosGetter::aux_mapper(const XBot::Hal::JointEcAux& aux_sig)
 
         }
 
-//        _time_ref = aux_sig.stamp.toSec(); // this time will be used as a reference
+        _time_ref = aux_sig.stamp.time_since_epoch().count(); // this time will be used as a reference
 
         _jnt_mapping_done = true; // mapping done
 
@@ -478,7 +478,7 @@ void IqOutRosGetter::aux_mapper(const XBot::Hal::JointEcAux& aux_sig)
             _msg_type_remapped[i] = encoded_type;
             _msg_value_remapped[i] = aux_sig.aux_value[_indices[i]];
 
-//            _timestamps[i] = aux_sig.header.stamp.toSec() - _time_ref;// getting timestamp
+            _timestamps[i] = aux_sig.stamp.time_since_epoch().count() - _time_ref;// getting timestamp
 
         }
 

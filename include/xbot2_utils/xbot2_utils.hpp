@@ -10,6 +10,7 @@
 #include <xbot2/ros/ros_support.h>
 #include <xbot_msgs/CustomState.h>
 #include <xbot_msgs/JointState.h>
+#include <xbot2/system/clock.h>
 
 #if defined(EC_XBOT2_CLIENT_FOUND)
     #include <ec_xbot2/joint_ec.h>
@@ -22,6 +23,7 @@
 #include "../awesome_utils/sign_proc_utils.hpp"
 
 using namespace SignProcUtils;
+using namespace XBot::chrono;
 
 namespace Xbot2Utils{
 
