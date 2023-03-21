@@ -179,6 +179,8 @@ namespace TrajUtils{
 
             void get_stuff(double& phase_omega, double& _ramp_up, double& omega_k, double& time_ref);
 
+            void reset();
+
         private:
 
             bool _ramp_up = true, _not_revered_yet = true;

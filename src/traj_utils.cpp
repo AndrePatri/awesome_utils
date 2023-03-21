@@ -792,6 +792,11 @@ SweepCos::SweepCos(double& omega0, double& omegaf, double& T_omega,
     _aux_vect = Eigen::VectorXd::Zero(1);
 }
 
+void SweepCos::reset()
+{
+    _omega_k = 0;
+}
+
 void SweepCos::eval_at(double& time, double& val, double& val_dot, double& val_ddot)
 {
 
