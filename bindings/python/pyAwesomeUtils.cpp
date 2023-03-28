@@ -79,6 +79,26 @@ auto construct_rot_dyn_cal2 = [](int window_size,
     return rot_cal_ptr;
 };
 
+auto get_sol_millis = [](RotDynCal& self)
+{
+    Eigen::VectorXd sol_millis;
+
+    self.get_sol_millis(sol_millis);
+
+    return sol_millis;
+};
+
+auto get_alpha_d = [](RotDynCal& self)
+{
+    Eigen::VectorXd alpha_d0;
+    Eigen::VectorXd alpha_d1;
+
+    self.get_alpha_d(alpha_d0, alpha_d1);
+
+    auto output = std::make_tuple(alpha_d0, alpha_d1);
+
+    return output;
+};
 
 #if defined(WITH_MODEL_INTERFACE)
 
@@ -304,9 +324,7 @@ PYBIND11_MODULE(awesome_pyutils, m) {
 
             .def("get_tau_friction", &RotDynCal::get_tau_friction,
                  py::arg("tau_friction"))
-            .def("get_alpha_d", &RotDynCal::get_alpha_d,
-                 py::arg("alpha_d0"),
-                 py::arg("alpha_d1"))
+            .def("get_alpha_d", get_alpha_d)
             .def("get_alpha_inertial", &RotDynCal::get_alpha_inertial,
                  py::arg("alpha_inertial"))
             .def("get_alpha_kt", &RotDynCal::get_alpha_kt,
@@ -317,8 +335,7 @@ PYBIND11_MODULE(awesome_pyutils, m) {
             .def("get_tau_inertial", &RotDynCal::get_tau_inertial,
                  py::arg("tau_inertial"))
 
-            .def("get_sol_millis", &RotDynCal::get_sol_millis,
-                 py::arg("millis"))
+            .def("get_sol_millis", get_sol_millis)
 
             .def("get_cal_mask", &RotDynCal::get_cal_mask,
                  py::arg("cal_mask"))
