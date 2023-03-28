@@ -364,6 +364,10 @@ namespace CalibUtils{
 
       public:
 
+        typedef std::weak_ptr<RotDynCal> WeakPtr;
+        typedef std::shared_ptr<RotDynCal> Ptr;
+        typedef std::unique_ptr<RotDynCal> UniquePtr;
+
         RotDynCal();
 
         RotDynCal(int window_size,
@@ -402,7 +406,7 @@ namespace CalibUtils{
 
         void set_lambda(Eigen::VectorXd& lambda); // sets regularization [Kt, Kd0, Kd1, rot_MoI]
 
-        void set_lambda_high(Eigen::VectorXd& lambda); // high regularization aroung ig for inactive parameters
+        void set_lambda_high(Eigen::VectorXd& lambda_high); // high regularization aroung ig for inactive parameters
 
         void set_solution_mask(std::vector<bool>& mask); // mask to select which
         // rotor dynamics paramter/s to calibrate. Inactive paramters are assigned
