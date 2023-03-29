@@ -452,7 +452,144 @@ using namespace PowerUtils;
 
 #if defined(WITH_XBOT2)
 
+auto construct_reg_energy = [](IqOutRosGetter::Ptr iq_meas,
+                                IqEstimator::Ptr iq_est,
+                                Eigen::VectorXd R,
+                                Eigen::VectorXd L_leak, Eigen::VectorXd L_m,
+                                double bus_p_leak, // constant (assumed so) leak power due to bus losses
+                                double dt,
+                                bool use_iq_meas,
+                                bool dump_data2mat,
+                                std::string dump_path)
+{
+
+    RegEnergy::Ptr reg_energy;
+
+    reg_energy.reset(new reg_energy(iq_meas,
+                                    iq_est,
+                                    R,
+                                    L_leak, L_m,
+                                    bus_p_leak,
+                                    dt,
+                                    use_iq_meas,
+                                    dump_data2mat,
+                                    dump_path));
+
+    return reg_energy;
+
+};
+
+#else
+
+auto construct_reg_energy = [](IqEstimator::Ptr iq_est,
+                                Eigen::VectorXd R,
+                                Eigen::VectorXd L_leak, Eigen::VectorXd L_m,
+                                double bus_p_leak,
+                                double dt,
+                                bool use_iq_meas,
+                                bool dump_data2mat,
+                                std::string dump_path)
+{
+
+    RegEnergy::Ptr reg_energy;
+
+    reg_energy.reset(new RegEnergy(iq_est,
+                                    R,
+                                    L_leak, L_m,
+                                    bus_p_leak,
+                                    dt,
+                                    use_iq_meas,
+                                    dump_data2mat,
+                                    dump_path));
+
+    return reg_energy;
+
+};
+
 #endif
+
+namespace reg_energy{
+
+    auto get_p_tot(RegEnergy& self)
+    {
+        double p;
+
+        self.get_p(p);
+
+        return p;
+    }
+
+    auto get_e_tot(RegEnergy& self)
+    {
+        double e;
+
+        self.get_e(e);
+
+        return e;
+    }
+
+    auto get_p_terms(RegEnergy& self)
+    {
+        Eigen::VectorXd pk_joule, pk_mech, pk_indct;
+
+        self.get_p_terms(pk_joule, pk_mech, pk_indct);
+
+        auto output = std::make_tuple(pk_joule,
+                                      pk_mech,
+                                      pk_indct);
+
+        return output;
+    }
+
+    auto get_e_terms(RegEnergy& self)
+    {
+        Eigen::VectorXd ek_joule, ek_mech, ek_indct;
+
+        self.get_e_terms(ek_joule, ek_mech, ek_indct);
+
+        auto output = std::make_tuple(ek_joule,
+                                      ek_mech,
+                                      ek_indct);
+
+        return output;
+    }
+
+    auto get_current_e_recov(RegEnergy& self)
+    {
+        Eigen::VectorXd e_recov;
+
+        self.get_current_e_recov(e_recov);
+
+        return e_recov;
+    }
+
+    auto get_current_e_recov_tot(RegEnergy& self)
+    {
+        double e_recov;
+
+        self.get_current_e_recov(e_recov);
+
+        return e_recov;
+    }
+
+    auto get_p(RegEnergy& self)
+    {
+        Eigen::VectorXd p, _;
+
+        self.get(_, p);
+
+        return p;
+    }
+
+    auto get_e(RegEnergy& self)
+    {
+        Eigen::VectorXd e;
+
+        self.get(e);
+
+        return e;
+    }
+};
 
 #if defined(WITH_MODEL_INTERFACE)
 
@@ -816,10 +953,63 @@ PYBIND11_MODULE(awesome_pyutils, m) {
             ;
 
     // power utilities
-    #if defined(WITH_XBOT2)
+    py::class_<RegEnergy, std::shared_ptr<RegEnergy>>(m, "RegEnergy")
+            .def(py::init(construct_reg_energy),
+                 #if defined(WITH_XBOT2)
+                 py::arg("iq_meas"),
+                 py::arg("iq_est"),
+                 py::arg("R"),
+                 py::arg("L_leak"),
+                 py::arg("L_m"),
+                 py::arg("bus_p_leak"),
+                 py::arg("dt"),
+                 py::arg("use_iq_meas") = false,
+                 py::arg("dump_data2mat") = false,
+                 py::arg("dump_path") = "/tmp"
+                 #else
+                 py::arg("iq_est"),
+                 py::arg("R"),
+                 py::arg("L_leak"),
+                 py::arg("L_m"),
+                 py::arg("bus_p_leak"),
+                 py::arg("dt"),
+                 py::arg("use_iq_meas") = false,
+                 py::arg("dump_data2mat") = false,
+                 py::arg("dump_path") = "/tmp"
+                 #endif
+                 )
 
+            .def("set_e0", &RegEnergy::set_e0)
+            .def("set_omega_r", &RegEnergy::set_omega_r)
+            .def("update", &RegEnergy::update)
 
-    #endif
+            .def("enable_rec_energy_monitoring", &RegEnergy::enable_rec_energy_monitoring)
+            .def("disable_rec_energy_monitoring", &RegEnergy::disable_rec_energy_monitoring)
+            .def("reset_rec_energy", &RegEnergy::reset_rec_energy)
+
+            .def("set_log_buffsize", &RegEnergy::set_log_buffsize,
+                 py::arg("size"))
+
+            .def("add2log", &RegEnergy::add2log)
+
+            #if defined(WITH_XBOT2)
+            .def("use_filt_iq_meas", &RegEnergy::use_filt_iq_meas)
+            #endif
+
+            .def("get_p_tot", reg_energy::get_p_tot)
+            .def("get_e_tot", reg_energy::get_e_tot)
+
+            .def("get_p_terms", reg_energy::get_p_terms)
+            .def("get_e_terms", reg_energy::get_e_terms)
+
+            .def("get_current_e_recov", reg_energy::get_current_e_recov)
+            .def("get_current_e_recov_tot", reg_energy::get_current_e_recov_tot)
+
+            .def("get_p", reg_energy::get_p)
+            .def("get_e", reg_energy::get_e)
+
+            ;
+
 
     // model interface
     #if defined(WITH_MODEL_INTERFACE)

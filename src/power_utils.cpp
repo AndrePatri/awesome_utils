@@ -551,10 +551,14 @@ void RegEnergy::add2log()
 
 }
 
+#if defined(WITH_XBOT2)
+
 void RegEnergy::use_filt_iq_meas(bool filter_it)
 {
     _use_filt_iq_meas =  filter_it;
 }
+
+#endif
 
 void RegEnergy::enable_rec_energy_monitoring()
 {

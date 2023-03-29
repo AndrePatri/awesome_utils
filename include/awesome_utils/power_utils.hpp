@@ -75,12 +75,13 @@ namespace PowerUtils{
 
             void update();
 
-            void get_p(double& p); // getter for the total (joint-wise sum) energy flowgin towards the power bus
+            void get_p(double& p); // getter for the total (joint-wise sum) energy flowing towards the power bus
             void get_e(double& e); // getter for the total (joint-wise sum) power
 
             void get(Eigen::VectorXd& ek);
 
-            void get(Eigen::VectorXd& ek, Eigen::VectorXd& pk);
+            void get(Eigen::VectorXd& ek,
+                     Eigen::VectorXd& pk);
 
             void get_p_terms(Eigen::VectorXd& _pk_joule,
                              Eigen::VectorXd& _pk_mech,
@@ -98,7 +99,10 @@ namespace PowerUtils{
 
             void set_log_buffsize(double size);
 
+            #if defined(WITH_XBOT2)
             void use_filt_iq_meas(bool filter_it = true);
+            #endif
+
             void add2log();
 
         private:
@@ -107,11 +111,11 @@ namespace PowerUtils{
 
             bool _is_first_update = true,
                  _dump_data2mat = false,
-                 _use_filt_iq_meas = true,
                  _start_rec_energy_monitor = false,
                  _stop_rec_energy_monitor = false;
 
-            bool _use_iq_meas = false;
+            bool _use_iq_meas = false,
+                _use_filt_iq_meas = true;
 
             std::string _dump_path = "\tmp";
 
