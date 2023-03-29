@@ -7,9 +7,7 @@
 #include "include/awesome_utils/traj_utils.hpp"
 #include "include/awesome_utils/calib_utils.hpp"
 
-#if defined(WITH_XBOT2)
 #include "include/awesome_utils/power_utils.hpp"
-#endif
 
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>
@@ -447,11 +445,12 @@ namespace rot_dyn_cal{
 
 };
 
-#if defined(WITH_XBOT2)
 
 //************* Power utils bindings *************//
 
 using namespace PowerUtils;
+
+#if defined(WITH_XBOT2)
 
 #endif
 
@@ -816,6 +815,11 @@ PYBIND11_MODULE(awesome_pyutils, m) {
 
             ;
 
+    // power utilities
+    #if defined(WITH_XBOT2)
+
+
+    #endif
 
     // model interface
     #if defined(WITH_MODEL_INTERFACE)
@@ -856,12 +860,6 @@ PYBIND11_MODULE(awesome_pyutils, m) {
             .def("update", &Model::update)
 
             ;
-    #endif
-
-    // power utilities
-    #if defined(WITH_XBOT2)
-
-
     #endif
 
 }
