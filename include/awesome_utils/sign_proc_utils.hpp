@@ -9,6 +9,7 @@
 
 #include <map>
 #include <vector>
+#include <memory>
 
 namespace SignProcUtils{
 
@@ -17,6 +18,10 @@ namespace SignProcUtils{
     class NumDiff
     {
       public:
+
+        typedef std::weak_ptr<NumDiff> WeakPtr;
+        typedef std::shared_ptr<NumDiff> Ptr;
+        typedef std::unique_ptr<NumDiff> UniquePtr;
 
         NumDiff();
 
@@ -54,6 +59,10 @@ namespace SignProcUtils{
     {
       public:
 
+        typedef std::weak_ptr<NumInt> WeakPtr;
+        typedef std::shared_ptr<NumInt> Ptr;
+        typedef std::unique_ptr<NumInt> UniquePtr;
+
         NumInt();
 
         NumInt(int n_jnts, double dt, double T_horizon);
@@ -84,6 +93,10 @@ namespace SignProcUtils{
     class NumIntRt
     {
       public:
+
+        typedef std::weak_ptr<NumIntRt> WeakPtr;
+        typedef std::shared_ptr<NumIntRt> Ptr;
+        typedef std::unique_ptr<NumIntRt> UniquePtr;
 
         NumIntRt();
 
@@ -167,6 +180,10 @@ namespace SignProcUtils{
     {
         public:
 
+          typedef std::weak_ptr<MovAvrgFilt> WeakPtr;
+          typedef std::shared_ptr<MovAvrgFilt> Ptr;
+          typedef std::unique_ptr<MovAvrgFilt> UniquePtr;
+
           MovAvrgFilt();
 
           MovAvrgFilt(int n_jnts, double dt, int window_size = 10);
@@ -221,6 +238,10 @@ namespace SignProcUtils{
     class SignWithMem
     {
         public:
+
+           typedef std::weak_ptr<SignWithMem> WeakPtr;
+           typedef std::shared_ptr<SignWithMem> Ptr;
+           typedef std::unique_ptr<SignWithMem> UniquePtr;
 
             SignWithMem();
 
@@ -289,6 +310,10 @@ namespace SignProcUtils{
     class SmoooothSign
     {
         public:
+
+            typedef std::weak_ptr<SmoooothSign> WeakPtr;
+            typedef std::shared_ptr<SmoooothSign> Ptr;
+            typedef std::unique_ptr<SmoooothSign> UniquePtr;
 
             SmoooothSign();
 
