@@ -465,7 +465,7 @@ auto construct_reg_energy = [](IqOutRosGetter::Ptr iq_meas,
 
     RegEnergy::Ptr reg_energy;
 
-    reg_energy.reset(new reg_energy(iq_meas,
+    reg_energy.reset(new RegEnergy(iq_meas,
                                     iq_est,
                                     R,
                                     L_leak, L_m,
