@@ -4,6 +4,8 @@
 
 using namespace PowerUtils;
 
+#if defined(WITH_XBOT2)
+
 RegEnergy::RegEnergy(IqRosGetter::Ptr iq_meas,
                     IqEstimator::Ptr iq_est,
                     Eigen::VectorXd R,
@@ -135,6 +137,139 @@ RegEnergy::RegEnergy(IqRosGetter::Ptr iq_meas,
 
 }
 
+#else
+
+RegEnergy::RegEnergy(IqEstimator::Ptr iq_est,
+                    Eigen::VectorXd R,
+                    Eigen::VectorXd L_leak, Eigen::VectorXd L_m,
+                    double bus_p_leak,
+                    double dt,
+                    bool use_iq_meas,
+                    bool dump_data2mat,
+                    std::string dump_path)
+    :_iq_est{iq_est},
+     _R{R},
+     _L_leak{L_leak}, _L_m{L_m},
+     _bus_p_leak{bus_p_leak},
+     _dt{dt},
+     _use_iq_meas{use_iq_meas},
+     _dump_data2mat{dump_data2mat},
+     _dump_path{dump_path}
+{
+    _n_jnts = iq_est->get_n_jnts();
+    iq_est->get_Kt(_Kt);
+
+    // we check for dimension consistency between R, L_leak, Lm, K_t and the number of joints
+    int err = 0;
+    if(_R.size() != _n_jnts)
+    {
+        err = err + 1;
+    }
+    if(_L_leak.size() != _n_jnts)
+    {
+        err = err + 1;
+    }
+    if(_L_m.size() != _n_jnts)
+    {
+        err = err + 1;
+    }
+    if (err != 0)
+    {
+        std::string exception = std::string("RegEnergy::RegEnergy(): dimension mismatch of input data with error code: ") +
+                                std::to_string(err) + std::string("\n");
+
+        throw std::invalid_argument(exception);
+    }
+
+    _R_q = _R;
+
+    _L_q = _L_leak + 3/2 * _L_m;
+
+    _aux_1p1_vect_energy =  Eigen::VectorXd::Zero(1);
+    _aux_1p1_vect_power =  Eigen::VectorXd::Zero(1);
+
+    _iq_0 = Eigen::VectorXd::Zero(_n_jnts);
+    _iq_k = Eigen::VectorXd::Zero(_n_jnts);
+
+    _ek = Eigen::VectorXd::Zero(_n_jnts);
+    _pk = Eigen::VectorXd::Zero(_n_jnts);
+    _e_recov = Eigen::VectorXd::Zero(_n_jnts);
+
+    _pk_joule = Eigen::VectorXd::Zero(_n_jnts);
+    _pk_mech = Eigen::VectorXd::Zero(_n_jnts);
+    _pk_indct_est = Eigen::VectorXd::Zero(_n_jnts);
+
+    _ek_joule = Eigen::VectorXd::Zero(_n_jnts);
+    _ek_mech = Eigen::VectorXd::Zero(_n_jnts);
+    _ek_indct = Eigen::VectorXd::Zero(_n_jnts);
+
+    _omega_r = Eigen::VectorXd::Zero(_n_jnts);
+
+    _dummy_eigen_scalar = Eigen::VectorXd::Zero(1);
+
+    _num_diff_iq = NumDiff(_n_jnts, _dt);
+
+    _num_int_joule = NumIntRt(_n_jnts, _dt);
+    _num_int_mech = NumIntRt(_n_jnts, _dt);
+    _num_int_tot_pow = NumIntRt(1, _dt);
+    _num_int_tot_pow_reg = NumIntRt(1, _dt);
+
+    _recov_energy_integrators = std::vector<std::unique_ptr<NumIntRt>>(_n_jnts);
+
+    for(int i = 0; i < _n_jnts; i++)
+    {
+        _recov_energy_integrators[i] = std::make_unique<NumIntRt>(1, _dt); // integrator for 1D variable
+    }
+
+    _mov_filter = MovAvrgFilt(_n_jnts, _dt, _filter_cutoff_freq);
+
+    if(_dump_data2mat)
+    {
+        //  Initializing logger
+        MatLogger2::Options opt;
+        opt.default_buffer_size = _matlogger_buffer_size; // set default buffer size
+        opt.enable_compression = true; // enable ZLIB compression
+
+        std::string _dump_fullpath = _dump_path + std::string("/reg_energy");
+        _logger = MatLogger2::MakeLogger(_dump_fullpath, opt); // date-time automatically appended
+
+        _logger->set_buffer_mode(XBot::VariableBuffer::Mode::circular_buffer);
+
+        _logger->add("dt", _dt);
+
+        _logger->add("L_leak", _L_leak);
+        _logger->add("L_m", _L_m);
+        _logger->add("R", _R);
+        _logger->add("L_q", _L_q);
+        _logger->add("R_q", _R_q);
+        _logger->add("Kt", _Kt);
+        _logger->add("bus_p_leak", _bus_p_leak);
+
+        _logger->create("iq_k", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("iq_dot_est", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("omega_r", _n_jnts, 1, _matlogger_buffer_size);
+
+        _logger->create("pk_joule", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("pk_mech", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("pk_indct_est", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("ek_joule", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("ek_mech", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("ek_indct", _n_jnts, 1, _matlogger_buffer_size);
+
+        _logger->create("ek", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("pk", _n_jnts, 1, _matlogger_buffer_size);
+        _logger->create("e_recov", _n_jnts, 1, _matlogger_buffer_size);
+
+        _logger->create("ek_tot", 1, 1, _matlogger_buffer_size);
+        _logger->create("pk_tot", 1, 1, _matlogger_buffer_size);
+        _logger->create("e_recov_tot", 1, 1, _matlogger_buffer_size);
+
+    }
+
+}
+
+#endif
+
 RegEnergy::~RegEnergy()
 {
     if(_dump_data2mat)
@@ -187,6 +322,8 @@ void RegEnergy::set_omega_r(Eigen::VectorXd& omega_r)
 void RegEnergy::update()
 {
 
+    #if defined(WITH_XBOT2)
+
     if(_is_first_update)
     { // set initial state
         if(!_use_iq_meas)
@@ -233,6 +370,25 @@ void RegEnergy::update()
         // externally from the user before the update()
 
     }
+    #else
+
+    if(_is_first_update)
+    { // set initial state
+
+        _iq_est->get_iq(_iq_0); // gets latest iq estimate sample from the estimator
+
+        if(_dump_data2mat)
+        {
+            _logger->add("iq_0", _iq_0);
+        }
+
+        _is_first_update = false;
+    }
+
+    _iq_est->get_iq(_iq_k);
+    _iq_est->get_omega_r(_omega_r);
+
+    #endif
 
     compute(); // updates energy and power values
 

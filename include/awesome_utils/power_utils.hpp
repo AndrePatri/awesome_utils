@@ -17,12 +17,16 @@
 #include <matlogger2/matlogger2.h>
 
 #include "calib_utils.hpp"
+
+#if defined(WITH_XBOT2)
 #include "../xbot2_utils/xbot2_utils.hpp"
+using namespace Xbot2Utils;
+using namespace XBot;
+#endif
 
 using namespace CalibUtils;
-using namespace Xbot2Utils;
+
 using namespace SignProcUtils;
-using namespace XBot;
 
 namespace PowerUtils{
 
@@ -40,6 +44,8 @@ namespace PowerUtils{
 
             ~RegEnergy();
 
+            #if defined(WITH_XBOT2)
+
             RegEnergy(IqOutRosGetter::Ptr iq_meas,
                       IqEstimator::Ptr iq_est,
                       Eigen::VectorXd R,
@@ -49,6 +55,19 @@ namespace PowerUtils{
                       bool use_iq_meas = false,
                       bool dump_data2mat = false,
                       std::string dump_path = "/tmp");
+
+            #else
+
+            RegEnergy(IqEstimator::Ptr iq_est,
+                      Eigen::VectorXd R,
+                      Eigen::VectorXd L_leak, Eigen::VectorXd L_m,
+                      double bus_p_leak, // constant (assumed so) leak power due to bus losses
+                      double dt,
+                      bool use_iq_meas = false,
+                      bool dump_data2mat = false,
+                      std::string dump_path = "/tmp");
+
+            #endif
 
             void set_e0(double& e0); // set initial energy level
 
@@ -87,11 +106,12 @@ namespace PowerUtils{
             int _n_jnts;
 
             bool _is_first_update = true,
-                 _use_iq_meas = false,
                  _dump_data2mat = false,
                  _use_filt_iq_meas = true,
                  _start_rec_energy_monitor = false,
                  _stop_rec_energy_monitor = false;
+
+            bool _use_iq_meas = false;
 
             std::string _dump_path = "\tmp";
 
@@ -124,7 +144,10 @@ namespace PowerUtils{
 
             Eigen::VectorXd _dummy_eigen_scalar; // aux variable
 
+            #if defined(WITH_XBOT2)
             IqRosGetter::Ptr _iq_meas;
+            #endif
+
             IqEstimator::Ptr _iq_est;
 
             NumDiff _num_diff_iq;

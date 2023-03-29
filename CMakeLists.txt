@@ -73,7 +73,9 @@ set(LIBRARY_TARGET_NAME awesome_utils) # set library name
 set(${LIBRARY_TARGET_NAME}_SRC
     ${CALIB_UTILS_TRGT}
     ${SIGN_PROC_UTILS_TRGT}
-    ${TRAJ_UTILS_TRGT}) # setting base utilities
+    ${POWER_TRGT}
+    ${TRAJ_UTILS_TRGT}
+    ) # setting base utilities
 
 set(${LIBRARY_TARGET_NAME}_INCLUDE_DIRECTORIES
     include/awesome_utils/
@@ -96,7 +98,7 @@ set(${LIBRARY_TARGET_NAME}_LIB_LINKS
 if(${WITH_XBOT2})# we add xbot2-dependent components
 
     list(APPEND ${LIBRARY_TARGET_NAME}_SRC
-        ${XBOT2_UTILS_TRGT} ${POWER_TRGT})
+        ${XBOT2_UTILS_TRGT} )
 
     list(APPEND ${LIBRARY_TARGET_NAME}_INCLUDE_DIRECTORIES
         include/xbot2_utils/ ${xbot_msgs_INCLUDE_DIRS}/)
