@@ -125,8 +125,6 @@ if(${WITH_MODEL_INTERFACE}) # we add the model interface and all dependet-compon
 
 endif()
 
-message(STATUS "*********${pinocchio_INCLUDE_DIRS}/")
-
 add_library(${LIBRARY_TARGET_NAME} SHARED ${${LIBRARY_TARGET_NAME}_SRC})
 
 target_include_directories(${LIBRARY_TARGET_NAME} PRIVATE ${${LIBRARY_TARGET_NAME}_INCLUDE_DIRECTORIES})
