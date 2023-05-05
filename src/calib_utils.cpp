@@ -1015,6 +1015,36 @@ void RotDynCal::add_sample(Eigen::VectorXd& q_dot,
         _window_fill_counter++;
     }
 
+    int err = 0;
+
+    if(q_dot.size() != _n_jnts)
+    {
+        err = err + 1;
+    }
+    if(q_ddot.size() != _n_jnts)
+    {
+        err = err + 1;
+    }
+    if(iq.size() != _n_jnts)
+    {
+        err = err + 1;
+    }
+    if(tau.size() != _n_jnts)
+    {
+        err = err + 1;
+    }
+    if (err != 0)
+    {
+        std::string exception = std::string("RotDynCal::add_sample(): dimension mismatch in one or more of the input data -> \n") +
+                                std::string("q_dot length: ") + std::to_string(q_dot.size()) + std::string("\n") +
+                                std::string("q_ddot length: ") + std::to_string(q_ddot.size()) + std::string("\n") +
+                                std::string("iq length: ") + std::to_string(iq.size()) + std::string("\n") +
+                                std::string("tau length: ") + std::to_string(tau.size()) + std::string("\n") +
+                                std::string("which do not match the required length of: ") + std::to_string(_n_jnts);
+
+        throw std::invalid_argument(exception);
+    }
+
     // assigning state
     _q_dot = q_dot;
     _q_ddot = q_ddot;
