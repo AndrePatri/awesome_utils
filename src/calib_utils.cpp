@@ -406,7 +406,7 @@ void IqEstimator::add2log()
     }
 }
 
-//************* IqCalib *************//
+//************* IqCalib (DEPRECATED!!!!)*************//
 
 IqCalib::IqCalib()
 {
@@ -729,7 +729,6 @@ void IqCalib::add_sample(Eigen::VectorXd& q_dot,
     compute_alphad1();
     assemble_Alpha();
     compute_tau_friction();
-
 }
 
 void IqCalib::compute_alphad0()
@@ -834,7 +833,8 @@ RotDynCal::RotDynCal(int window_size,
                  double lambda,
                  int alpha,
                  double q_dot_3sigma,
-                 bool verbose)
+                 bool verbose,
+                 bool compute_regr_err)
   :_window_size{window_size},
     _red_ratio{red_ratio},
     _ig_Kt{ig_Kt},
@@ -843,7 +843,8 @@ RotDynCal::RotDynCal(int window_size,
     _ig_Kd1{ig_Kd1},
     _alpha{alpha},
     _q_dot_3sigma{q_dot_3sigma},
-    _verbose{verbose}
+    _verbose{verbose},
+    _compute_regr_err{compute_regr_err}
 {
 
     // The linear regression problem (for a single joint) is written as
@@ -877,7 +878,8 @@ RotDynCal::RotDynCal(int window_size,
                  Eigen::VectorXd lambda,
                  int alpha,
                  double q_dot_3sigma,
-                 bool verbose)
+                 bool verbose,
+                 bool compute_regr_err)
   :_window_size{window_size},
     _red_ratio{red_ratio},
     _ig_Kt{ig_Kt},
@@ -886,7 +888,8 @@ RotDynCal::RotDynCal(int window_size,
     _ig_Kd1{ig_Kd1},
     _alpha{alpha},
     _q_dot_3sigma{q_dot_3sigma},
-    _verbose{verbose}
+    _verbose{verbose},
+    _compute_regr_err{compute_regr_err}
 {
 
     // The linear regression problem (for a single joint) is written as
@@ -989,6 +992,9 @@ void RotDynCal::init_vars()
     _tau_inertial = Eigen::VectorXd::Zero(_n_jnts);
     _tau_lm= Eigen::VectorXd::Zero(_n_jnts);
 
+    _regr_error = Eigen::MatrixXd::Zero(_n_jnts, _window_size);
+    _prediction_aux = Eigen::VectorXd::Zero(_window_size);
+
     _sol_time = Eigen::VectorXd::Zero(_n_jnts);
 
     _sol_mask = std::vector<bool>(_n_opt_vars);
@@ -1033,6 +1039,9 @@ void RotDynCal::add_sample(Eigen::VectorXd& q_dot,
         // to the provided initial guesses (which in this case are to be interpreted as nominal values)
 
     }
+
+    _was_solve_called = false; // used to check if the new data added was
+    // actually used (false until solve() is called)
 
 }
 
@@ -1273,6 +1282,25 @@ void RotDynCal::solve()
         // latest set i.g. values (either from the user of the defaults)
 
         solve_mhe(i);
+
+        if(_compute_regr_err)
+        {
+            _prediction_aux = _A * _sol;
+
+            _regr_error.block(i, 0, 1, _regr_error.cols()).noalias() = _prediction_aux - _b;
+        }
+    }
+
+    _was_solve_called = true;
+}
+
+void RotDynCal::get_regr_error(Eigen::MatrixXd& regr_error)
+{
+    regr_error = Eigen::MatrixXd::Zero(_n_jnts, _window_size);
+
+    if (_was_solve_called && _compute_regr_err)
+    {
+        regr_error.noalias() = _regr_error;
     }
 }
 

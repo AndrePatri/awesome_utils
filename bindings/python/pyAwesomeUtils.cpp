@@ -222,7 +222,8 @@ auto construct_rot_dyn_cal = [](int window_size,
         double lambda,
         int alpha,
         double q_dot_3sigma,
-        bool verbose)
+        bool verbose,
+        bool compute_regr_err)
 {
 
     RotDynCal::Ptr rot_cal_ptr;
@@ -236,7 +237,8 @@ auto construct_rot_dyn_cal = [](int window_size,
                                     lambda,
                                     alpha,
                                     q_dot_3sigma,
-                                    verbose));
+                                    verbose,
+                                    compute_regr_err));
 
     return rot_cal_ptr;
 };
@@ -247,9 +249,11 @@ auto construct_rot_dyn_cal2 = [](int window_size,
         Eigen::VectorXd ig_rot_MoI,
         Eigen::VectorXd ig_Kd0,
         Eigen::VectorXd ig_Kd1,
+        Eigen::VectorXd lambda,
         int alpha,
         double q_dot_3sigma,
-        bool verbose)
+        bool verbose,
+        bool compute_regr_err)
 {
 
     RotDynCal::Ptr rot_cal_ptr;
@@ -260,9 +264,11 @@ auto construct_rot_dyn_cal2 = [](int window_size,
                                     ig_rot_MoI,
                                     ig_Kd0,
                                     ig_Kd1,
+                                    lambda,
                                     alpha,
                                     q_dot_3sigma,
-                                    verbose));
+                                    verbose,
+                                    compute_regr_err));
 
     return rot_cal_ptr;
 };
@@ -441,6 +447,15 @@ namespace rot_dyn_cal{
         self.get_ig_MoI(MoI);
 
         return MoI;
+    }
+
+    auto get_regr_error(RotDynCal& self)
+    {
+        Eigen::MatrixXd regr_err;
+
+        self.get_regr_error(regr_err);
+
+        return regr_err;
     }
 
 };
@@ -847,7 +862,8 @@ PYBIND11_MODULE(awesome_pyutils, m) {
                  py::arg("lambda") = 2.0,
                  py::arg("alpha") = 10,
                  py::arg("q_dot_3sigma") = 0.001,
-                 py::arg("verbose") = false)
+                 py::arg("verbose") = false,
+                 py::arg("compute_regr_err") = false)
             .def(py::init(construct_rot_dyn_cal2),
                  py::arg("window_size"),
                  py::arg("red_ratio"),
@@ -855,9 +871,11 @@ PYBIND11_MODULE(awesome_pyutils, m) {
                  py::arg("ig_rot_MoI"),
                  py::arg("ig_Kd0"),
                  py::arg("ig_Kd1"),
+                 py::arg("lambda"),
                  py::arg("alpha") = 10,
                  py::arg("q_dot_3sigma") = 0.001,
-                 py::arg("verbose") = false)
+                 py::arg("verbose") = false,
+                 py::arg("compute_regr_err") = false)
 
             .def("add_sample", &RotDynCal::add_sample,
                  py::arg("q_dot"),
@@ -884,6 +902,8 @@ PYBIND11_MODULE(awesome_pyutils, m) {
                  py::arg("mask"))
 
             .def("solve", &RotDynCal::solve)
+
+            .def("get_regr_error", rot_dyn_cal::get_regr_error)
 
             .def("get_opt_Kd0", rot_dyn_cal::get_opt_Kd0)
             .def("get_opt_Kd1", rot_dyn_cal::get_opt_Kd1)

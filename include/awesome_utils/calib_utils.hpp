@@ -336,7 +336,8 @@ namespace CalibUtils{
 
     };
 
-    /// \brief Class to calibrate the rotor-side dynamics of a BLDC actuator, employing a
+    /// \brief DEPRECATED!!!
+    /// Class to calibrate the rotor-side dynamics of a BLDC actuator, employing a
     /// simple Couloumb-like friction model.
     /// The rotor-side eq. of motion is
     /// Kt * iq - [Kd0 * sign(q_dot_l) + Kd1 * q_dot_l] * eta - I_r * q_ddot_l / eta = - tau_l * eta
@@ -379,7 +380,8 @@ namespace CalibUtils{
                 double lambda = 2.0,
                 int alpha = 10,
                 double q_dot_3sigma = 0.001,
-                bool verbose = false
+                bool verbose = false,
+                bool compute_regr_err = false
                 );
 
         RotDynCal(int window_size,
@@ -391,7 +393,8 @@ namespace CalibUtils{
                 Eigen::VectorXd lambda,
                 int alpha = 10,
                 double q_dot_3sigma = 0.001,
-                bool verbose = false
+                bool verbose = false,
+                bool compute_regr_err = false
                 );
 
         void add_sample(Eigen::VectorXd& q_dot,
@@ -416,6 +419,8 @@ namespace CalibUtils{
         // ordering: [Kt, Kd0, Kd1, rot_MoI]
 
         void solve();
+
+        void get_regr_error(Eigen::MatrixXd& regr_err);
 
         void get_opt_Kd0(Eigen::VectorXd& Kd0_opt);
         void get_opt_Kd1(Eigen::VectorXd& Kd1_opt);
@@ -457,6 +462,11 @@ namespace CalibUtils{
         int _window_fill_counter = 0; // counts how many fresh samples have been added
         // to the window data (1 <= _window_fill_counter <= _windows_size)
         bool _is_window_full = false; // whether the window is full or not
+
+        bool _was_solve_called = false; // whether the solve method was called after
+        // having added new data
+
+        bool _compute_regr_err = false; // whether to also compute the regression error
 
         int _n_jnts = - 1; // dimension of the input signal ( = number of joints
                            // on which calibration is run)
@@ -526,6 +536,10 @@ namespace CalibUtils{
                                                     // of the calibration coefficients
 
         Eigen::VectorXd _red_ratio; // reduction ratio (0 < red_ratio <= 1)
+
+        Eigen::MatrixXd _regr_error; // (n_jnts x window_size) --> regression errors with current
+        // solution
+        Eigen::VectorXd _prediction_aux;
 
         SmoooothSign _smooth_sign; // used to approximate the sign function (used by the Coulomb-like friction estimation)
 
