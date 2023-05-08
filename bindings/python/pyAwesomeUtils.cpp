@@ -930,6 +930,8 @@ PYBIND11_MODULE(awesome_pyutils, m) {
 
             .def("get_tau_friction", rot_dyn_cal::get_tau_friction)
             .def("get_alpha_d", rot_dyn_cal::get_alpha_d)
+            .def("get_alpha_d", rot_dyn_cal::get_alpha_d0)
+            .def("get_alpha_d", rot_dyn_cal::get_alpha_d1)
             .def("get_alpha_inertial", rot_dyn_cal::get_alpha_inertial)
             .def("get_alpha_kt", rot_dyn_cal::get_alpha_kt)
 
