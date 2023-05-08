@@ -1482,6 +1482,26 @@ void RotDynCal::get_alpha_d(Eigen::VectorXd& alpha_d0, Eigen::VectorXd& alpha_d1
 
 }
 
+void RotDynCal::get_alpha_d0(Eigen::VectorXd& alpha_d0)
+{
+    alpha_d0 = Eigen::VectorXd::Zero(_n_jnts);
+
+    for (int i = 0; i < _n_jnts; i++)
+    {
+        alpha_d0(i) = _alpha_d0(i * _window_size);
+    }
+}
+
+void RotDynCal::get_alpha_d1(Eigen::VectorXd& alpha_d1)
+{
+    alpha_d1 = Eigen::VectorXd::Zero(_n_jnts);
+
+    for (int i = 0; i < _n_jnts; i++)
+    {
+        alpha_d1(i) = _alpha_d1(i * _window_size);
+    }
+}
+
 void RotDynCal::get_alpha_inertial(Eigen::VectorXd& alpha_inertial)
 {
     alpha_inertial = Eigen::VectorXd::Zero(_n_jnts);

@@ -430,6 +430,8 @@ namespace CalibUtils{
         void get_tau_friction(Eigen::VectorXd& tau_friction);
         void get_alpha_d(Eigen::VectorXd& alpha_d0,
                                Eigen::VectorXd& alpha_d1);
+        void get_alpha_d0(Eigen::VectorXd& alpha_d0);
+        void get_alpha_d1(Eigen::VectorXd& alpha_d1);
         void get_alpha_inertial(Eigen::VectorXd& alpha_inertial);
         void get_alpha_kt(Eigen::VectorXd& alpha_kt);
 

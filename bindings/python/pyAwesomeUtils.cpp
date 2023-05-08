@@ -320,6 +320,24 @@ namespace rot_dyn_cal{
         return tau_friction;
     }
 
+    auto get_alpha_d0(RotDynCal& self)
+    {
+        Eigen::VectorXd alpha_d0;
+
+        self.get_alpha_d0(alpha_d0);
+
+        return alpha_d0;
+    }
+
+    auto get_alpha_d1(RotDynCal& self)
+    {
+        Eigen::VectorXd alpha_d1;
+
+        self.get_alpha_d1(alpha_d1);
+
+        return alpha_d1;
+    }
+
     auto get_alpha_d(RotDynCal& self)
     {
         Eigen::VectorXd alpha_d0;
