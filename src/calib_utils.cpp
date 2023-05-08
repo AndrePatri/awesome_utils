@@ -1107,7 +1107,7 @@ void RotDynCal::apply_solution_mask(int jnt_index)
     for(int i = 0; i < _sol_mask.size(); i ++)
     {
         if(!_sol_mask[i])
-        { // we don't want to estimate this parameter for joint "jnt_index" --> we set an high reg.
+        { // we don't want to estimate this parameter for joint "jnt_index" --> we set a high reg.
           // around the last provided setpoint
 
             _lambda(i) = _lambda_high(i);
