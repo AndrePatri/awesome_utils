@@ -338,6 +338,15 @@ namespace rot_dyn_cal{
         return alpha_d1;
     }
 
+    auto get_Alpha(RotDynCal& self)
+    {
+        Eigen::MatrixXd Alpha;
+
+        self.get_Alpha(Alpha);
+
+        return Alpha;
+    }
+
     auto get_alpha_d(RotDynCal& self)
     {
         Eigen::VectorXd alpha_d0;
@@ -929,6 +938,7 @@ PYBIND11_MODULE(awesome_pyutils, m) {
             .def("get_opt_rot_MoI", rot_dyn_cal::get_opt_rot_MoI)
 
             .def("get_tau_friction", rot_dyn_cal::get_tau_friction)
+            .def("get_Alpha", rot_dyn_cal::get_Alpha)
             .def("get_alpha_d", rot_dyn_cal::get_alpha_d)
             .def("get_alpha_d0", rot_dyn_cal::get_alpha_d0)
             .def("get_alpha_d1", rot_dyn_cal::get_alpha_d1)

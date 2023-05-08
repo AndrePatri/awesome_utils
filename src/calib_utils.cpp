@@ -1465,6 +1465,13 @@ void RotDynCal::get_tau_inertial(Eigen::VectorXd& tau_inertial)
 
 }
 
+void RotDynCal::get_Alpha(Eigen::MatrixXd& Alpha)
+{
+    Alpha = Eigen::MatrixXd::Zero(_window_size * _n_jnts, _n_opt_vars);
+
+    Alpha = _Alpha;
+}
+
 void RotDynCal::get_alpha_d(Eigen::VectorXd& alpha_d0, Eigen::VectorXd& alpha_d1)
 {
 
