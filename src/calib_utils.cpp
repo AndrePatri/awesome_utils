@@ -993,7 +993,7 @@ void RotDynCal::init_vars()
     _tau_lm= Eigen::VectorXd::Zero(_n_jnts);
 
     _regr_error = Eigen::MatrixXd::Zero(_n_jnts, _window_size);
-    _prediction_aux = Eigen::VectorXd::Zero(_window_size);
+    _prediction_aux = Eigen::MatrixXd::Zero(_window_size, 1);
 
     _sol_time = Eigen::VectorXd::Zero(_n_jnts);
 
@@ -1315,9 +1315,9 @@ void RotDynCal::solve()
 
         if(_compute_regr_err)
         {
-            _prediction_aux = _A * _sol;
+            _prediction_aux.noalias() = _A.block(0, 0, _window_size, _A.cols()) * _sol;
 
-            _regr_error.block(i, 0, 1, _regr_error.cols()).noalias() = _prediction_aux - _b;
+//            _regr_error.block(i, 0, 1, _regr_error.cols()).noalias() = _prediction_aux - _b.segment(0, _window_size);
         }
     }
 

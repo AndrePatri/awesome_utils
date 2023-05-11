@@ -206,7 +206,8 @@ namespace CalibUtils{
 
     };
 
-    /// \brief Class to calibrate the approximate model of quadrature current
+    /// \brief DEPRECATED!!!
+    /// Class to calibrate the approximate model of quadrature current
     /// using measurements from a real experiment (suitable for real-time implementation).
     /// Currently, we only optimize for the static and dynamic Coulomb friction coefficients
     /// K_d0 and K_d1
@@ -336,7 +337,7 @@ namespace CalibUtils{
 
     };
 
-    /// \brief DEPRECATED!!!
+    /// \brief
     /// Class to calibrate the rotor-side dynamics of a BLDC actuator, employing a
     /// simple Couloumb-like friction model.
     /// The rotor-side eq. of motion is
