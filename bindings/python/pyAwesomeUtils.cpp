@@ -540,7 +540,6 @@ auto construct_reg_energy = [](IqEstimator::Ptr iq_est,
                                     L_leak, L_m,
                                     bus_p_leak,
                                     dt,
-                                    use_iq_meas,
                                     dump_data2mat,
                                     dump_path));
 

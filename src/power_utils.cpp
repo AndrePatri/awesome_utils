@@ -144,7 +144,6 @@ RegEnergy::RegEnergy(IqEstimator::Ptr iq_est,
                     Eigen::VectorXd L_leak, Eigen::VectorXd L_m,
                     double bus_p_leak,
                     double dt,
-                    bool use_iq_meas,
                     bool dump_data2mat,
                     std::string dump_path)
     :_iq_est{iq_est},
@@ -152,7 +151,7 @@ RegEnergy::RegEnergy(IqEstimator::Ptr iq_est,
      _L_leak{L_leak}, _L_m{L_m},
      _bus_p_leak{bus_p_leak},
      _dt{dt},
-     _use_iq_meas{use_iq_meas},
+     _use_iq_meas{false},
      _dump_data2mat{dump_data2mat},
      _dump_path{dump_path}
 {

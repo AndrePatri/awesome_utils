@@ -63,7 +63,6 @@ namespace PowerUtils{
                       Eigen::VectorXd L_leak, Eigen::VectorXd L_m,
                       double bus_p_leak, // constant (assumed so) leak power due to bus losses
                       double dt,
-                      bool use_iq_meas = false,
                       bool dump_data2mat = false,
                       std::string dump_path = "/tmp");
 
