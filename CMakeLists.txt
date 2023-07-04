@@ -143,6 +143,9 @@ if(APPLE)
     set(LIB_EXT ".dylib")
 endif()
 
+if(${WITH_XBOT2})
+    target_compile_definitions(${LIBRARY_TARGET_NAME} PUBLIC -DWITH_XBOT2) # public so that upstream packages can see it
+endif()
 target_compile_definitions(${LIBRARY_TARGET_NAME} PRIVATE -DAWESOMEUTILS_LIB_EXT="${LIB_EXT}")
 
 target_include_directories(${LIBRARY_TARGET_NAME} INTERFACE ${${LIBRARY_TARGET_NAME}_INTERFACE_DIRECTORIES})
