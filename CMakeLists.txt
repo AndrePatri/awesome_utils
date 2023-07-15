@@ -92,7 +92,6 @@ set(${LIBRARY_TARGET_NAME}_INTERFACE_DIRECTORIES
 
 set(${LIBRARY_TARGET_NAME}_LIB_LINKS
     Eigen3::Eigen
-    pinocchio::pinocchio
     matlogger2::matlogger2)
 
 if(${WITH_XBOT2})# we add xbot2-dependent components
